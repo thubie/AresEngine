@@ -1,0 +1,3 @@
+Test application initalize..
+Number of cores: 8 
+Test application shutdown..
