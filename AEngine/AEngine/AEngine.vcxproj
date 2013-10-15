@@ -79,10 +79,18 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AEngine.cpp" />
+    <ClCompile Include="ConcurrentQueue.cpp" />
+    <ClCompile Include="CSLock.cpp" />
     <ClCompile Include="WinMain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AEngine.h" />
+    <ClInclude Include="ConcurrentQueue.h" />
+    <ClInclude Include="CSLock.h" />
+    <ClInclude Include="TaskManager.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

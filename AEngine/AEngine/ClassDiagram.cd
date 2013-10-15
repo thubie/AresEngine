@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="AresEngine::AEngine">
+    <Position X="6" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAAgIAAAAAAAAwAAgIAAAQAAAAAAAAAAAEAAAAAgABY=</HashCode>
+      <FileName>AEngine.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AresEngine::CSLock">
+    <Position X="7.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAQAAACAAAAAAAAEAAEAAAAAAA=</HashCode>
+      <FileName>CSLock.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Struct Name="AresEngine::Node&lt;T&gt;">
+    <Position X="3.25" Y="2.5" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAABAAA=</HashCode>
+      <FileName>ConcurrentQueue.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

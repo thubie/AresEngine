@@ -1,9 +1,12 @@
+#include<assert.h>
 #include"AEngine.h"
+
 namespace AresEngine
 {
 
     AEngine::AEngine()
     {
+        mp_lock = nullptr;
         m_windowWidth = 1600;
         m_windowHeight = 900;
     }
@@ -22,6 +25,8 @@ namespace AresEngine
     bool AEngine::Initialize()
     {
         bool result;
+        //mp_lock = new CSLock();
+        assert(mp_lock != nullptr);
         this->InitializeWin();
         return true;
     }

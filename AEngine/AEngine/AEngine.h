@@ -1,12 +1,12 @@
 #pragma once
 
-#define WIN32_LEAN_AND_MEAN
-
 #include<Windows.h>
+#include"CSLock.h"
+
+#define WIN32_LEAN_AND_MEAN
 
 namespace AresEngine
 {
-
     class AEngine
     {
     public:
@@ -26,6 +26,8 @@ namespace AresEngine
         LPCWSTR m_appName;
         HINSTANCE m_hInstance;
         HWND m_hwnd;
+        CSLock* mp_lock;
+        
 
         //To do read window resolution from a config/ini file
         int m_windowWidth;
