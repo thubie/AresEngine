@@ -25,8 +25,6 @@ namespace AresEngine
     bool AEngine::Initialize()
     {
         bool result;
-        //mp_lock = new CSLock();
-        assert(mp_lock != nullptr);
         this->InitializeWin();
         return true;
     }
