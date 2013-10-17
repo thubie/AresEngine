@@ -4,7 +4,7 @@ namespace AresEngine
 {
     WorkerThread::WorkerThread()
     {
-        m_pTaskManager = nullptr;
+        //m_pTaskManager = nullptr;
         m_threadHandle = NULL;
         m_running = false;
         m_threadID = 0;
@@ -27,9 +27,7 @@ namespace AresEngine
         }
     }
 
-
-
-    void WorkerThread::EndWorkerThread()
+    DWORD WorkerThread::EndWorkerThread()
     {
         if(m_threadHandle != NULL)
         {
@@ -41,6 +39,8 @@ namespace AresEngine
             #ifdef _DEBUG
                 OutputDebugString(L"Test Threads Closed \n");
             #endif // End _DEBUG
+            
+            return m_exitCode;
         }
     }
 
@@ -53,8 +53,8 @@ namespace AresEngine
         while(m_running)
         {
             #ifdef _DEBUG
-                OutputDebugString(L"Test Threads \n");
-                Sleep(1000);
+                OutputDebugString(L"Hallo from test thread\n");
+                Sleep(500);
             #endif // End _DEBUG
             this->m_taskLock.EnterLock();
             {

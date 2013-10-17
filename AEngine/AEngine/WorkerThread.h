@@ -2,7 +2,8 @@
 
 #include<Windows.h>
 #include <process.h> 
-#include"TaskManager.h"
+#include<stdio.h>
+//#include"TaskManager.h"
 #include"CSLock.h"
 
 namespace AresEngine
@@ -15,7 +16,7 @@ namespace AresEngine
         ~WorkerThread();
 
         void StartWorkerThread();
-        void EndWorkerThread();
+        DWORD EndWorkerThread();
 
     private:
         //This function will call the DoTasks()
@@ -29,7 +30,7 @@ namespace AresEngine
 
         //members
     private:
-        TaskManager* m_pTaskManager;
+        //TaskManager* m_pTaskManager;
         HANDLE m_threadHandle;
         CSLock m_taskLock;
         bool m_running;

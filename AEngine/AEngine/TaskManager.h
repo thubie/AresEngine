@@ -1,25 +1,23 @@
 #pragma once
+#include"WorkerThread.h"
 
 namespace AresEngine
 {
 
-    struct TaskData
-    {
-        void* Parameter1;
-        void* Parameter2;
-        void* Parameter3;
-        void* Parameter4;
-    };
-    
-    struct Task
-    {
-        TaskData taskData;
-
-    };
-
     class TaskManager
     {
+    public:
+        TaskManager();
+        ~TaskManager();
+        TaskManager(const TaskManager& other);
 
+        bool Initialize();
+        void Shutdown();
+
+    private:
+        WorkerThread* m_pWorkerThreads;
+        unsigned int m_createdThreads;
     };
+
 
 }
