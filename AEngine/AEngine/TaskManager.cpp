@@ -24,19 +24,7 @@ namespace AresEngine
 
      bool TaskManager::Initialize()
      {
-         m_pTaskQueue = new Task*[m_queueSize];
-
-         m_testData = 10000000;
-         TaskData testData;
-         testData.parameter1 = &testData;
-
-         m_testTask = new Task(TESTCOUNTER,&testData);
-
-         for(int i = 0; i < m_queueSize; ++i)
-         {
-             this->EnqueueTask(m_testTask);
-         }
-
+         m_pTaskQueue = new ITask*[m_queueSize];
          SYSTEM_INFO sysInfo;
          GetSystemInfo(&sysInfo);
          unsigned int numProcessors = sysInfo.dwNumberOfProcessors;
@@ -79,7 +67,7 @@ namespace AresEngine
          }
      }
 
-     void TaskManager::EnqueueTask(Task* task)
+     void TaskManager::EnqueueTask(ITask* task)
      {
          m_EnqueuLock.EnterLock();
          {
@@ -99,7 +87,7 @@ namespace AresEngine
          m_EnqueuLock.LeaveLock();
      }
 
-     Task* TaskManager::DequeueTask()
+     ITask* TaskManager::DequeueTask()
      {
          m_DequeueLock.EnterLock();
          {
@@ -107,7 +95,7 @@ namespace AresEngine
              if(m_head == m_tail)
                 return nullptr; //empty task queue
 
-             Task* task = m_pTaskQueue[m_head];
+             ITask* task = m_pTaskQueue[m_head];
              unsigned int newHead = m_head + 1;
              if(newHead == m_queueSize)
                  newHead = 0;

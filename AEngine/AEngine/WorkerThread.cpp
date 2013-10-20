@@ -76,29 +76,22 @@ namespace AresEngine
 
     DWORD WorkerThread::DoTasks()
     {
-        m_pTask = nullptr;
+        ITask* currentTask = nullptr;
 
         while(m_running)
         {
-            m_pTask = m_pTaskManager->DequeueTask();
+            currentTask = m_pTaskManager->DequeueTask();
             //Check if task is still a nullptr
-            if(m_pTask == nullptr)
+            if(currentTask == nullptr)
             {
                 Sleep(1); //sleep for 1 milisecond and 
             }
             else
             {
-                TaskFunction task = m_pTask->GetTaskFunction();
-                TaskData* taskData = m_pTask->GetTaskData();
-
-                if(task != nullptr && taskData != nullptr)
-                {
-                    task(taskData);
-                }
-                //Done with task delete the info
-                delete m_pTask;
-                m_pTask = nullptr;
+                currentTask->RunTask();
             }
+            currentTask = nullptr;
+            //When done we need to either decide if we want to delete or reuse the task object.
         }
         return 0;
     }

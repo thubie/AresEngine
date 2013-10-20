@@ -5,7 +5,7 @@
 #include<stdio.h>
 #include"CSLock.h"
 #include"TaskManager.h"
-#include"Task.h"
+#include"ITask.h"
 #include"ThreadLogger.h"
 
 
@@ -39,7 +39,6 @@ namespace AresEngine
         bool m_running;
         unsigned int m_threadID;
         DWORD m_exitCode;
-        Task* m_pTask;
         ThreadLogger* m_pThreadLogger;
         DWORD_PTR m_ProcessorID;
     };

@@ -6,15 +6,17 @@ namespace AresEngine
 
     AEngine::AEngine()
     {
-        mp_lock = nullptr;
+        m_pTaskManager = nullptr;
         m_windowWidth = 640;
         m_windowHeight = 480;
     }
 
     AEngine::AEngine(const AEngine& other)
     {
-        this->m_windowWidth = other.m_windowWidth;
-        this->m_windowHeight = other.m_windowHeight;
+        m_windowWidth = other.m_windowWidth;
+        m_windowHeight = other.m_windowHeight;
+        m_pTaskManager = other.m_pTaskManager;
+        
     }
 
     AEngine::~AEngine()
@@ -24,8 +26,21 @@ namespace AresEngine
 
     bool AEngine::Initialize()
     {
-        bool result;
-        this->InitializeWin();
+        InitializeWin();
+        m_pTaskManager = new TaskManager();
+        if(m_pTaskManager == nullptr)
+            return false;
+        m_pTaskManager->Initialize();
+
+        m_TestTask = new CounterTask();
+
+        return true;
+    }
+
+    bool AEngine::Shutdown()
+    {
+        if(m_pTaskManager != nullptr)
+            m_pTaskManager->Shutdown();
         return true;
     }
 
@@ -43,6 +58,14 @@ namespace AresEngine
             else
             {
                 //Update the world...
+                m_pTaskManager->EnqueueTask((ITask*)m_TestTask);
+                m_pTaskManager->EnqueueTask((ITask*)m_TestTask);
+                m_pTaskManager->EnqueueTask((ITask*)m_TestTask);
+                m_pTaskManager->EnqueueTask((ITask*)m_TestTask);
+                m_pTaskManager->EnqueueTask((ITask*)m_TestTask);
+                m_pTaskManager->EnqueueTask((ITask*)m_TestTask);
+                m_pTaskManager->EnqueueTask((ITask*)m_TestTask);
+                m_pTaskManager->EnqueueTask((ITask*)m_TestTask);
             }
         }
     }

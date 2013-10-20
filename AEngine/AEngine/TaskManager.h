@@ -2,7 +2,7 @@
 
 #include"WorkerThread.h"
 #include"CSLock.h"
-#include"Task.h"
+#include"ITask.h"
 
 namespace AresEngine
 {
@@ -18,27 +18,13 @@ namespace AresEngine
         bool Initialize();
         void Shutdown();
 
-        void EnqueueTask(Task* task);
-        Task* DequeueTask();
+        void EnqueueTask(ITask* task);
+        ITask* DequeueTask();
 
     private:
         WorkerThread* m_pWorkerThreads;
         unsigned int m_createdThreads;
-        
-        static void TESTCOUNTER(TaskData* inputTaskData)
-        {
-            int counter = 0;
-            TaskData taskData = *inputTaskData;
-            int maxCount = *(int*)(taskData.parameter1);
-            for(int i = 0; i < maxCount; ++i)
-            {
-                counter++;
-            }
-        }
-
-        Task** m_pTaskQueue;
-        Task* m_testTask;
-        int m_testData;
+        ITask** m_pTaskQueue;
         unsigned int m_head;
         unsigned int m_tail;
         static const unsigned int m_queueSize = 2048;
