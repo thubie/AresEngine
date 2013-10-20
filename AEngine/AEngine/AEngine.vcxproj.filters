@@ -36,6 +36,9 @@
     <ClCompile Include="ThreadLogger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Task.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AEngine.h">
@@ -57,6 +60,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ThreadLogger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Task.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

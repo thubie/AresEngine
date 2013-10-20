@@ -5,8 +5,12 @@ namespace AresEngine
 
      TaskManager::TaskManager()
      {
+         m_pTaskQueue = nullptr;
          m_pWorkerThreads = nullptr;
-
+         
+         m_createdThreads = 0;
+         m_head = 0;
+         m_tail = 0;
      }
 
      TaskManager::~TaskManager()
@@ -14,13 +18,26 @@ namespace AresEngine
 
      TaskManager::TaskManager(const TaskManager& other)
      {
-
+         this->m_createdThreads = other.m_createdThreads;
+         this->m_pWorkerThreads = other.m_pWorkerThreads;
      }
 
      bool TaskManager::Initialize()
      {
+         m_pTaskQueue = new Task*[m_queueSize];
+
+         m_testData = 10000000;
+         TaskData testData;
+         testData.parameter1 = &testData;
+
+         m_testTask = new Task(TESTCOUNTER,&testData);
+
+         for(int i = 0; i < m_queueSize; ++i)
+         {
+             this->EnqueueTask(m_testTask);
+         }
+
          SYSTEM_INFO sysInfo;
-         
          GetSystemInfo(&sysInfo);
          unsigned int numProcessors = sysInfo.dwNumberOfProcessors;
 
@@ -45,9 +62,9 @@ namespace AresEngine
             return false;
          }
 
-         for(int i = 1; i <= m_createdThreads; ++i)
+         for(unsigned int i = 1; i <= m_createdThreads; ++i)
          {
-             m_pWorkerThreads[i - 1].StartWorkerThread(i);
+             m_pWorkerThreads[i - 1].StartWorkerThread(i,this);
          }
 
          return true;
@@ -55,10 +72,50 @@ namespace AresEngine
 
      void TaskManager::Shutdown()
      {
-         DWORD ExitCount = 0;
-         for(int i = 0; i < m_createdThreads; ++i)
+         
+         for(unsigned int i = 0; i < m_createdThreads; ++i)
          {
-             ExitCount += m_pWorkerThreads[i].EndWorkerThread();
+             m_pWorkerThreads[i].EndWorkerThread();
          }
      }
+
+     void TaskManager::EnqueueTask(Task* task)
+     {
+         m_EnqueuLock.EnterLock();
+         {
+             unsigned int newTail = m_tail + 1;
+             if(newTail == m_queueSize)
+                 newTail = 0;
+
+             //If full resize
+             if(newTail == m_head)
+             {
+                 //Resize function;;
+             }
+
+             m_pTaskQueue[m_tail] = task;
+             m_tail = newTail;
+         }
+         m_EnqueuLock.LeaveLock();
+     }
+
+     Task* TaskManager::DequeueTask()
+     {
+         m_DequeueLock.EnterLock();
+         {
+             
+             if(m_head == m_tail)
+                return nullptr; //empty task queue
+
+             Task* task = m_pTaskQueue[m_head];
+             unsigned int newHead = m_head + 1;
+             if(newHead == m_queueSize)
+                 newHead = 0;
+             m_head = newHead;
+
+             return task;
+         }
+         m_DequeueLock.LeaveLock();
+     }
+
 }

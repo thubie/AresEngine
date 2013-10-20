@@ -7,8 +7,8 @@ namespace AresEngine
     AEngine::AEngine()
     {
         mp_lock = nullptr;
-        m_windowWidth = 1600;
-        m_windowHeight = 900;
+        m_windowWidth = 640;
+        m_windowHeight = 480;
     }
 
     AEngine::AEngine(const AEngine& other)

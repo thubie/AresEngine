@@ -21,12 +21,14 @@ namespace AresEngine
 
     void ThreadLogger::CloseLogFile()
     {
+        fflush(m_pLogFile);
         fclose(this->m_pLogFile);
     }
 
     void ThreadLogger::LogThreadMessage(/*char* string,short len*/)
     {
-        fprintf(this->m_pLogFile, "Testing from thread: %d",threadID);
+        fprintf(this->m_pLogFile, "Testing from thread: %d \n",threadID);
+        fflush(m_pLogFile);
     }
     
 }

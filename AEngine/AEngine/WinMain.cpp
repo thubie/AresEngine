@@ -25,8 +25,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pSCmdLine,
     result = pAEngine->Initialize();
     pTaskManager->Initialize();
 
-
-
     if(result)
     {
         pAEngine->Run();
