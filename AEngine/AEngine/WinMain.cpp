@@ -5,7 +5,6 @@
 
 void MyCreateThreads(HANDLE* threadArray, DWORD* threadIdArray, unsigned short numProcs,FILE* file);
 DWORD WINAPI LogThreads(LPVOID lpParameter);
-using namespace AresEngine;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pSCmdLine,int iCmdShow)
 {
@@ -25,6 +24,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pSCmdLine,
     {
         pAEngine->Run();
     }
+
 
     return 0;
 }

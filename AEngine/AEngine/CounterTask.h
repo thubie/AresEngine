@@ -1,20 +1,19 @@
 #pragma once 
 
 #include"ITask.h"
+#include<Windows.h>
 
-namespace AresEngine
+
+class CounterTask : ITask
 {
-    class CounterTask : ITask
-    {
-    public:
-        CounterTask();
-        CounterTask(const CounterTask& other);
-        ~CounterTask();
+public:
+    CounterTask();
+    CounterTask(const CounterTask& other);
+    ~CounterTask();
 
-        void RunTask();
+    void RunTask();
 
-    private:
-        unsigned long long m_MaxCount;
+private:
+    unsigned long long m_MaxCount;
 
-    };
-}
+};

@@ -1,35 +1,33 @@
 #pragma once
 
 #include"WorkerThread.h"
+#include"ConcurrentLLQueue.h"
+#include"ConcurrentCBQueue.h"
 #include"CSLock.h"
 #include"ITask.h"
 
-namespace AresEngine
+
+class WorkerThread;
+
+class TaskManager
 {
-    class WorkerThread;
+public:
+    TaskManager();
+    ~TaskManager();
+    TaskManager(const TaskManager& other);
+        
+    unsigned int GetNodeCount();
+    bool Initialize();
+    void Shutdown();
 
-    class TaskManager
-    {
-    public:
-        TaskManager();
-        ~TaskManager();
-        TaskManager(const TaskManager& other);
+    void EnqueueTask(ITask* task);
+    ITask* DequeueTask();
 
-        bool Initialize();
-        void Shutdown();
+private:
+    WorkerThread* m_pWorkerThreads;
+    unsigned int m_createdThreads;
+    unsigned int m_ProcessorsCount;
+    ConcurrentLLQueue<ITask*>* m_pTaskQueue;
+    HANDLE* m_pThreadHandles;
+};
 
-        void EnqueueTask(ITask* task);
-        ITask* DequeueTask();
-
-    private:
-        WorkerThread* m_pWorkerThreads;
-        unsigned int m_createdThreads;
-        ITask** m_pTaskQueue;
-        unsigned int m_head;
-        unsigned int m_tail;
-        static const unsigned int m_queueSize = 2048;
-        CSLock m_EnqueuLock;
-        CSLock m_DequeueLock;
-    };
-
-}

@@ -33,10 +33,10 @@
     <ClCompile Include="HRTimer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ThreadLogger.cpp">
+    <ClCompile Include="CounterTask.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CounterTask.cpp">
+    <ClCompile Include="Logger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -45,9 +45,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CSLock.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ConcurrentQueue.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TaskManager.h">
@@ -59,13 +56,22 @@
     <ClInclude Include="HRTimer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ThreadLogger.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ITask.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CounterTask.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ConcurrentLLQueue.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ConcurrentCBQueue.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MathTypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Logger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -6,40 +6,37 @@
 #include"CSLock.h"
 #include"TaskManager.h"
 #include"ITask.h"
-#include"ThreadLogger.h"
+#include"Logger.h"
+#include"CounterTask.h"
 
 
-namespace AresEngine
+
+class TaskManager;
+
+class WorkerThread
 {
-    class TaskManager;
+public:
+    WorkerThread();
+    WorkerThread(const WorkerThread& other);
+    ~WorkerThread();
 
-    class WorkerThread
+    HANDLE StartWorkerThread(unsigned int threadID,TaskManager* taskManager);
+    void EndWorkerThread();
+
+private:
+    void SetThreadId(unsigned int threadID);
+    void SetThreadAffinity();
+    static unsigned int __stdcall cDoTasks(LPVOID pThis)
     {
-    public:
-        WorkerThread();
-        WorkerThread(const WorkerThread& other);
-        ~WorkerThread();
+        return ((WorkerThread*)pThis)->DoTasks();
+    }
+    DWORD DoTasks();
 
-        void StartWorkerThread(unsigned int threadID,TaskManager* taskManager);
-        DWORD EndWorkerThread();
-
-    private:
-        void SetThreadId(unsigned int threadID);
-        void SetThreadAffinity();
-        static unsigned int __stdcall cDoTasks(LPVOID pThis)
-        {
-            return ((WorkerThread*)pThis)->DoTasks();
-        }
-        DWORD DoTasks();
-
-    private:
-        TaskManager* m_pTaskManager;
-        HANDLE m_threadHandle;
-        CSLock m_taskLock;
-        bool m_running;
-        unsigned int m_threadID;
-        DWORD m_exitCode;
-        ThreadLogger* m_pThreadLogger;
-        DWORD_PTR m_ProcessorID;
-    };
-}
+private:
+    TaskManager* m_pTaskManager;
+    HANDLE m_threadHandle;
+    bool m_running;
+    unsigned int m_threadID;
+    DWORD m_exitCode;
+    DWORD_PTR m_ProcessorID;
+};

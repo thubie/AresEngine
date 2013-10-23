@@ -1,24 +1,22 @@
 #include"CSLock.h"
 
-namespace AresEngine
+
+CSLock::CSLock()
 {
-    CSLock::CSLock()
-    {
-        InitializeCriticalSection(&m_lock);
-    }
+    InitializeCriticalSection(&m_lock);
+}
 
-    CSLock::~CSLock()
-    {
-        DeleteCriticalSection(&m_lock);
-    }
+CSLock::~CSLock()
+{
+    DeleteCriticalSection(&m_lock);
+}
 
-    void CSLock::EnterLock()
-    {
-        EnterCriticalSection(&m_lock);
-    }
+void CSLock::EnterLock()
+{
+    EnterCriticalSection(&m_lock);
+}
 
-    void CSLock::LeaveLock()
-    {
-        LeaveCriticalSection(&m_lock);
-    }
+void CSLock::LeaveLock()
+{
+    LeaveCriticalSection(&m_lock);
 }

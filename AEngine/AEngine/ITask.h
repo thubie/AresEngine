@@ -1,11 +1,9 @@
 #pragma once 
 
-namespace AresEngine
+
+class ITask
 {
-    class ITask
-    {
-    public:
-        virtual ~ITask(){}
-        virtual void RunTask() = 0;
-    };
-}
+public:
+    virtual ~ITask(){}
+    virtual void RunTask() = 0;
+};
