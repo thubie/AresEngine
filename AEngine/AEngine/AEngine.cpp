@@ -6,6 +6,7 @@
 AEngine::AEngine()
 {
     m_pTaskManager = nullptr;
+    m_pRenderSystem = nullptr;
     m_windowWidth = 640;
     m_windowHeight = 480;
 }
@@ -28,6 +29,12 @@ bool AEngine::Initialize()
     bool result;
 
     InitializeWin();
+
+    m_pRenderSystem = new RenderSystem();
+    if(m_pRenderSystem == nullptr)
+        return false;
+    m_pRenderSystem->Initialize(m_hwnd);
+
     m_pTaskManager = new TaskManager();
     if(m_pTaskManager == nullptr)     
         return false;
@@ -43,9 +50,12 @@ bool AEngine::Shutdown()
 {
     if(m_pTaskManager != nullptr)
         m_pTaskManager->Shutdown();
-
     m_pTaskManager = nullptr;
 
+    if(m_pRenderSystem != nullptr)
+        m_pRenderSystem->Shutdown();
+    m_pRenderSystem = nullptr;
+ 
     return true;
 }
 
@@ -68,7 +78,8 @@ void AEngine::Run()
                 m_TestTask = new CounterTask();
                 m_pTaskManager->EnqueueTask((ITask*)m_TestTask);
             }
-            Sleep(16);
+            m_pRenderSystem->RenderScene();
+            Sleep(15);
         }
             
     }

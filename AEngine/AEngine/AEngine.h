@@ -4,7 +4,7 @@
 #include"TaskManager.h"
 #include"CSLock.h"
 #include"CounterTask.h"
-
+#include"RenderSystem.h"
 #define WIN32_LEAN_AND_MEAN
 
 
@@ -29,6 +29,8 @@ private:
     HWND m_hwnd;
     TaskManager* m_pTaskManager;
     CounterTask* m_TestTask;
+    RenderSystem* m_pRenderSystem ;
+
     //To do read window resolution from a config/ini file
     int m_windowWidth;
     int m_windowHeight;
