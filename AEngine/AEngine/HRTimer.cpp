@@ -27,6 +27,13 @@ LONGLONG HRTimer::GetStartCounter()
     return m_Start.QuadPart;
 }
     
+LONGLONG HRTimer::GetCurrentTick()
+{
+    QueryPerformanceCounter(&m_Current);
+    return m_Current.QuadPart;
+}
+
+
 LONGLONG HRTimer::GetStopCounter()
 {
     return m_Stop.QuadPart;

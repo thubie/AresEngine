@@ -68,10 +68,16 @@ DWORD WorkerThread::DoTasks()
         }
         else
         {
-                
+            LARGE_INTEGER beginStamp; 
+            QueryPerformanceCounter(&beginStamp);
+
             LOG("Starting Task",m_threadID,100);
             currentTask->RunTask();
-            LOG("Finished Task",m_threadID,100);
+
+            LARGE_INTEGER endStamp; 
+            QueryPerformanceCounter(&endStamp);
+
+            LOG("Finished Task",m_threadID,(DWORD)endStamp.QuadPart - beginStamp.QuadPart);
             delete (CounterTask*) currentTask;
             currentTask = nullptr;
                 

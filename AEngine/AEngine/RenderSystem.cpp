@@ -9,6 +9,8 @@ RenderSystem::RenderSystem()
     m_pImmediateContext = nullptr;
     m_pSwapChain = nullptr;
     m_pRenderTargetView = nullptr;
+    m_pDepthStencil = nullptr;
+    m_pDepthStencilView = nullptr;
 }
 
 RenderSystem::RenderSystem(const RenderSystem& other)
@@ -37,6 +39,10 @@ void RenderSystem::Shutdown()
 {
     if(m_pImmediateContext)
         m_pImmediateContext->ClearState();
+    if( m_pDepthStencil ) 
+        m_pDepthStencil->Release();
+    if( m_pDepthStencilView ) 
+        m_pDepthStencilView->Release();
     if(m_pRenderTargetView)
         m_pRenderTargetView->Release();
     if(m_pSwapChain)
@@ -117,6 +123,34 @@ void RenderSystem::InitDeviceAndSwapChain()
 
     m_pImmediateContext->OMSetRenderTargets(1, &m_pRenderTargetView,NULL);
 
+    //Create depth stencil texture
+    D3D11_TEXTURE2D_DESC descDepth;
+    ZeroMemory(&descDepth,sizeof(descDepth));
+    descDepth.Width = width;
+    descDepth.Height = height;
+    descDepth.MipLevels = 1;
+    descDepth.ArraySize = 1;
+    descDepth.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+    descDepth.SampleDesc.Count = 1;
+    descDepth.SampleDesc.Quality = 0;
+    descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+    descDepth.CPUAccessFlags = 0;
+    descDepth.MiscFlags = 0;
+    hr = m_pD3DDevice->CreateTexture2D(&descDepth, NULL, &m_pDepthStencil);
+    //if(FAILED(hr))
+    //    return hr;
+
+    D3D11_DEPTH_STENCIL_VIEW_DESC descDSV;
+    ZeroMemory(&descDSV,sizeof(descDSV));
+    descDSV.Format = descDepth.Format;
+    descDSV.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+    descDSV.Texture2D.MipSlice = 0;
+    hr = m_pD3DDevice->CreateDepthStencilView(m_pDepthStencil, &descDSV, &m_pDepthStencilView);
+    //if(FAILED(hr))
+    //    return hr;
+
+    m_pImmediateContext->OMSetRenderTargets(1, &m_pRenderTargetView, m_pDepthStencilView);
+
     //Setup the viewport
     D3D11_VIEWPORT viewport;
     viewport.Width = (float)width;
@@ -128,9 +162,15 @@ void RenderSystem::InitDeviceAndSwapChain()
     m_pImmediateContext->RSSetViewports(1 , &viewport);
 }
 
-void RenderSystem::RenderScene()
+void RenderSystem::BeginRenderScene()
 {
     float clearColor[4] = {0.0f,0.125f,0.3f, 1.0f}; //Red,Green,Blue,alpha
-    m_pImmediateContext->ClearRenderTargetView(m_pRenderTargetView,clearColor);
+    //Clear backbuffer and depthbuffer(to 1.0 max depth)
+    m_pImmediateContext->ClearRenderTargetView(m_pRenderTargetView, clearColor);
+    m_pImmediateContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+}
+
+void RenderSystem::EndRenderScene()
+{
     m_pSwapChain->Present(0,0);
 }

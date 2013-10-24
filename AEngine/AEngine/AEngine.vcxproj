@@ -161,6 +161,7 @@
     <ClCompile Include="CounterTask.cpp" />
     <ClCompile Include="CSLock.cpp" />
     <ClCompile Include="HRTimer.cpp" />
+    <ClCompile Include="Model.cpp" />
     <ClCompile Include="RenderSystem.cpp" />
     <ClCompile Include="TaskManager.cpp" />
     <ClCompile Include="Logger.cpp" />
@@ -176,10 +177,16 @@
     <ClInclude Include="HRTimer.h" />
     <ClInclude Include="ITask.h" />
     <ClInclude Include="MathTypes.h" />
+    <ClInclude Include="Model.h" />
     <ClInclude Include="RenderSystem.h" />
     <ClInclude Include="TaskManager.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="WorkerThread.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Test.fx">
+      <FileType>Document</FileType>
+    </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -4,7 +4,9 @@
 #include"TaskManager.h"
 #include"CSLock.h"
 #include"CounterTask.h"
+#include"Model.h"
 #include"RenderSystem.h"
+#include"HRTimer.h"
 #define WIN32_LEAN_AND_MEAN
 
 
@@ -24,16 +26,17 @@ private:
     void InitializeWin();
 
 private:
-    LPCWSTR m_appName;
-    HINSTANCE m_hInstance;
-    HWND m_hwnd;
-    TaskManager* m_pTaskManager;
-    CounterTask* m_TestTask;
-    RenderSystem* m_pRenderSystem ;
+    LPCWSTR         m_appName;
+    HINSTANCE       m_hInstance;
+    HWND            m_hwnd;
+    TaskManager*    m_pTaskManager;
+    CounterTask*    m_TestTask;
+    RenderSystem*   m_pRenderSystem ;
+    HRTimer*        m_pGameTimer;
+    Model*          m_pTestRenderModel;
 
-    //To do read window resolution from a config/ini file
-    int m_windowWidth;
-    int m_windowHeight;
+    int             m_windowWidth; //To do read window resolution from a config/ini file
+    int             m_windowHeight;
 
 };
 

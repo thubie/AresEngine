@@ -3,7 +3,7 @@
 
 CounterTask::CounterTask()
 {
-    m_MaxCount = 400000;
+    m_MaxCount = 40000000;
 }
 
 CounterTask::CounterTask(const CounterTask& other)

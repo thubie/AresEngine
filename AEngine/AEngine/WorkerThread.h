@@ -10,7 +10,6 @@
 #include"CounterTask.h"
 
 
-
 class TaskManager;
 
 class WorkerThread

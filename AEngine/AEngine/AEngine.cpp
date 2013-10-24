@@ -7,8 +7,9 @@ AEngine::AEngine()
 {
     m_pTaskManager = nullptr;
     m_pRenderSystem = nullptr;
-    m_windowWidth = 640;
-    m_windowHeight = 480;
+    m_pTestRenderModel = nullptr;
+    m_windowWidth = 1600;
+    m_windowHeight = 900;
 }
 
 AEngine::AEngine(const AEngine& other)
@@ -41,13 +42,22 @@ bool AEngine::Initialize()
 
     result = m_pTaskManager->Initialize();
     if(!result)
-        return false; //return false if Initialize fails
-       
+        return false; 
+    
+    m_pTestRenderModel = new Model(m_pRenderSystem->m_pImmediateContext,m_pRenderSystem->m_pD3DDevice);
+    if(m_pTestRenderModel == nullptr)     
+        return false;
+    m_pTestRenderModel->InitModel();
+
     return true;
 }
 
 bool AEngine::Shutdown()
 {
+    if(m_pTestRenderModel != nullptr)
+        m_pTestRenderModel->CleanUpModel();
+    m_pTestRenderModel = nullptr;
+
     if(m_pTaskManager != nullptr)
         m_pTaskManager->Shutdown();
     m_pTaskManager = nullptr;
@@ -78,7 +88,9 @@ void AEngine::Run()
                 m_TestTask = new CounterTask();
                 m_pTaskManager->EnqueueTask((ITask*)m_TestTask);
             }
-            m_pRenderSystem->RenderScene();
+            m_pRenderSystem->BeginRenderScene();
+            m_pTestRenderModel->render();
+            m_pRenderSystem->EndRenderScene();
             Sleep(15);
         }
             

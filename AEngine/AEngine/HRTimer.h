@@ -14,6 +14,7 @@ public:
 
     LONGLONG GetStartCounter();
     LONGLONG GetStopCounter();
+    LONGLONG GetCurrentCounter();
 
     LONGLONG GetElapsed();
     double GetElapsedAsSeconds();
