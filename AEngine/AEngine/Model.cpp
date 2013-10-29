@@ -36,8 +36,6 @@ void Model::render()
 	XMMATRIX mTranslate = XMMatrixTranslation( -4.0f, 0.0f, 0.0f );
 	XMMATRIX mScale = XMMatrixScaling( 0.3f, 0.3f, 0.3f );
 
-    m_WorldMatrix2 = mScale * mSpin * mTranslate * mOrbit;
-
     //Update the constant buffer variables for cube 1
     ConstantBuffer cb;
     cb.m_World = XMMatrixTranspose( m_WorldMatrix);
@@ -50,14 +48,6 @@ void Model::render()
     m_pImmediateContext->VSSetConstantBuffers(0, 1, &m_pConstantBuffer);
 	m_pImmediateContext->PSSetShader( m_pPixelShader, NULL, 0 );
     m_pImmediateContext->DrawIndexed(36, 0, 0); // 36 vertices needed for 12 triangles in a triangle list
-
-    ConstantBuffer cb2;
-    cb2.m_World = XMMatrixTranspose(m_WorldMatrix2);
-    cb2.m_View = XMMatrixTranspose(m_ViewMatrix);
-    cb2.m_Projection = XMMatrixTranspose(m_ProjectionMatrix);
-    m_pImmediateContext->UpdateSubresource(m_pConstantBuffer, 0, NULL,&cb2, 0, 0);
-
-    m_pImmediateContext->DrawIndexed(36, 0, 0);
 }
 
 void Model::InitModel()

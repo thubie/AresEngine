@@ -47,8 +47,4 @@ private:
     XMMATRIX                m_WorldMatrix;
     XMMATRIX                m_ViewMatrix;
     XMMATRIX                m_ProjectionMatrix;
-    //Second cube.
-    XMMATRIX                m_WorldMatrix2;
-    XMMATRIX                m_ViewMatrix2;
-    XMMATRIX                m_ProjectionMatrix2;
 };
