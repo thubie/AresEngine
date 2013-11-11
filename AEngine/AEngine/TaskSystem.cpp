@@ -1,24 +1,24 @@
-#include"TaskManager.h"
+#include"TaskSystem.h"
 
 
 
-TaskManager::TaskManager()
+TaskSystem::TaskSystem()
 {
     m_pTaskQueue = nullptr;
     m_pWorkerThreads = nullptr;    
     m_createdThreads = 0;
 }
 
-TaskManager::~TaskManager()
+TaskSystem::~TaskSystem()
 {}
 
-TaskManager::TaskManager(const TaskManager& other)
+TaskSystem::TaskSystem(const TaskSystem& other)
 {
     this->m_createdThreads = other.m_createdThreads;
     this->m_pWorkerThreads = other.m_pWorkerThreads;
 }
 
-bool TaskManager::Initialize()
+bool TaskSystem::Initialize()
 {
     m_pTaskQueue = new ConcurrentLLQueue<ITask*>();
 
@@ -45,7 +45,7 @@ bool TaskManager::Initialize()
     return true;
 }
 
-void TaskManager::Shutdown()
+void TaskSystem::Shutdown()
 {
     DWORD ExitCode = 0;
     for(unsigned int i = 0; i < m_createdThreads; ++i)
@@ -57,12 +57,12 @@ void TaskManager::Shutdown()
 
 }
 
-void TaskManager::EnqueueTask(ITask* task)
+void TaskSystem::EnqueueTask(ITask* task)
 {
     m_pTaskQueue->Enqueue(task);
 }
 
-ITask* TaskManager::DequeueTask()
+ITask* TaskSystem::DequeueTask()
 {
     return m_pTaskQueue->Dequeue();
 }

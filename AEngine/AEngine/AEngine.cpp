@@ -5,9 +5,10 @@
 
 AEngine::AEngine()
 {
-    m_pTaskManager = nullptr;
-    m_pRenderSystem = nullptr;
-    m_pTestRenderModel = nullptr;
+    m_pTaskSystem     = nullptr;
+    m_pRenderSystem     = nullptr;
+    m_pTestRenderModel  = nullptr;
+    m_pCamera           = nullptr;
     m_windowWidth = 1600;
     m_windowHeight = 900;
 }
@@ -16,7 +17,7 @@ AEngine::AEngine(const AEngine& other)
 {
     m_windowWidth = other.m_windowWidth;
     m_windowHeight = other.m_windowHeight;
-    m_pTaskManager = other.m_pTaskManager;
+    m_pTaskSystem = other.m_pTaskSystem;
         
 }
 
@@ -36,14 +37,28 @@ bool AEngine::Initialize()
         return false;
     m_pRenderSystem->Initialize(m_hwnd);
 
-    m_pTaskManager = new TaskManager();
-    if(m_pTaskManager == nullptr)     
+    m_pTaskSystem = new TaskSystem();
+    if(m_pTaskSystem == nullptr)     
         return false;
 
-    result = m_pTaskManager->Initialize();
+    result = m_pTaskSystem->Initialize();
     if(!result)
         return false; 
     
+    m_pCamera = new Camera();
+    if(m_pCamera == nullptr)
+        return false;
+    XMFLOAT3* pos = new XMFLOAT3(0.0f, 4.5f, -10.0f);
+    XMFLOAT3* target = new XMFLOAT3(0.0f, 1.0f, 0.0f);
+    XMFLOAT3* up = new XMFLOAT3(0.0f, 1.0f, 0.0f);
+
+    m_pCamera->InitCamera(pos,target,up);
+    m_pCamera->UpdateViewMatrix();
+
+    delete pos;
+    delete target;
+    delete up;
+
     m_pTestRenderModel = new Model(m_pRenderSystem->m_pImmediateContext,m_pRenderSystem->m_pD3DDevice);
     if(m_pTestRenderModel == nullptr)     
         return false;
@@ -58,9 +73,9 @@ bool AEngine::Shutdown()
         m_pTestRenderModel->CleanUpModel();
     m_pTestRenderModel = nullptr;
 
-    if(m_pTaskManager != nullptr)
-        m_pTaskManager->Shutdown();
-    m_pTaskManager = nullptr;
+    if(m_pTaskSystem != nullptr)
+        m_pTaskSystem->Shutdown();
+    m_pTaskSystem = nullptr;
 
     if(m_pRenderSystem != nullptr)
         m_pRenderSystem->Shutdown();
@@ -86,10 +101,11 @@ void AEngine::Run()
             for(int i = 0; i <= 8; ++i)
             {
                 m_TestTask = new CounterTask();
-                m_pTaskManager->EnqueueTask((ITask*)m_TestTask);
+                m_pTaskSystem->EnqueueTask((ITask*)m_TestTask);
             }
             m_pRenderSystem->BeginRenderScene();
-            m_pTestRenderModel->render();
+            m_pCamera->UpdateViewMatrix();
+            m_pTestRenderModel->Render(m_pCamera);
             m_pRenderSystem->EndRenderScene();
             Sleep(15);
         }

@@ -4,13 +4,13 @@
 #include<process.h> 
 #include<stdio.h>
 #include"CSLock.h"
-#include"TaskManager.h"
+#include"TaskSystem.h"
 #include"ITask.h"
 #include"Logger.h"
 #include"CounterTask.h"
 
 
-class TaskManager;
+class TaskSystem;
 
 class WorkerThread
 {
@@ -19,7 +19,7 @@ public:
     WorkerThread(const WorkerThread& other);
     ~WorkerThread();
 
-    HANDLE StartWorkerThread(unsigned int threadID,TaskManager* taskManager);
+    HANDLE StartWorkerThread(unsigned int threadID,TaskSystem* taskManager);
     void EndWorkerThread();
 
 private:
@@ -32,7 +32,7 @@ private:
     DWORD DoTasks();
 
 private:
-    TaskManager* m_pTaskManager;
+    TaskSystem* m_pTaskSystem;
     HANDLE m_threadHandle;
     bool m_running;
     unsigned int m_threadID;

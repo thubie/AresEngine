@@ -3,7 +3,7 @@
 
 WorkerThread::WorkerThread()
 {
-    m_pTaskManager = nullptr;
+    m_pTaskSystem = nullptr;
     m_threadHandle = nullptr;
     m_running = false;
     m_threadID = 0;
@@ -14,10 +14,10 @@ WorkerThread::~WorkerThread()
 {}
 
 //Starts and creates the thread.
-HANDLE WorkerThread::StartWorkerThread(unsigned int threadID,TaskManager* taskManager)
+HANDLE WorkerThread::StartWorkerThread(unsigned int threadID,TaskSystem* taskManager)
 {
     if(taskManager != nullptr)
-        m_pTaskManager = taskManager;
+        m_pTaskSystem = taskManager;
 
     SetThreadId(threadID);
 
@@ -82,7 +82,7 @@ DWORD WorkerThread::DoTasks()
             currentTask = nullptr;
                 
         }
-        currentTask = m_pTaskManager->DequeueTask();
+        currentTask = m_pTaskSystem->DequeueTask();
     }
     return 0;
 }

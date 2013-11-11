@@ -4,8 +4,9 @@
 #include<xnamath.h>
 #include<d3d11.h>
 #include<D3DX11.h>
-#include <d3dcompiler.h>
-
+#include<d3dcompiler.h>
+#include"Camera.h"
+#include<assert.h>
 
 class Model
 {
@@ -27,7 +28,7 @@ public:
     Model(const Model& other); 
     ~Model();
 
-    void render();
+    void Render(Camera* pCamera);
     void InitModel();
     void CleanUpModel();
 private:
@@ -43,8 +44,7 @@ private:
     ID3D11Buffer*           m_pVertexBuffer;
     ID3D11Buffer*           m_pIndexBuffer;
     ID3D11Buffer*           m_pConstantBuffer;
+    ConstantBuffer*         m_pTestConstantBuffer;  
     //TODO: Put this in an camera class get it from there....
     XMMATRIX                m_WorldMatrix;
-    XMMATRIX                m_ViewMatrix;
-    XMMATRIX                m_ProjectionMatrix;
 };

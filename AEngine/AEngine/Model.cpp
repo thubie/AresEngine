@@ -8,6 +8,7 @@ Model::Model(ID3D11DeviceContext* immediateContext,ID3D11Device* d3dDevice)
     m_pVertexBuffer = nullptr;
     m_pIndexBuffer = nullptr;
     m_pConstantBuffer = nullptr;
+    m_pTestConstantBuffer = nullptr;
     m_pImmediateContext = immediateContext;
     m_pD3dDevice = d3dDevice;
 }
@@ -18,7 +19,7 @@ Model::Model(const Model& other)
 Model::~Model()
 {}
 
-void Model::render()
+void Model::Render(Camera* pCamera)
 {
     static float t = 0.0f;
     static DWORD dwTimeStart = 0;
@@ -28,7 +29,7 @@ void Model::render()
     t = ( dwTimeCur - dwTimeStart ) / 1000.0f;
     
     //1st cube rotate around the origin
-    m_WorldMatrix = XMMatrixRotationY(t);
+    XMMATRIX WorldMatrix = XMMatrixRotationY(0.0f);
 
     // 2nd Cube rotate arond origin
     XMMATRIX mSpin = XMMatrixRotationZ( -t );
@@ -36,12 +37,11 @@ void Model::render()
 	XMMATRIX mTranslate = XMMatrixTranslation( -4.0f, 0.0f, 0.0f );
 	XMMATRIX mScale = XMMatrixScaling( 0.3f, 0.3f, 0.3f );
 
-    //Update the constant buffer variables for cube 1
-    ConstantBuffer cb;
-    cb.m_World = XMMatrixTranspose( m_WorldMatrix);
-    cb.m_View = XMMatrixTranspose(m_ViewMatrix);
-    cb.m_Projection = XMMatrixTranspose(m_ProjectionMatrix);
-    m_pImmediateContext->UpdateSubresource(m_pConstantBuffer, 0, NULL,&cb, 0, 0);
+
+    m_pTestConstantBuffer->m_World = XMMatrixTranspose(WorldMatrix);
+    m_pTestConstantBuffer->m_View = XMMatrixTranspose(*(pCamera->GetViewMatrix()));
+    m_pTestConstantBuffer->m_Projection = XMMatrixTranspose(*(pCamera->GetProjectionMatrix()));
+    m_pImmediateContext->UpdateSubresource(m_pConstantBuffer, 0, NULL,m_pTestConstantBuffer, 0, 0);
 
     // Render a the cube 1
 	m_pImmediateContext->VSSetShader( m_pVertexShader, NULL, 0 );
@@ -182,30 +182,23 @@ void Model::InitModel()
     //Initialize the world matrix
     m_WorldMatrix = XMMatrixIdentity();
 
-    //Initialize the view matrix
-    XMVECTOR Eye = XMVectorSet( 0.0f, 1.0f, -5.0f, 0.0f );
-	XMVECTOR At = XMVectorSet( 0.0f, 1.0f, 0.0f, 0.0f );
-	XMVECTOR Up = XMVectorSet( 0.0f, 1.0f, 0.0f, 0.0f );
-	m_ViewMatrix = XMMatrixLookAtLH( Eye, At, Up );
-
-    // Initialize the projection matrix
-    m_ProjectionMatrix = XMMatrixPerspectiveFovLH( XM_PIDIV2, 1600 / (FLOAT)900, 0.01f, 100.0f );
+    m_pTestConstantBuffer = (ConstantBuffer*) _aligned_malloc(sizeof(ConstantBuffer), 16);
 
 }
 
 void Model::CleanUpModel()
 {
-    if( m_pConstantBuffer ) 
+    if(m_pConstantBuffer) 
         m_pConstantBuffer->Release();
-    if( m_pVertexBuffer ) 
+    if(m_pVertexBuffer) 
         m_pVertexBuffer->Release();
-    if( m_pIndexBuffer ) 
+    if(m_pIndexBuffer) 
         m_pIndexBuffer->Release();
-    if( m_pVertexLayout ) 
+    if(m_pVertexLayout) 
         m_pVertexLayout->Release();
-    if( m_pVertexShader ) 
+    if(m_pVertexShader) 
         m_pVertexShader->Release();
-    if( m_pPixelShader ) 
+    if(m_pPixelShader) 
         m_pPixelShader->Release();
 }
 

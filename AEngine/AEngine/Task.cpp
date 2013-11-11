@@ -22,7 +22,11 @@ namespace AresEngine
 
     Task::~Task()
     {
-
+        if(m_pTaskData != nullptr)
+            delete m_pTaskData;
+        
+        if(m_fpTaskData != nullptr)
+            delete m_pTaskData task;
     }
 
     TaskData* Task::GetTaskData()

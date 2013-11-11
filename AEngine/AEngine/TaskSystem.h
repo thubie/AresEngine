@@ -9,12 +9,12 @@
 
 class WorkerThread;
 
-class TaskManager
+class TaskSystem
 {
 public:
-    TaskManager();
-    ~TaskManager();
-    TaskManager(const TaskManager& other);
+    TaskSystem();
+    ~TaskSystem();
+    TaskSystem(const TaskSystem& other);
         
     unsigned int GetNodeCount();
     bool Initialize();
