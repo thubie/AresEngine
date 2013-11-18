@@ -8,6 +8,7 @@
 #include"Camera.h"
 #include<assert.h>
 
+
 class Model
 {
     struct SimpleVertex

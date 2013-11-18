@@ -22,6 +22,8 @@ public:
     void Run();
     bool Shutdown();
 
+    void SubmitTask(ITask* task);
+
 private:
     bool Draw();
     void InitializeWin();

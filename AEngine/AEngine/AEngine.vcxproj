@@ -160,10 +160,13 @@
     <ClCompile Include="AEngine.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CounterTask.cpp" />
+    <ClCompile Include="CreatePixelShaderTask.cpp" />
+    <ClCompile Include="CreateVertexShaderTask.cpp" />
     <ClCompile Include="CSLock.cpp" />
     <ClCompile Include="HRTimer.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="RenderSystem.cpp" />
+    <ClCompile Include="ShaderGenerator.cpp" />
     <ClCompile Include="TaskSystem.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="WinMain.cpp" />
@@ -175,6 +178,8 @@
     <ClInclude Include="ConcurrentLLQueue.h" />
     <ClInclude Include="ConcurrentCBQueue.h" />
     <ClInclude Include="CounterTask.h" />
+    <ClInclude Include="CreatePixelShaderTask.h" />
+    <ClInclude Include="CreateVertexShaderTask.h" />
     <ClInclude Include="CSLock.h" />
     <ClInclude Include="GeometryFactory.h" />
     <ClInclude Include="GraphicsSystem.h" />
@@ -182,10 +187,12 @@
     <ClInclude Include="ITask.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="RenderSystem.h" />
-    <ClInclude Include="ShaderFactory.h" />
+    <ClInclude Include="ShaderGenerator.h" />
+    <ClInclude Include="ShaderTypes.h" />
     <ClInclude Include="TaskSystem.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="typedef.h" />
+    <ClInclude Include="VertexFormat.h" />
     <ClInclude Include="WorkerThread.h" />
   </ItemGroup>
   <ItemGroup>

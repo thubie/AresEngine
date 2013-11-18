@@ -12,6 +12,12 @@
     <Filter Include="Shaders">
       <UniqueIdentifier>{02ea4a98-122c-4b93-8cfe-813d44c2943f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Tasks">
+      <UniqueIdentifier>{e700a42c-fc21-47f6-878c-99e897cd634f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Task">
+      <UniqueIdentifier>{ed06876a-68c2-4a2f-8ccc-1d9c95ca7172}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WinMain.cpp">
@@ -29,9 +35,6 @@
     <ClCompile Include="HRTimer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CounterTask.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Logger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -47,6 +50,18 @@
     <ClCompile Include="TaskSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ShaderGenerator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CounterTask.cpp">
+      <Filter>Source Files\Task</Filter>
+    </ClCompile>
+    <ClCompile Include="CreateVertexShaderTask.cpp">
+      <Filter>Source Files\Task</Filter>
+    </ClCompile>
+    <ClCompile Include="CreatePixelShaderTask.cpp">
+      <Filter>Source Files\Task</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AEngine.h">
@@ -59,12 +74,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="HRTimer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ITask.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CounterTask.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ConcurrentLLQueue.h">
@@ -97,8 +106,26 @@
     <ClInclude Include="GraphicsSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ShaderFactory.h">
+    <ClInclude Include="ShaderGenerator.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexFormat.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderTypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ITask.h">
+      <Filter>Header Files\Tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="CounterTask.h">
+      <Filter>Header Files\Tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="CreateVertexShaderTask.h">
+      <Filter>Header Files\Tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="CreatePixelShaderTask.h">
+      <Filter>Header Files\Tasks</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -15,5 +15,4 @@ public:
 
 private:
     unsigned long long m_MaxCount;
-
 };

@@ -32,19 +32,18 @@ bool AEngine::Initialize()
 
     InitializeWin();
 
+    m_pTaskSystem = new TaskSystem();
+    if(m_pTaskSystem == nullptr)     
+        return false;
+    result = m_pTaskSystem->Initialize();
+    if(!result)
+        return false; 
+    
     m_pRenderSystem = new RenderSystem();
     if(m_pRenderSystem == nullptr)
         return false;
     m_pRenderSystem->Initialize(m_hwnd);
 
-    m_pTaskSystem = new TaskSystem();
-    if(m_pTaskSystem == nullptr)     
-        return false;
-
-    result = m_pTaskSystem->Initialize();
-    if(!result)
-        return false; 
-    
     m_pCamera = new Camera();
     if(m_pCamera == nullptr)
         return false;
@@ -112,6 +111,11 @@ void AEngine::Run()
             
     }
         
+}
+
+void AEngine::SubmitTask(ITask* task)
+{
+    m_pTaskSystem->EnqueueTask(task);
 }
 
 void AEngine::InitializeWin()
