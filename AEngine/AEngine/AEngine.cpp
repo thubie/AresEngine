@@ -9,8 +9,8 @@ AEngine::AEngine()
     m_pRenderSystem     = nullptr;
     m_pTestRenderModel  = nullptr;
     m_pCamera           = nullptr;
-    m_windowWidth = 1600;
-    m_windowHeight = 900;
+    m_windowWidth = 640;
+    m_windowHeight = 480;
 }
 
 AEngine::AEngine(const AEngine& other)
@@ -32,13 +32,15 @@ bool AEngine::Initialize()
 
     InitializeWin();
 
+    //Delete this later only for testing.
+    m_TestTask = new CounterTask();
+
     m_pTaskSystem = new TaskSystem();
     if(m_pTaskSystem == nullptr)     
         return false;
-    result = m_pTaskSystem->Initialize();
-    if(!result)
-        return false; 
-    
+    int numMaxThreads = 10;
+    m_pTaskSystem->Initialize(10);
+    m_pTaskSystem->StartDistributing();
     m_pRenderSystem = new RenderSystem();
     if(m_pRenderSystem == nullptr)
         return false;
@@ -47,16 +49,28 @@ bool AEngine::Initialize()
     m_pCamera = new Camera();
     if(m_pCamera == nullptr)
         return false;
-    XMFLOAT3* pos = new XMFLOAT3(0.0f, 4.5f, -10.0f);
-    XMFLOAT3* target = new XMFLOAT3(0.0f, 1.0f, 0.0f);
-    XMFLOAT3* up = new XMFLOAT3(0.0f, 1.0f, 0.0f);
+
+    XMFLOAT3* pos = (XMFLOAT3*)_aligned_malloc(sizeof(XMFLOAT3),16);
+    pos->x = 0.0f;
+    pos->y = 4.5f;
+    pos->z = -10.0f;
+
+    XMFLOAT3* target = (XMFLOAT3*)_aligned_malloc(sizeof(XMFLOAT3),16);
+    target->x = 0.0f;
+    target->y = 1.0f;
+    target->z = 0.0f;
+
+    XMFLOAT3* up = (XMFLOAT3*)_aligned_malloc(sizeof(XMFLOAT3),16);
+    up->x = 0.0f;
+    up->y = 1.0f;
+    up->z = 0.0f;
 
     m_pCamera->InitCamera(pos,target,up);
     m_pCamera->UpdateViewMatrix();
 
-    delete pos;
-    delete target;
-    delete up;
+    _aligned_free(pos);
+    _aligned_free(target);
+    _aligned_free(up);
 
     m_pTestRenderModel = new Model(m_pRenderSystem->m_pImmediateContext,m_pRenderSystem->m_pD3DDevice);
     if(m_pTestRenderModel == nullptr)     
@@ -86,7 +100,6 @@ bool AEngine::Shutdown()
 void AEngine::Run()
 {
     MSG msg = {0};
-    
     while(WM_QUIT != msg.message)
     {
         if(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
@@ -96,26 +109,22 @@ void AEngine::Run()
         }
         else
         {
-            //Update the world...
-            for(int i = 0; i <= 8; ++i)
+            unsigned int taskCount = m_pTaskSystem->GetTaskCount();
+            if(taskCount < 256)
             {
-                m_TestTask = new CounterTask();
-                m_pTaskSystem->EnqueueTask((ITask*)m_TestTask);
+                for(int i = 0; i < 30; ++i)
+                {
+                    m_pTaskSystem->EnqueueTask(m_TestTask->GetCountTask());
+                }
             }
             m_pRenderSystem->BeginRenderScene();
             m_pCamera->UpdateViewMatrix();
             m_pTestRenderModel->Render(m_pCamera);
-            m_pRenderSystem->EndRenderScene();
-            Sleep(15);
+            m_pRenderSystem->EndRenderScene();           
         }
             
     }
         
-}
-
-void AEngine::SubmitTask(ITask* task)
-{
-    m_pTaskSystem->EnqueueTask(task);
 }
 
 void AEngine::InitializeWin()
@@ -179,12 +188,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
         case WM_DESTROY:
         {
             //Should implement shut off procedure here 
+            appHandle->Shutdown();
             PostQuitMessage(0);
             return 0;
         }
         //Check if the window is being closed.
         case WM_CLOSE:
         {
+            appHandle->Shutdown();
             PostQuitMessage(0);
             return 0;
         }

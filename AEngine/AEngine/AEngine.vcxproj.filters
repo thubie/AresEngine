@@ -12,11 +12,8 @@
     <Filter Include="Shaders">
       <UniqueIdentifier>{02ea4a98-122c-4b93-8cfe-813d44c2943f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Tasks">
-      <UniqueIdentifier>{e700a42c-fc21-47f6-878c-99e897cd634f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Task">
-      <UniqueIdentifier>{ed06876a-68c2-4a2f-8ccc-1d9c95ca7172}</UniqueIdentifier>
+    <Filter Include="Header Files\Concurrent DataStructures">
+      <UniqueIdentifier>{21f60c61-641b-41cd-928a-ad5f7a90c3f8}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -24,9 +21,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="AEngine.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CSLock.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="WorkerThread.cpp">
@@ -50,36 +44,21 @@
     <ClCompile Include="TaskSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ShaderGenerator.cpp">
+    <ClCompile Include="Lock.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CounterTask.cpp">
-      <Filter>Source Files\Task</Filter>
-    </ClCompile>
-    <ClCompile Include="CreateVertexShaderTask.cpp">
-      <Filter>Source Files\Task</Filter>
-    </ClCompile>
-    <ClCompile Include="CreatePixelShaderTask.cpp">
-      <Filter>Source Files\Task</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CSLock.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="WorkerThread.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="HRTimer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ConcurrentLLQueue.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ConcurrentCBQueue.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Logger.h">
@@ -94,43 +73,32 @@
     <ClInclude Include="Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="typedef.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="TaskSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GeometryFactory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GraphicsSystem.h">
+    <ClInclude Include="Lock.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ShaderGenerator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VertexFormat.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ShaderTypes.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ITask.h">
-      <Filter>Header Files\Tasks</Filter>
     </ClInclude>
     <ClInclude Include="CounterTask.h">
-      <Filter>Header Files\Tasks</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CreateVertexShaderTask.h">
-      <Filter>Header Files\Tasks</Filter>
+    <ClInclude Include="Tasks.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CreatePixelShaderTask.h">
-      <Filter>Header Files\Tasks</Filter>
+    <ClInclude Include="RingBufferQueue.h">
+      <Filter>Header Files\Concurrent DataStructures</Filter>
+    </ClInclude>
+    <ClInclude Include="LinkListQueue.h">
+      <Filter>Header Files\Concurrent DataStructures</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Test.fx">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
 </Project>

@@ -3,11 +3,11 @@
 #include<Windows.h>
 
 
-class CSLock
+class Lock
 {
 public:
-    CSLock();
-    ~CSLock();
+    Lock();
+    ~Lock();
     void EnterLock();
     void LeaveLock();
 

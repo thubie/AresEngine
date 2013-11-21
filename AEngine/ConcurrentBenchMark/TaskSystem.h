@@ -1,8 +1,8 @@
 #pragma once
 
 #include"WorkerThread.h"
-#include"LinkListQueue.h"
-#include"RingBufferQueue.h"
+#include"ConcurrentLLQueue.h"
+#include"Ringbuffer.h"
 #include"Lock.h"
 #include"Tasks.h"
 
@@ -14,8 +14,10 @@ class TaskSystem
 public:
     TaskSystem();
     ~TaskSystem();
+    TaskSystem(const TaskSystem& other);
+   
+    void Initialize(unsigned int MaxThreads);
     
-    void Initialize(unsigned int MaxThreads);    
     void Shutdown();
     void StartDistributing();
     void PausedDistributing();
@@ -23,7 +25,7 @@ public:
     void EnqueueTask(Task* task);
     Task* DequeueTask();
 
-    inline bool QueueIsEmpty()
+    inline bool EmptyQueue()
     {
         return m_pTaskQueue->QueueIsEmpty();
     }
@@ -42,7 +44,7 @@ private:
     WorkerThread*               m_pWorkerThreads;
     unsigned int                m_createdThreads;
     unsigned int                m_ProcessorsCount;
-    LinkListQueue<Task*>*     m_pTaskQueue;
+    ConcurrentLLQueue<Task*>*   m_pTaskQueue;
     HANDLE*                     m_pThreadHandles;
     bool                        m_Distributing;
 };

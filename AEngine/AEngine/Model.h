@@ -47,5 +47,5 @@ private:
     ID3D11Buffer*           m_pConstantBuffer;
     ConstantBuffer*         m_pTestConstantBuffer;  
     //TODO: Put this in an camera class get it from there....
-    XMMATRIX                m_WorldMatrix;
+    XMMATRIX*                m_WorldMatrix;
 };

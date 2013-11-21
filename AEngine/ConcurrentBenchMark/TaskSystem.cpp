@@ -13,7 +13,7 @@ TaskSystem::~TaskSystem()
 
 void TaskSystem::Initialize(unsigned int MaxThreads)
 {
-    m_pTaskQueue = new LinkListQueue<Task*>();
+    m_pTaskQueue = new ConcurrentLLQueue<Task*>();
 
     SYSTEM_INFO sysInfo;
     GetSystemInfo(&sysInfo);

@@ -3,7 +3,7 @@
 
 CounterTask::CounterTask()
 {
-    m_MaxCount = 200000;
+    m_MaxCount = 400000;
 }
 
 CounterTask::CounterTask(const CounterTask& other)
@@ -42,3 +42,4 @@ void CounterTask::Count(TaskData* pData)
         steps++;
     }
 }
+

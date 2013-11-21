@@ -180,7 +180,8 @@ void Model::InitModel()
         //return hr;
 
     //Initialize the world matrix
-    m_WorldMatrix = XMMatrixIdentity();
+    m_WorldMatrix = (XMMATRIX*)_aligned_malloc(sizeof(XMMATRIX),16);
+    *m_WorldMatrix = XMMatrixIdentity();
 
     m_pTestConstantBuffer = (ConstantBuffer*) _aligned_malloc(sizeof(ConstantBuffer), 16);
 

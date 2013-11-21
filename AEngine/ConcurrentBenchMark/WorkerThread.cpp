@@ -18,18 +18,22 @@ WorkerThread::~WorkerThread()
 //Starts and creates a thread in suspended mode.
 HANDLE WorkerThread::Initialize(unsigned int threadID,TaskSystem* taskManager)
 {
-    m_pTaskSystem = taskManager;
+    if(taskManager != nullptr)
+        m_pTaskSystem = taskManager;
+
     m_threadID = threadID;
 
     m_threadHandle = (HANDLE)_beginthreadex(NULL,0,&DoTasks,(void*)this,NULL,NULL);
-    assert(!(m_threadHandle == nullptr));
+    
     //SetThreadAffinity
     DWORD_PTR threadMask = (0x01 << m_threadID); //shift bit to left m_threadID times.
     SetThreadAffinityMask(m_threadHandle,threadMask);
     DWORD_PTR processorId;
     processorId = SetThreadAffinityMask(m_threadHandle,threadMask);
+
     m_running = true;
-       
+    assert(!(m_threadHandle == nullptr));
+    
     return m_threadHandle;
 }
 

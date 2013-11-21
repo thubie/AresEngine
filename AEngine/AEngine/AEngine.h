@@ -2,7 +2,6 @@
 
 #include<Windows.h>
 #include"TaskSystem.h"
-#include"CSLock.h"
 #include"CounterTask.h"
 #include"Model.h"
 #include"Camera.h"
@@ -21,8 +20,6 @@ public:
     bool Initialize();
     void Run();
     bool Shutdown();
-
-    void SubmitTask(ITask* task);
 
 private:
     bool Draw();

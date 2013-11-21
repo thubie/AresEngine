@@ -1,22 +1,22 @@
-#include"CSLock.h"
+#include"Lock.h"
 
 
-CSLock::CSLock()
+Lock::Lock()
 {
     InitializeCriticalSection(&m_lock);
 }
 
-CSLock::~CSLock()
+Lock::~Lock()
 {
     DeleteCriticalSection(&m_lock);
 }
 
-void CSLock::EnterLock()
+void Lock::EnterLock()
 {
     EnterCriticalSection(&m_lock);
 }
 
-void CSLock::LeaveLock()
+void Lock::LeaveLock()
 {
     LeaveCriticalSection(&m_lock);
 }
