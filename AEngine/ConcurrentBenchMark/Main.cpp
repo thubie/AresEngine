@@ -5,14 +5,15 @@
 
 int main()
 {
-    const volatile int taskCount    = 1000;
-    const unsigned int maxThreads   = 2;
+    const volatile int taskCount    = 10000;
+    const unsigned int maxThreads   = 8;
     TaskSystem* pTaskSystem         = new TaskSystem;
     HRTimer* pTimer                 = new HRTimer;
     CounterTask* pCounterTask       = new CounterTask;
     Task** TaskSerial               = new Task*[taskCount];
     double timeSerial               = 0.0;
     double timeConcurrent           = 0.0;
+    volatile LONG TasksFinished     = 0;
     
     //ConcurrentTest
     pTaskSystem->Initialize(maxThreads);
@@ -22,12 +23,12 @@ int main()
         pTaskSystem->EnqueueTask(pCounterTask->GetCountTask());
     }
 
+    
     pTimer->Start();
     pTaskSystem->StartDistributing();
-    volatile bool queueIsEmpty = false;
-    while(!queueIsEmpty)
+    while(TasksFinished < taskCount)
     {
-        queueIsEmpty = pTaskSystem->EmptyQueue();
+        TasksFinished = pCounterTask->m_FinishedTasks;
     }
     pTaskSystem->Shutdown();
     pTimer->Stop();

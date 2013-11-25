@@ -43,7 +43,6 @@ public:
 private:
     WorkerThread*               m_pWorkerThreads;
     unsigned int                m_createdThreads;
-    unsigned int                m_ProcessorsCount;
     ConcurrentLLQueue<Task*>*   m_pTaskQueue;
     HANDLE*                     m_pThreadHandles;
     bool                        m_Distributing;

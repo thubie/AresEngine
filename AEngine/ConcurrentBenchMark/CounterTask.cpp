@@ -4,6 +4,7 @@
 CounterTask::CounterTask()
 {
     m_MaxCount = 400000;
+    m_FinishedTasks = 0;
 }
 
 CounterTask::CounterTask(const CounterTask& other)
@@ -16,6 +17,8 @@ CounterTask::~CounterTask()
 
 Task* CounterTask::GetCountTask()
 {
+    m_FinishedTasks;
+
     Task*       newTask = new Task;
     TaskData*   newData = new TaskData;
     newData->parameter1 = &m_MaxCount;
@@ -26,7 +29,7 @@ Task* CounterTask::GetCountTask()
 
     newTask->thisPointer    = this;
     newTask->pTaskData      = newData;
-    newTask->callback       = nullptr;
+    newTask->callback       = FinishedCount;
     newTask->taskFunction   = DoCount;
     
     return newTask; 
@@ -36,10 +39,14 @@ Task* CounterTask::GetCountTask()
 void CounterTask::Count(TaskData* pData)
 {
     int volatile counter = *(int*)pData->parameter1;
-    int steps = 0;
+    int volatile steps = 0;
     for(int i = 0; i < counter; ++i)
     {
         steps++;
     }
 }
 
+void CounterTask::FinishedCountTask()
+{
+    _InterlockedIncrement(&m_FinishedTasks);
+}

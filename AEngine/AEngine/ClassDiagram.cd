@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="NameAndType">
+<ClassDiagram MajorVersion="1" MinorVersion="1">
   <Class Name="AEngine" Collapsed="true">
     <Position X="0.5" Y="0.5" Width="1.5" />
     <TypeIdentifier>
@@ -14,109 +14,85 @@
       <FileName>Camera.h</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="ConcurrentLLQueue&lt;Type&gt;">
-    <Position X="8.75" Y="4.5" Width="2.5" />
-    <Compartments>
-      <Compartment Name="Nested Types" Collapsed="false" />
-    </Compartments>
-    <NestedTypes>
-      <Struct Name="ConcurrentLLQueue&lt;Type&gt;::Node&lt;T&gt;" Collapsed="true">
-        <TypeIdentifier>
-          <NewMemberFileName>ConcurrentLLQueue.h</NewMemberFileName>
-        </TypeIdentifier>
-      </Struct>
-    </NestedTypes>
-    <TypeIdentifier>
-      <HashCode>AAFAAAAAgAAAAAAgIAAAAAAAAAAAFAAAAgAAAAAAAQA=</HashCode>
-      <FileName>ConcurrentLLQueue.h</FileName>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="ConcurrentCBQueue&lt;Type&gt;" Collapsed="true">
+  <Class Name="CounterTask" Collapsed="true">
     <Position X="4" Y="0.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AIBAAAAABAAAAAAAAAEAAAAAEAAAFAAAAAAQQAEAAQA=</HashCode>
-      <FileName>ConcurrentCBQueue.h</FileName>
+      <HashCode>AAAAAAAAAAAAAAQAAAAgCAQEAAAAAIAAAAAAAAAAAAA=</HashCode>
+      <FileName>CounterTask.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Lock" Collapsed="true">
-    <Position X="5.75" Y="1.5" Width="1.5" />
+    <Position X="4" Y="1.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAQAAAAAAAAAAAAAAAQAAAAAAAAAAAAEAAEAAAAAEA=</HashCode>
       <FileName>Lock.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="GeometryFactory" Collapsed="true">
-    <Position X="2.25" Y="1.5" Width="1.5" />
+    <Position X="5.75" Y="0.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAARAAAAAAAQAAAAAAAAAAAAQAAAAAAAA=</HashCode>
       <FileName>GeometryFactory.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="HRTimer" Collapsed="true">
-    <Position X="4" Y="1.5" Width="1.5" />
+    <Position X="0.5" Y="1.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAACBAiAAAAAAAAAAAQABAEAAAAAJIAQAAABAAAA=</HashCode>
       <FileName>HRTimer.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="Model" Collapsed="true">
-    <Position X="0.5" Y="2.5" Width="1.5" />
+    <Position X="5.75" Y="1.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>ARAAACAQAAAEAAAAAAAAAAAAAQABiABCABgAAQAIAAA=</HashCode>
       <FileName>Model.h</FileName>
     </TypeIdentifier>
   </Class>
   <Class Name="RenderSystem" Collapsed="true">
-    <Position X="2.25" Y="2.5" Width="1.5" />
+    <Position X="0.5" Y="2.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAQAAAAUACgCIQAAAAAAoQAAAAAAEAACAAACAAAAAAg=</HashCode>
       <FileName>RenderSystem.h</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="TaskSystem">
-    <Position X="9.5" Y="0.75" Width="3.25" />
+  <Class Name="TaskSystem" Collapsed="true">
+    <Position X="4" Y="2.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAFQAQgAACAAAQAAAAAAAAAAACAgABAAAAE=</HashCode>
+      <HashCode>AAAABAAAAAGQEQgAESAAAQAAAAAABAAAACAgQBAAAAE=</HashCode>
       <FileName>TaskSystem.h</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="WorkerThread">
-    <Position X="11.5" Y="4.5" Width="2.25" />
+  <Class Name="WorkerThread" Collapsed="true">
+    <Position X="5.75" Y="2.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AgEIBAABAAAAACAAAAwAAACAIAQAAAAAAAABAAAAAkA=</HashCode>
+      <HashCode>AgAABAAAAAAAASAAAA0AAACAIAAAAAAAAAABAAAAAEA=</HashCode>
       <FileName>WorkerThread.h</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="CounterTask" Collapsed="true">
-    <Position X="0.5" Y="1.5" Width="1.5" />
+  <Class Name="LinkListQueue&lt;Type&gt;" Collapsed="true">
+    <Position X="2.25" Y="1.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAQAAAAgCAQEAAAAAIAAAAAAAAAAAAA=</HashCode>
-      <FileName>CounterTask.h</FileName>
+      <HashCode>AAVAAAAAgAAAAAAAAAAAAAgAQAAAFAAAAgAAIAAAAQA=</HashCode>
+      <FileName>LinkListQueue.h</FileName>
     </TypeIdentifier>
   </Class>
-  <Struct Name="VertexShaderCreationData" Collapsed="true">
-    <Position X="0.5" Y="4.75" Width="1.5" />
+  <Class Name="RingBufferQueue&lt;Type&gt;" Collapsed="true">
+    <Position X="2.25" Y="2.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAIAAgAAAAAAAAgAAAAAAAAAgAAAAAAAAABAAAAA=</HashCode>
-      <FileName>ShaderTypes.h</FileName>
+      <HashCode>QABAAAQAAAIAAAAAEAEAAAAAECAAFAAAAAIAAAEAAQA=</HashCode>
+      <FileName>RingBufferQueue.h</FileName>
     </TypeIdentifier>
-  </Struct>
-  <Struct Name="PixelShaderCreationData" Collapsed="true">
-    <Position X="2.25" Y="3.75" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAACAAAgAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>ShaderTypes.h</FileName>
-    </TypeIdentifier>
-  </Struct>
-  <Struct Name="TaskData">
-    <Position X="14" Y="2.75" Width="2" />
+  </Class>
+  <Struct Name="TaskData" Collapsed="true">
+    <Position X="4" Y="3.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAADgAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Tasks.h</FileName>
     </TypeIdentifier>
   </Struct>
-  <Struct Name="Task">
-    <Position X="14" Y="0.75" Width="2.75" />
+  <Struct Name="Task" Collapsed="true">
+    <Position X="2.25" Y="3.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AABIAAAAAAAAAAAAAAAAIAAAAAAAAAgAAAAAAAAAAAA=</HashCode>
       <FileName>Tasks.h</FileName>
@@ -129,68 +105,19 @@
       <FileName>Logger.h</FileName>
     </TypeIdentifier>
   </Struct>
-  <Typedef Name="uint8" Collapsed="true">
-    <Position X="5.75" Y="7.75" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>typedef.h</FileName>
-    </TypeIdentifier>
-  </Typedef>
-  <Typedef Name="uint16" Collapsed="true">
-    <Position X="2.25" Y="7.75" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>typedef.h</FileName>
-    </TypeIdentifier>
-  </Typedef>
-  <Typedef Name="uint32" Collapsed="true">
-    <Position X="4" Y="7.75" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>typedef.h</FileName>
-    </TypeIdentifier>
-  </Typedef>
-  <Typedef Name="int8" Collapsed="true">
-    <Position X="5.75" Y="7" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>typedef.h</FileName>
-    </TypeIdentifier>
-  </Typedef>
-  <Typedef Name="int16" Collapsed="true">
-    <Position X="0.5" Y="7" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>typedef.h</FileName>
-    </TypeIdentifier>
-  </Typedef>
-  <Typedef Name="int32" Collapsed="true">
-    <Position X="4" Y="7" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>typedef.h</FileName>
-    </TypeIdentifier>
-  </Typedef>
   <Typedef Name="task" Collapsed="true">
-    <Position X="16.25" Y="3.5" Width="3.25" />
+    <Position X="2.25" Y="5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Tasks.h</FileName>
     </TypeIdentifier>
   </Typedef>
   <Typedef Name="callback" Collapsed="true">
-    <Position X="16.25" Y="2.75" Width="2.75" />
+    <Position X="0.5" Y="5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Tasks.h</FileName>
     </TypeIdentifier>
   </Typedef>
-  <Enum Name="ShaderType" Collapsed="true">
-    <Position X="0.5" Y="6" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAIAAAAAAAAAA=</HashCode>
-      <FileName>ShaderTypes.h</FileName>
-    </TypeIdentifier>
-  </Enum>
   <Font Name="Segoe UI" Size="9" />
 </ClassDiagram>

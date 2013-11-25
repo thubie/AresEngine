@@ -72,6 +72,11 @@ DWORD WorkerThread::ExecuteTasks()
 
             currentTask->taskFunction(currentTask->pTaskData, currentTask->thisPointer);
         
+            if(currentTask->callback != nullptr)
+            {
+                currentTask->callback(currentTask->thisPointer);
+            }
+
         #ifdef _DEBUG
             LARGE_INTEGER endStamp; 
             QueryPerformanceCounter(&endStamp);
