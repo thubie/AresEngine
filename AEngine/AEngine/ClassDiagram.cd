@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
   <Class Name="AEngine" Collapsed="true">
-    <Position X="0.5" Y="0.5" Width="1.5" />
+    <Position X="9" Y="0.5" Width="5.25" />
     <TypeIdentifier>
       <HashCode>gAAgICAAAAIAAyAAgAAABQAAAAAAAIAAAEAAAAAgABY=</HashCode>
       <FileName>AEngine.h</FileName>
@@ -84,15 +84,15 @@
       <FileName>RingBufferQueue.h</FileName>
     </TypeIdentifier>
   </Class>
-  <Struct Name="TaskData" Collapsed="true">
-    <Position X="4" Y="3.75" Width="1.5" />
+  <Struct Name="TaskData">
+    <Position X="9.75" Y="3.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAADgAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Tasks.h</FileName>
     </TypeIdentifier>
   </Struct>
-  <Struct Name="Task" Collapsed="true">
-    <Position X="2.25" Y="3.75" Width="1.5" />
+  <Struct Name="Task">
+    <Position X="8" Y="3.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AABIAAAAAAAAAAAAAAAAIAAAAAAAAAgAAAAAAAAAAAA=</HashCode>
       <FileName>Tasks.h</FileName>
@@ -106,14 +106,14 @@
     </TypeIdentifier>
   </Struct>
   <Typedef Name="task" Collapsed="true">
-    <Position X="2.25" Y="5" Width="1.5" />
+    <Position X="8" Y="5.5" Width="3.25" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Tasks.h</FileName>
     </TypeIdentifier>
   </Typedef>
   <Typedef Name="callback" Collapsed="true">
-    <Position X="0.5" Y="5" Width="1.5" />
+    <Position X="8" Y="6.25" Width="3.25" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Tasks.h</FileName>

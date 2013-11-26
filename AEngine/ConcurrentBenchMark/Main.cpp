@@ -5,8 +5,8 @@
 
 int main()
 {
-    const volatile int taskCount    = 10000;
-    const unsigned int maxThreads   = 8;
+    const volatile int taskCount    = 100;
+    const unsigned int maxThreads   = 1;
     TaskSystem* pTaskSystem         = new TaskSystem;
     HRTimer* pTimer                 = new HRTimer;
     CounterTask* pCounterTask       = new CounterTask;

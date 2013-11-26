@@ -46,7 +46,8 @@ void CounterTask::Count(TaskData* pData)
     }
 }
 
-void CounterTask::FinishedCountTask()
+void CounterTask::FinishedCountTask(void* task)
 {
     _InterlockedIncrement(&m_FinishedTasks);
+    delete task;
 }

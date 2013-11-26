@@ -52,14 +52,12 @@ DWORD WorkerThread::ExecuteTasks()
 
     while(m_running)
     {
-        if(!m_pTaskSystem->DistributingTasks())
-        {
+        if(!m_pTaskSystem->DistributingTasks()) {
             Sleep(1);
             continue;
         }
 
-        if(currentTask == nullptr)
-        {
+        if(currentTask == nullptr) {
             Sleep(1);
         }
         else
@@ -74,16 +72,15 @@ DWORD WorkerThread::ExecuteTasks()
         
             if(currentTask->callback != nullptr)
             {
-                currentTask->callback(currentTask->thisPointer);
+                currentTask->callback(currentTask->thisPointer,(void*)currentTask);
             }
 
         #ifdef _DEBUG
             LARGE_INTEGER endStamp; 
             QueryPerformanceCounter(&endStamp);
             LOG("Finished Task",m_threadID,(DWORD)endStamp.QuadPart - beginStamp.QuadPart);
-        #endif  
+        #endif
 
-            delete currentTask;
             currentTask = nullptr;
         }
         currentTask = m_pTaskSystem->DequeueTask();

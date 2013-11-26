@@ -17,17 +17,17 @@ public:
         self->Count(pData);
     }
 
-    static void FinishedCount(void* thisPointer)
+    static void FinishedCount(void* thisPointer, void* task)
     {
         CounterTask* self = static_cast<CounterTask*>(thisPointer);
-        self->FinishedCountTask();
+        self->FinishedCountTask(task);
     }
 
     Task* GetCountTask();
 
 private:
     void Count(TaskData* parameters);
-    void FinishedCountTask();
+    void FinishedCountTask(void* task);
 
 private:
     unsigned long long m_MaxCount;
