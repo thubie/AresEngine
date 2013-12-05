@@ -1,9 +1,13 @@
 #pragma once
 
-#include<Windows.h>
-#include<xnamath.h>
-#include<D3D11.h>
-#include<D3DX11.h>
+
+#include<assimp/Importer.hpp>
+#include<assimp/scene.h>
+#include<assimp/postprocess.h>
+
+#include"Model.h"
+#include"Tasks.h"
+
 
 class GeometryFactory
 {
@@ -14,6 +18,21 @@ public:
 
     void Initialize();
     void Shutdown();
+    void SetGraphicsDeviceAndContext(ID3D11DeviceContext* immediateDevice,ID3D11Device* d3dDevice); //need to change this.
+    Model* ImportAssetTest(const char* pFile);
 
+    static void ImportAssetTask(TaskData* pData, void* thisPointer)
+    {
+        GeometryFactory* self = static_cast<GeometryFactory*>(thisPointer);
+        self->ImportAsset(pData);
+    }
+
+private:
+    void ImportAsset(TaskData* pData);
+
+private:
+    bool* m_usedImporters;
+    ID3D11DeviceContext*    m_pImmediateContext;
+    ID3D11Device*           m_pD3dDevice;
 
 };

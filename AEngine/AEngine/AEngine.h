@@ -7,6 +7,7 @@
 #include"Camera.h"
 #include"RenderSystem.h"
 #include"HRTimer.h"
+#include"GeometryFactory.h"
 #define WIN32_LEAN_AND_MEAN
 
 
@@ -26,17 +27,18 @@ private:
     void InitializeWin();
 
 private:
-    LPCWSTR         m_appName;
-    HINSTANCE       m_hInstance;
-    HWND            m_hwnd;
-    TaskSystem*     m_pTaskSystem;
-    CounterTask*    m_TestTask;
-    RenderSystem*   m_pRenderSystem ;
-    HRTimer*        m_pGameTimer;
-    Model*          m_pTestRenderModel;
-    Camera*         m_pCamera;
-    int             m_windowWidth; //To do read window resolution from a config/ini file
-    int             m_windowHeight;
+    LPCWSTR             m_appName;
+    HINSTANCE           m_hInstance;
+    HWND                m_hwnd;
+    TaskSystem*         m_pTaskSystem;
+    CounterTask*        m_TestTask;
+    RenderSystem*       m_pRenderSystem ;
+    HRTimer*            m_pGameTimer;
+    Model*              m_pTestRenderModel;
+    Camera*             m_pCamera;
+    GeometryFactory*    m_pGeometryFactory;
+    int                 m_windowWidth; //To do read window resolution from a config/ini file
+    int                 m_windowHeight;
 
 };
 

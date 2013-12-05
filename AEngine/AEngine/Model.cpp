@@ -1,6 +1,6 @@
 #include"Model.h"
 
-Model::Model(ID3D11DeviceContext* immediateContext,ID3D11Device* d3dDevice)
+Model::Model()
 {
     m_pVertexShader = nullptr;
     m_pPixelShader = nullptr;
@@ -9,8 +9,8 @@ Model::Model(ID3D11DeviceContext* immediateContext,ID3D11Device* d3dDevice)
     m_pIndexBuffer = nullptr;
     m_pConstantBuffer = nullptr;
     m_pTestConstantBuffer = nullptr;
-    m_pImmediateContext = immediateContext;
-    m_pD3dDevice = d3dDevice;
+    m_pImmediateContext = nullptr;;
+    m_pD3dDevice = nullptr;
 }
  
 Model::Model(const Model& other)
@@ -18,6 +18,12 @@ Model::Model(const Model& other)
 
 Model::~Model()
 {}
+
+void Model::SetGraphicsDeviceAndContext(ID3D11DeviceContext* immediateContext,ID3D11Device* d3dDevice)
+{
+    m_pImmediateContext = immediateContext;
+    m_pD3dDevice = d3dDevice;
+}
 
 void Model::Render(Camera* pCamera)
 {
@@ -29,30 +35,97 @@ void Model::Render(Camera* pCamera)
     t = ( dwTimeCur - dwTimeStart ) / 1000.0f;
     
     //1st cube rotate around the origin
-    XMMATRIX WorldMatrix = XMMatrixRotationY(t);
-
-    // 2nd Cube rotate arond origin
-    XMMATRIX mSpin = XMMatrixRotationZ( -t );
-    XMMATRIX mOrbit = XMMatrixRotationY( -t * 2.0f );
-	XMMATRIX mTranslate = XMMatrixTranslation( -4.0f, 0.0f, 0.0f );
-	XMMATRIX mScale = XMMatrixScaling( 0.3f, 0.3f, 0.3f );
-
-
-    m_pTestConstantBuffer->m_World = XMMatrixTranspose(WorldMatrix);
+    *m_WorldMatrix = XMMatrixRotationY(t);
+    m_pTestConstantBuffer->m_World = XMMatrixTranspose(*m_WorldMatrix);
     m_pTestConstantBuffer->m_View = XMMatrixTranspose(*(pCamera->GetViewMatrix()));
     m_pTestConstantBuffer->m_Projection = XMMatrixTranspose(*(pCamera->GetProjectionMatrix()));
     m_pImmediateContext->UpdateSubresource(m_pConstantBuffer, 0, NULL,m_pTestConstantBuffer, 0, 0);
 
-    // Render a the cube 1
-	m_pImmediateContext->VSSetShader( m_pVertexShader, NULL, 0 );
+    // Set primitive topology. This needs to go to RenderSystem
+    UINT stride = sizeof(XMFLOAT3);
+    UINT offset = 0;
+    m_pImmediateContext->IASetVertexBuffers( 0, 1, &m_pVertexBuffer, &stride, &offset );
+    m_pImmediateContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);    
+    m_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    m_pImmediateContext->RSSetState(m_wireframe);
+	m_pImmediateContext->VSSetShader(m_pVertexShader, NULL, 0);
     m_pImmediateContext->VSSetConstantBuffers(0, 1, &m_pConstantBuffer);
-	m_pImmediateContext->PSSetShader( m_pPixelShader, NULL, 0 );
-    m_pImmediateContext->DrawIndexed(36, 0, 0); // 36 vertices needed for 12 triangles in a triangle list
+	m_pImmediateContext->PSSetShader(m_pPixelShader, NULL, 0 );
+    m_pImmediateContext->DrawIndexed(this->m_numIndices, 0, 0); // 36 vertices needed for 12 triangles in a triangle list
 }
 
-void Model::InitModel()
+void Model::CreateVertexIndexBuffer(unsigned int vertexCount,unsigned int indexCount,XMFLOAT3* vertices, unsigned int* indices )
 {
+    HRESULT hr;
+    this->m_numVertices = vertexCount;
+    this->m_numIndices = indexCount;
+    //Create the vertexBuffer.
+    D3D11_BUFFER_DESC bd;
+	ZeroMemory( &bd, sizeof(bd) );
+    bd.Usage = D3D11_USAGE_DEFAULT;
+    bd.ByteWidth = sizeof(XMFLOAT3) * vertexCount;
+    bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	bd.CPUAccessFlags = 0;
+    D3D11_SUBRESOURCE_DATA InitData;
+	ZeroMemory( &InitData, sizeof(InitData) );
+    InitData.pSysMem = vertices;
+    hr = m_pD3dDevice->CreateBuffer( &bd, &InitData, &m_pVertexBuffer );
 
+    assert(!FAILED(hr)); 
+
+    //Create the index buffer.
+    bd.Usage = D3D11_USAGE_DEFAULT;
+    bd.ByteWidth = sizeof(unsigned int) * indexCount;
+    bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
+    bd.CPUAccessFlags = 0;
+    InitData.pSysMem = indices;
+    hr = m_pD3dDevice->CreateBuffer(&bd, &InitData, &m_pIndexBuffer);
+    
+    assert(!FAILED(hr));
+
+    //Create the constant buffer need to put this in another function...
+    bd.Usage = D3D11_USAGE_DEFAULT;
+    bd.ByteWidth = sizeof(ConstantBuffer);
+    bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    bd.CPUAccessFlags = 0;
+    hr = m_pD3dDevice->CreateBuffer(&bd, NULL, &m_pConstantBuffer);
+    
+    assert(!FAILED(hr));
+
+    //Initialize the world matrix
+    m_WorldMatrix = (XMMATRIX*)_aligned_malloc(sizeof(XMMATRIX),16);
+    *m_WorldMatrix = XMMatrixIdentity();
+
+    m_pTestConstantBuffer = (ConstantBuffer*) _aligned_malloc(sizeof(ConstantBuffer), 16);
+
+    D3D11_RASTERIZER_DESC wireframedsc;
+    ZeroMemory(&wireframedsc,sizeof(D3D11_RASTERIZER_DESC));
+    wireframedsc.FillMode = D3D11_FILL_WIREFRAME; //D3D11_FILL_SOLID;  D3D11_FILL_WIREFRAME;
+    wireframedsc.CullMode = D3D11_CULL_BACK; //D3D11_CULL_BACK   D3D10_CULL_FRONT
+    this->m_pD3dDevice->CreateRasterizerState(&wireframedsc,&m_wireframe);
+
+}
+
+void Model::CleanUpModelData()
+{
+    //Clean up model data buffers and shaders
+    if(m_pConstantBuffer) 
+        m_pConstantBuffer->Release();
+    if(m_pVertexBuffer) 
+        m_pVertexBuffer->Release();
+    if(m_pIndexBuffer) 
+        m_pIndexBuffer->Release();
+    if(m_pVertexLayout) 
+        m_pVertexLayout->Release();
+    if(m_pVertexShader) 
+        m_pVertexShader->Release();
+    if(m_pPixelShader) 
+        m_pPixelShader->Release();
+}
+
+//Need to put this in shader manager!!!!!!
+void Model::GenerateShaderAndLayout()
+{
     HRESULT hr;
 
     ID3DBlob* pVSBlob = NULL;
@@ -66,27 +139,22 @@ void Model::InitModel()
 
     //Create the vertex shader
     hr = m_pD3dDevice->CreateVertexShader(pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(),NULL, &m_pVertexShader);
-    if( FAILED( hr ) )
-	{	
+    if( FAILED( hr ) )	
 		pVSBlob->Release();
-        //return hr;
-	}
 
     //Define the input layout
     D3D11_INPUT_ELEMENT_DESC layout[] = 
     {
-        {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0},
-        {"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
+        {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0}
     };
 
     unsigned int numElements = ARRAYSIZE(layout);
 
     //Create the input layout
     hr = m_pD3dDevice->CreateInputLayout(layout,numElements,pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(),&m_pVertexLayout);
+    assert(!FAILED(hr));
 
     pVSBlob->Release();
-    //if(FAILED(hr))
-        //return hr;
 
     //Set the input layout
     m_pImmediateContext->IASetInputLayout(m_pVertexLayout);
@@ -98,109 +166,14 @@ void Model::InitModel()
     {
         MessageBox( NULL,
                     L"The FX file cannot be compiled.  Please run this executable from the directory that contains the FX file.", L"Error", MB_OK );
-        //return hr;
     }
 
     //Create the Pixel shader
     hr = m_pD3dDevice->CreatePixelShader(pPSBlob->GetBufferPointer(),pPSBlob->GetBufferSize(), NULL,&m_pPixelShader);
+    assert(!FAILED(hr));
+
     pPSBlob->Release();
-    //if( FAILED( hr ) )
-    //   return hr;
-
-
-    // Create vertex buffer
-    SimpleVertex vertices[] =
-    {
-        { XMFLOAT3( -1.0f, 1.0f, -1.0f ), XMFLOAT4( 0.0f, 1.0f, 0.0f, 1.0f ) },
-        { XMFLOAT3( 1.0f, 1.0f, -1.0f ), XMFLOAT4( 0.0f, 1.0f, 0.0f, 1.0f ) },
-        { XMFLOAT3( 1.0f, 1.0f, 1.0f ), XMFLOAT4( 0.0f, 1.0f, 0.0f, 1.0f ) },
-        { XMFLOAT3( -1.0f, 1.0f, 1.0f ), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f ) },
-        { XMFLOAT3( -1.0f, -1.0f, -1.0f ), XMFLOAT4( 0.0f, 1.0f, 0.0f, 1.0f ) },
-        { XMFLOAT3( 1.0f, -1.0f, -1.0f ), XMFLOAT4( 0.0f, 1.0f, 0.0f, 1.0f ) },
-        { XMFLOAT3( 1.0f, -1.0f, 1.0f ), XMFLOAT4( 0.0f, 1.0f, 0.0f, 1.0f ) },
-        { XMFLOAT3( -1.0f, -1.0f, 1.0f ), XMFLOAT4( 0.0f, 1.0f, 0.0f, 1.0f ) },
-    };
-
-    D3D11_BUFFER_DESC bd;
-	ZeroMemory( &bd, sizeof(bd) );
-    bd.Usage = D3D11_USAGE_DEFAULT;
-    bd.ByteWidth = sizeof( SimpleVertex ) * 8;
-    bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	bd.CPUAccessFlags = 0;
-    D3D11_SUBRESOURCE_DATA InitData;
-	ZeroMemory( &InitData, sizeof(InitData) );
-    InitData.pSysMem = vertices;
-    hr = m_pD3dDevice->CreateBuffer( &bd, &InitData, &m_pVertexBuffer );
-    //if( FAILED( hr ) )
-        //return hr;
-
-    // Set vertex buffer
-    UINT stride = sizeof( SimpleVertex );
-    UINT offset = 0;
-    m_pImmediateContext->IASetVertexBuffers( 0, 1, &m_pVertexBuffer, &stride, &offset );
-
-    //Create index buffer
-    WORD indices[] =
-    {
-        3,1,0,  2,1,3,
-
-        0,5,4,  1,5,0,
-
-        3,4,7,  0,4,3,
-
-        1,6,5,  2,6,1,
-
-        2,7,6,  3,7,2,
-
-        6,4,5, 7,4,6,
-    };
-
-    bd.Usage = D3D11_USAGE_DEFAULT;
-    bd.ByteWidth = sizeof(WORD) * 36;
-    bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-    bd.CPUAccessFlags = 0;
-    InitData.pSysMem = indices;
-    hr = m_pD3dDevice->CreateBuffer(&bd, &InitData, &m_pIndexBuffer);
-    //if( FAILED( hr ) )
-        //return hr;
-
-    //Set index buffer
-    m_pImmediateContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
-
-    // Set primitive topology
-    m_pImmediateContext->IASetPrimitiveTopology( D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
-
-    //Create the constant buffer
-    bd.Usage = D3D11_USAGE_DEFAULT;
-    bd.ByteWidth = sizeof(ConstantBuffer);
-    bd.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-    bd.CPUAccessFlags = 0;
-    hr = m_pD3dDevice->CreateBuffer(&bd, NULL, &m_pConstantBuffer);
-    //if( FAILED( hr ) )
-        //return hr;
-
-    //Initialize the world matrix
-    m_WorldMatrix = (XMMATRIX*)_aligned_malloc(sizeof(XMMATRIX),16);
-    *m_WorldMatrix = XMMatrixIdentity();
-
-    m_pTestConstantBuffer = (ConstantBuffer*) _aligned_malloc(sizeof(ConstantBuffer), 16);
-
-}
-
-void Model::CleanUpModel()
-{
-    if(m_pConstantBuffer) 
-        m_pConstantBuffer->Release();
-    if(m_pVertexBuffer) 
-        m_pVertexBuffer->Release();
-    if(m_pIndexBuffer) 
-        m_pIndexBuffer->Release();
-    if(m_pVertexLayout) 
-        m_pVertexLayout->Release();
-    if(m_pVertexShader) 
-        m_pVertexShader->Release();
-    if(m_pPixelShader) 
-        m_pPixelShader->Release();
+    
 }
 
 HRESULT Model::CompileShaderFromFile(WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel,ID3DBlob** ppBlobOut)

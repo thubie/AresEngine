@@ -5,12 +5,13 @@
 
 AEngine::AEngine()
 {
-    m_pTaskSystem     = nullptr;
+    m_pTaskSystem       = nullptr;
     m_pRenderSystem     = nullptr;
     m_pTestRenderModel  = nullptr;
     m_pCamera           = nullptr;
-    m_windowWidth = 640;
-    m_windowHeight = 480;
+    m_pGeometryFactory  = nullptr;
+    m_windowWidth = 1600;
+    m_windowHeight = 900;
 }
 
 AEngine::AEngine(const AEngine& other)
@@ -52,12 +53,12 @@ bool AEngine::Initialize()
 
     XMFLOAT3* pos = (XMFLOAT3*)_aligned_malloc(sizeof(XMFLOAT3),16);
     pos->x = 0.0f;
-    pos->y = 4.5f;
-    pos->z = -10.0f;
+    pos->y = 70.0f;
+    pos->z = -70.0f;
 
     XMFLOAT3* target = (XMFLOAT3*)_aligned_malloc(sizeof(XMFLOAT3),16);
     target->x = 0.0f;
-    target->y = 1.0f;
+    target->y = 50.0f;
     target->z = 0.0f;
 
     XMFLOAT3* up = (XMFLOAT3*)_aligned_malloc(sizeof(XMFLOAT3),16);
@@ -72,18 +73,17 @@ bool AEngine::Initialize()
     _aligned_free(target);
     _aligned_free(up);
 
-    m_pTestRenderModel = new Model(m_pRenderSystem->m_pImmediateContext,m_pRenderSystem->m_pD3DDevice);
-    if(m_pTestRenderModel == nullptr)     
-        return false;
-    m_pTestRenderModel->InitModel();
-
+    m_pGeometryFactory = new GeometryFactory();
+    m_pGeometryFactory->SetGraphicsDeviceAndContext(m_pRenderSystem->m_pImmediateContext, m_pRenderSystem->m_pD3DDevice);
+    m_pTestRenderModel = m_pGeometryFactory->ImportAssetTest("D:\\Projects\\Ares\\AresEngine\\AEngine\\Debug\\Content\\TestDude.dae"); //"D:\\Projects\\Ares\\AresEngine\\AEngine\\Debug\\dude.fbx"
+    
     return true;
 }
 
 bool AEngine::Shutdown()
 {
     if(m_pTestRenderModel != nullptr)
-        m_pTestRenderModel->CleanUpModel();
+        m_pTestRenderModel->CleanUpModelData();
     m_pTestRenderModel = nullptr;
 
     if(m_pTaskSystem != nullptr)
