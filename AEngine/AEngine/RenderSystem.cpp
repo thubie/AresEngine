@@ -63,7 +63,7 @@ void RenderSystem::InitDeviceAndSwapChain()
 
     unsigned createDeviceFlags = 0;
 #ifdef _DEBUG
-    //createDeviceFlags = 0;
+    createDeviceFlags = 0;
     createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 
@@ -111,7 +111,7 @@ void RenderSystem::InitDeviceAndSwapChain()
     //    return hr;
 
     //Create a render target view
-    ID3D11Texture2D* pBackbuffer = nullptr;
+    ID3D11Texture2D* pBackbuffer = NULL;
     hr = m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*) &pBackbuffer);
     //if(FAILED(hr))
     //    return hr;
@@ -120,8 +120,6 @@ void RenderSystem::InitDeviceAndSwapChain()
     pBackbuffer->Release();
     //if(FAILED(hr))
     //    return hr;
-
-    m_pImmediateContext->OMSetRenderTargets(1, &m_pRenderTargetView,NULL);
 
     //Create depth stencil texture
     D3D11_TEXTURE2D_DESC descDepth;

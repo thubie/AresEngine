@@ -1,5 +1,6 @@
 #include"GeometryFactory.h"
 
+
 GeometryFactory::GeometryFactory()
 {
   
@@ -10,7 +11,6 @@ GeometryFactory::~GeometryFactory()
 
 void GeometryFactory::Initialize()
 {
-    
     
 }
 
@@ -31,8 +31,7 @@ void GeometryFactory::SetGraphicsDeviceAndContext(ID3D11DeviceContext* immediate
 }
 
 Model* GeometryFactory::ImportAssetTest(const char* pFile)
-{
-    
+{   
     Model* tempModel = new Model();
     tempModel->SetGraphicsDeviceAndContext(m_pImmediateContext,m_pD3dDevice);
     tempModel->GenerateShaderAndLayout();
@@ -42,27 +41,38 @@ Model* GeometryFactory::ImportAssetTest(const char* pFile)
     //Import and parse the file 
     const aiScene* pScene = localImporter.ReadFile(pFile,
         aiProcess_ConvertToLeftHanded |
-        aiProcess_JoinIdenticalVertices|
         aiProcess_Triangulate |
         aiProcess_GenNormals |
         aiProcess_CalcTangentSpace |
-        aiProcess_FixInfacingNormals
+        aiProcess_FixInfacingNormals |
+        aiProcess_GenUVCoords 
+        //aiProcess_FlipUVs
         );
-       
 
     //Get the only mesh
     aiMesh* mesh = pScene->mMeshes[0]; 
     unsigned int numVertices = mesh->mNumVertices;
     unsigned int numFaces  = mesh->mNumFaces;
-
-    XMFLOAT3* vertices = new XMFLOAT3[numVertices];
+    
+    //XMFLOAT3* vertices = new XMFLOAT3[numVertices];
+    PosNormUV* vertices = new PosNormUV[numVertices];
     unsigned int* indices = new unsigned int[numFaces * 3];
+    float u = 0; 
+    float v = 0;
+
 
     for(int i = 0; i < numVertices; i++)
     {
-        vertices[i].x = mesh->mVertices[i].x;
-        vertices[i].y = mesh->mVertices[i].y;
-        vertices[i].z = mesh->mVertices[i].z;
+        vertices[i].pos.x = mesh->mVertices[i].x;
+        vertices[i].pos.y = mesh->mVertices[i].y;
+        vertices[i].pos.z = mesh->mVertices[i].z;
+
+        vertices[i].norm.x = mesh->mNormals[i].x;
+        vertices[i].norm.y = mesh->mNormals[i].y;
+        vertices[i].norm.z = mesh->mNormals[i].z;
+
+        vertices[i].uv.x = mesh->mTextureCoords[0][i].x;
+        vertices[i].uv.y = mesh->mTextureCoords[0][i].y;
     }
 
     int index = 0;
@@ -80,6 +90,5 @@ Model* GeometryFactory::ImportAssetTest(const char* pFile)
 
     delete[] vertices;
     delete[] indices;
-
     return tempModel;
 }

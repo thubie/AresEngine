@@ -7,16 +7,10 @@
 #include<d3dcompiler.h>
 #include"Camera.h"
 #include<assert.h>
-
+#include"VertexTypes.h"
 
 class Model
 {
-    struct SimpleVertex
-    {
-        XMFLOAT3 m_Pos;
-        XMFLOAT4 Color;
-    };
-
     struct ConstantBuffer
     {
         XMMATRIX m_World;
@@ -30,28 +24,31 @@ public:
     ~Model();
 
     void Render(Camera* pCamera);
-    void CreateVertexIndexBuffer(unsigned int VertexCount,unsigned int IndexCount,XMFLOAT3* vertices,unsigned int* indices);
+    void SetVertexAndIndexBuffer(ID3D11Buffer* vertexBuffer, ID3D11Buffer* indexBuffer);
+    void CreateVertexIndexBuffer(unsigned int VertexCount,unsigned int IndexCount,PosNormUV* vertices,unsigned int* indices);
     void GenerateShaderAndLayout();
     void CleanUpModelData();
     void SetGraphicsDeviceAndContext(ID3D11DeviceContext* immediateDevice,ID3D11Device* d3dDevice);
 
 private:
     HRESULT CompileShaderFromFile(WCHAR* szFileName, LPCSTR szEntryPoint, 
-        LPCSTR szShaderModel,ID3DBlob** ppBlobOut);
+    LPCSTR szShaderModel,ID3DBlob** ppBlobOut);
 
 private:
-    ID3D11VertexShader*     m_pVertexShader;
-    ID3D11PixelShader*      m_pPixelShader;
-    ID3D11InputLayout*      m_pVertexLayout;
-    ID3D11DeviceContext*    m_pImmediateContext;
-    ID3D11RasterizerState*  m_wireframe; //need to put this by rendering code
-    ID3D11Device*           m_pD3dDevice;
-    ID3D11Buffer*           m_pVertexBuffer;
-    ID3D11Buffer*           m_pIndexBuffer;
-    ID3D11Buffer*           m_pConstantBuffer;
-    ConstantBuffer*         m_pTestConstantBuffer;  
+    ID3D11VertexShader*         m_pVertexShader;
+    ID3D11PixelShader*          m_pPixelShader;
+    ID3D11InputLayout*          m_pVertexLayout;
+    ID3D11DeviceContext*        m_pImmediateContext;
+    ID3D11RasterizerState*      m_wireframe; //need to put this by rendering code
+    ID3D11Device*               m_pD3dDevice;
+    ID3D11Buffer*               m_pVertexBuffer;
+    ID3D11Buffer*               m_pIndexBuffer;
+    ID3D11Buffer*               m_pConstantBuffer;
+    ConstantBuffer*             m_pTestConstantBuffer;
+    ID3D11SamplerState*         m_pSamplerAF;
+    ID3D11ShaderResourceView*   m_pTexture; 
     //TODO: Put this in an camera class get it from there....
-    XMMATRIX*                m_WorldMatrix;
-    unsigned int m_numVertices;
-    unsigned int m_numIndices;
+    XMMATRIX*                   m_WorldMatrix;
+    unsigned int                m_numVertices;
+    unsigned int                m_numIndices;
 };

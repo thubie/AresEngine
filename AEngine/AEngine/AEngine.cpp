@@ -10,8 +10,9 @@ AEngine::AEngine()
     m_pTestRenderModel  = nullptr;
     m_pCamera           = nullptr;
     m_pGeometryFactory  = nullptr;
-    m_windowWidth = 1600;
-    m_windowHeight = 900;
+    m_stopped = false;
+    m_windowWidth = 640;
+    m_windowHeight = 480;
 }
 
 AEngine::AEngine(const AEngine& other)
@@ -19,7 +20,6 @@ AEngine::AEngine(const AEngine& other)
     m_windowWidth = other.m_windowWidth;
     m_windowHeight = other.m_windowHeight;
     m_pTaskSystem = other.m_pTaskSystem;
-        
 }
 
 AEngine::~AEngine()
@@ -39,9 +39,15 @@ bool AEngine::Initialize()
     m_pTaskSystem = new TaskSystem();
     if(m_pTaskSystem == nullptr)     
         return false;
-    int numMaxThreads = 10;
-    m_pTaskSystem->Initialize(10);
+    int numMaxThreads = 8;
+    m_pTaskSystem->Initialize(numMaxThreads);
     m_pTaskSystem->StartDistributing();
+    
+    m_pInputSystem = new InputSystem(appHandle);
+    if(m_pInputSystem == nullptr)
+        return false;
+    m_pInputSystem->RegisterDevices(m_hwnd);
+
     m_pRenderSystem = new RenderSystem();
     if(m_pRenderSystem == nullptr)
         return false;
@@ -51,10 +57,11 @@ bool AEngine::Initialize()
     if(m_pCamera == nullptr)
         return false;
 
+    //Need to refactor this..
     XMFLOAT3* pos = (XMFLOAT3*)_aligned_malloc(sizeof(XMFLOAT3),16);
     pos->x = 0.0f;
     pos->y = 70.0f;
-    pos->z = -70.0f;
+    pos->z = -40.0f;  //-70.0
 
     XMFLOAT3* target = (XMFLOAT3*)_aligned_malloc(sizeof(XMFLOAT3),16);
     target->x = 0.0f;
@@ -75,8 +82,7 @@ bool AEngine::Initialize()
 
     m_pGeometryFactory = new GeometryFactory();
     m_pGeometryFactory->SetGraphicsDeviceAndContext(m_pRenderSystem->m_pImmediateContext, m_pRenderSystem->m_pD3DDevice);
-    m_pTestRenderModel = m_pGeometryFactory->ImportAssetTest("D:\\Projects\\Ares\\AresEngine\\AEngine\\Debug\\Content\\TestDude.dae"); //"D:\\Projects\\Ares\\AresEngine\\AEngine\\Debug\\dude.fbx"
-    
+    m_pTestRenderModel = m_pGeometryFactory->ImportAssetTest("D:\\Projects\\Ares\\AresEngine\\AEngine\\Debug\\Content\\dude.dae");
     return true;
 }
 
@@ -90,11 +96,24 @@ bool AEngine::Shutdown()
         m_pTaskSystem->Shutdown();
     m_pTaskSystem = nullptr;
 
+    if(m_pInputSystem != nullptr)
+        delete m_pInputSystem;
+    m_pInputSystem = nullptr;
+
     if(m_pRenderSystem != nullptr)
         m_pRenderSystem->Shutdown();
     m_pRenderSystem = nullptr;
- 
+    m_stopped = true;
     return true;
+}
+
+void AEngine::MoveCameraForward()
+{
+    m_pCamera->MoveCameraForward();
+}
+void AEngine::MoveCameraBackward()
+{
+    m_pCamera->MoveCameraBackward();
 }
 
 void AEngine::Run()
@@ -109,22 +128,16 @@ void AEngine::Run()
         }
         else
         {
-            unsigned int taskCount = m_pTaskSystem->GetTaskCount();
-            if(taskCount < 256)
+            if (!m_stopped) 
             {
-                for(int i = 0; i < 30; ++i)
-                {
-                    m_pTaskSystem->EnqueueTask(m_TestTask->GetCountTask());
-                }
+                m_pRenderSystem->BeginRenderScene();
+                m_pCamera->UpdateViewMatrix();
+                m_pTestRenderModel->Render(m_pCamera);
+                m_pRenderSystem->EndRenderScene();           
             }
-            m_pRenderSystem->BeginRenderScene();
-            m_pCamera->UpdateViewMatrix();
-            m_pTestRenderModel->Render(m_pCamera);
-            m_pRenderSystem->EndRenderScene();           
         }
-            
     }
-        
+    Shutdown();   
 }
 
 void AEngine::InitializeWin()
@@ -166,6 +179,7 @@ void AEngine::InitializeWin()
 
     //Bring the window up on the screen and set it as main focus.
     ShowWindow(m_hwnd,SW_SHOW);
+    //ShowCursor(false);
     SetForegroundWindow(m_hwnd);
     SetFocus(m_hwnd);
 }
@@ -174,31 +188,31 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
     switch(msg)
     {
-        //Check if escape has been pressed.
-        case WM_KEYDOWN:
-        {
-            if(wparam == VK_ESCAPE)
-            {
-                //Need to handle this in an better...
-                appHandle->Shutdown();
-                DestroyWindow(hwnd);
-            }
-        }
         //Check if the window is being destroyed.
         case WM_DESTROY:
         {
-            //Should implement shut off procedure here 
-            appHandle->Shutdown();
             PostQuitMessage(0);
             return 0;
         }
         //Check if the window is being closed.
         case WM_CLOSE:
         {
-            appHandle->Shutdown();
             PostQuitMessage(0);
             return 0;
         }
+        //Process user input messages
+        case WM_INPUT:
+        {
+            char buffer[sizeof(RAWINPUT)] = {};
+            unsigned int size = sizeof(RAWINPUT);
+
+            GetRawInputData((HRAWINPUT)lparam, RID_INPUT,
+                buffer, &size, sizeof(RAWINPUTHEADER));
+
+            RAWINPUT* raw = (RAWINPUT*)buffer;
+            appHandle->m_pInputSystem->ProcessUserInput(raw);
+        }
+
         //All other message pass to the message handler
         default:
         {

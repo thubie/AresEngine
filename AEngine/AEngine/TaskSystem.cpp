@@ -59,7 +59,6 @@ void TaskSystem::Shutdown()
     {
         m_pWorkerThreads[i].EndWorkerThread();
     }
-    //m_pTaskQueue->emptyQueue();
 }
 
 void TaskSystem::EnqueueTask(Task* task)

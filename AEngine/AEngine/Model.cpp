@@ -42,19 +42,34 @@ void Model::Render(Camera* pCamera)
     m_pImmediateContext->UpdateSubresource(m_pConstantBuffer, 0, NULL,m_pTestConstantBuffer, 0, 0);
 
     // Set primitive topology. This needs to go to RenderSystem
-    UINT stride = sizeof(XMFLOAT3);
+    UINT stride = sizeof(PosNormUV);
     UINT offset = 0;
+
+    
+
     m_pImmediateContext->IASetVertexBuffers( 0, 1, &m_pVertexBuffer, &stride, &offset );
     m_pImmediateContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);    
     m_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    m_pImmediateContext->RSSetState(m_wireframe);
+    
 	m_pImmediateContext->VSSetShader(m_pVertexShader, NULL, 0);
     m_pImmediateContext->VSSetConstantBuffers(0, 1, &m_pConstantBuffer);
-	m_pImmediateContext->PSSetShader(m_pPixelShader, NULL, 0 );
-    m_pImmediateContext->DrawIndexed(this->m_numIndices, 0, 0); // 36 vertices needed for 12 triangles in a triangle list
+	
+    m_pImmediateContext->PSSetShader(m_pPixelShader, NULL, 0 );
+    m_pImmediateContext->PSSetShaderResources(0,1,&m_pTexture);
+    m_pImmediateContext->PSSetSamplers(0,1,&m_pSamplerAF);
+
+    m_pImmediateContext->RSSetState(m_wireframe);
+    m_pImmediateContext->DrawIndexed(this->m_numIndices, 0, 0); 
+    //m_pImmediateContext->Draw(this->m_numVertices,0);
 }
 
-void Model::CreateVertexIndexBuffer(unsigned int vertexCount,unsigned int indexCount,XMFLOAT3* vertices, unsigned int* indices )
+void Model::SetVertexAndIndexBuffer(ID3D11Buffer* vertexBuffer, ID3D11Buffer* indexBuffer)
+{
+    m_pVertexBuffer = vertexBuffer;
+    m_pIndexBuffer = indexBuffer; 
+}
+
+void Model::CreateVertexIndexBuffer(unsigned int vertexCount,unsigned int indexCount,PosNormUV* vertices, unsigned int* indices )
 {
     HRESULT hr;
     this->m_numVertices = vertexCount;
@@ -63,11 +78,11 @@ void Model::CreateVertexIndexBuffer(unsigned int vertexCount,unsigned int indexC
     D3D11_BUFFER_DESC bd;
 	ZeroMemory( &bd, sizeof(bd) );
     bd.Usage = D3D11_USAGE_DEFAULT;
-    bd.ByteWidth = sizeof(XMFLOAT3) * vertexCount;
+    bd.ByteWidth = sizeof(PosNormUV) * vertexCount;
     bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	bd.CPUAccessFlags = 0;
     D3D11_SUBRESOURCE_DATA InitData;
-	ZeroMemory( &InitData, sizeof(InitData) );
+	ZeroMemory( &InitData, sizeof(InitData));
     InitData.pSysMem = vertices;
     hr = m_pD3dDevice->CreateBuffer( &bd, &InitData, &m_pVertexBuffer );
 
@@ -100,10 +115,30 @@ void Model::CreateVertexIndexBuffer(unsigned int vertexCount,unsigned int indexC
 
     D3D11_RASTERIZER_DESC wireframedsc;
     ZeroMemory(&wireframedsc,sizeof(D3D11_RASTERIZER_DESC));
-    wireframedsc.FillMode = D3D11_FILL_WIREFRAME; //D3D11_FILL_SOLID;  D3D11_FILL_WIREFRAME;
+    wireframedsc.FillMode = D3D11_FILL_SOLID; //D3D11_FILL_SOLID;  D3D11_FILL_WIREFRAME;
     wireframedsc.CullMode = D3D11_CULL_BACK; //D3D11_CULL_BACK   D3D10_CULL_FRONT
+    wireframedsc.FrontCounterClockwise = false;
     this->m_pD3dDevice->CreateRasterizerState(&wireframedsc,&m_wireframe);
 
+    //Create Textures
+    hr = D3DX11CreateShaderResourceViewFromFile(m_pD3dDevice,
+        L"D:\\Projects\\Ares\\AresEngine\\AEngine\\Debug\\Content\\head.dds", NULL,NULL,&m_pTexture,NULL);
+    assert(!FAILED(hr));
+
+    //Create Sampler
+    D3D11_SAMPLER_DESC sampDesc;
+    ZeroMemory(&sampDesc, sizeof(sampDesc));
+    sampDesc.Filter = D3D11_FILTER_ANISOTROPIC;
+    sampDesc.MaxAnisotropy = 16;
+    sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+    sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+    sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+    sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+    sampDesc.MinLOD = 0;
+    sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+    this->m_pD3dDevice->CreateSamplerState(&sampDesc,&m_pSamplerAF);
+
+    
 }
 
 void Model::CleanUpModelData()
@@ -145,7 +180,9 @@ void Model::GenerateShaderAndLayout()
     //Define the input layout
     D3D11_INPUT_ELEMENT_DESC layout[] = 
     {
-        {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0}
+        {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0},
+        {"NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
+        {"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,    0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0},
     };
 
     unsigned int numElements = ARRAYSIZE(layout);

@@ -69,6 +69,19 @@ void Camera::SetCameraDirection(XMFLOAT3* direction)
     *m_pCamDirection = *direction;
 }
 
+
+//test code for input
+
+void Camera::MoveCameraForward()
+{
+    m_pCamPosition->z += 1;
+}
+
+void Camera::MoveCameraBackward()
+{
+    m_pCamPosition->z -= 1;
+}
+
 //return view matrix
 XMMATRIX* Camera::GetViewMatrix()
 {

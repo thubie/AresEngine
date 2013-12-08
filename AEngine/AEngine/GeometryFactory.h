@@ -7,7 +7,7 @@
 
 #include"Model.h"
 #include"Tasks.h"
-
+#include"VertexTypes.h"
 
 class GeometryFactory
 {
@@ -35,4 +35,7 @@ private:
     ID3D11DeviceContext*    m_pImmediateContext;
     ID3D11Device*           m_pD3dDevice;
 
+    //Testing code.
+    PosNormUV** m_pMeshcollection;
+    unsigned int m_meshCount;
 };

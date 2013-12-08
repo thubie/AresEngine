@@ -6,10 +6,12 @@
 #include"Model.h"
 #include"Camera.h"
 #include"RenderSystem.h"
+#include"InputSystem.h"
 #include"HRTimer.h"
 #include"GeometryFactory.h"
 #define WIN32_LEAN_AND_MEAN
 
+class InputSystem;
 
 class AEngine
 {
@@ -21,6 +23,10 @@ public:
     bool Initialize();
     void Run();
     bool Shutdown();
+
+    //Test input code delete later.
+    void MoveCameraForward();
+    void MoveCameraBackward();
 
 private:
     bool Draw();
@@ -39,6 +45,9 @@ private:
     GeometryFactory*    m_pGeometryFactory;
     int                 m_windowWidth; //To do read window resolution from a config/ini file
     int                 m_windowHeight;
+    bool                m_stopped;
+public:
+    InputSystem*        m_pInputSystem;
 
 };
 

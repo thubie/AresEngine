@@ -20,6 +20,9 @@ public:
     void SetCameraPosition(XMFLOAT3* position);
     void SetCameraDirection(XMFLOAT3* direction);
 
+    void MoveCameraForward();
+    void MoveCameraBackward();
+
 private:
     XMMATRIX*   m_pViewMatrix;
     XMMATRIX*   m_pProjectionMatrix;
