@@ -32,5 +32,5 @@ private:
 private:
     AEngine* m_pAEngine;
     bool m_movementBtnStates[4];
-    unsigned long m_movementScancodes[4];
+    unsigned short m_movementScancodes[4];
 };

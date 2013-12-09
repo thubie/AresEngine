@@ -46,21 +46,7 @@ void Model::Render(Camera* pCamera)
     UINT offset = 0;
 
     
-
-    m_pImmediateContext->IASetVertexBuffers( 0, 1, &m_pVertexBuffer, &stride, &offset );
-    m_pImmediateContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);    
-    m_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     
-	m_pImmediateContext->VSSetShader(m_pVertexShader, NULL, 0);
-    m_pImmediateContext->VSSetConstantBuffers(0, 1, &m_pConstantBuffer);
-	
-    m_pImmediateContext->PSSetShader(m_pPixelShader, NULL, 0 );
-    m_pImmediateContext->PSSetShaderResources(0,1,&m_pTexture);
-    m_pImmediateContext->PSSetSamplers(0,1,&m_pSamplerAF);
-
-    m_pImmediateContext->RSSetState(m_wireframe);
-    m_pImmediateContext->DrawIndexed(this->m_numIndices, 0, 0); 
-    //m_pImmediateContext->Draw(this->m_numVertices,0);
 }
 
 void Model::SetVertexAndIndexBuffer(ID3D11Buffer* vertexBuffer, ID3D11Buffer* indexBuffer)
@@ -113,30 +99,30 @@ void Model::CreateVertexIndexBuffer(unsigned int vertexCount,unsigned int indexC
 
     m_pTestConstantBuffer = (ConstantBuffer*) _aligned_malloc(sizeof(ConstantBuffer), 16);
 
-    D3D11_RASTERIZER_DESC wireframedsc;
-    ZeroMemory(&wireframedsc,sizeof(D3D11_RASTERIZER_DESC));
-    wireframedsc.FillMode = D3D11_FILL_SOLID; //D3D11_FILL_SOLID;  D3D11_FILL_WIREFRAME;
-    wireframedsc.CullMode = D3D11_CULL_BACK; //D3D11_CULL_BACK   D3D10_CULL_FRONT
-    wireframedsc.FrontCounterClockwise = false;
-    this->m_pD3dDevice->CreateRasterizerState(&wireframedsc,&m_wireframe);
+    //D3D11_RASTERIZER_DESC wireframedsc;
+    //ZeroMemory(&wireframedsc,sizeof(D3D11_RASTERIZER_DESC));
+    //wireframedsc.FillMode = D3D11_FILL_SOLID; //D3D11_FILL_SOLID;  D3D11_FILL_WIREFRAME;
+    //wireframedsc.CullMode = D3D11_CULL_BACK; //D3D11_CULL_BACK   D3D10_CULL_FRONT
+    //wireframedsc.FrontCounterClockwise = false;
+    //this->m_pD3dDevice->CreateRasterizerState(&wireframedsc,&m_wireframe);
 
-    //Create Textures
-    hr = D3DX11CreateShaderResourceViewFromFile(m_pD3dDevice,
-        L"D:\\Projects\\Ares\\AresEngine\\AEngine\\Debug\\Content\\head.dds", NULL,NULL,&m_pTexture,NULL);
-    assert(!FAILED(hr));
+    ////Create Textures
+    //hr = D3DX11CreateShaderResourceViewFromFile(m_pD3dDevice,
+    //    L"D:\\Projects\\Ares\\AresEngine\\AEngine\\Debug\\Content\\pants.dds", NULL,NULL,&m_pTexture,NULL);
+    //assert(!FAILED(hr));
 
-    //Create Sampler
-    D3D11_SAMPLER_DESC sampDesc;
-    ZeroMemory(&sampDesc, sizeof(sampDesc));
-    sampDesc.Filter = D3D11_FILTER_ANISOTROPIC;
-    sampDesc.MaxAnisotropy = 16;
-    sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-    sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-    sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-    sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-    sampDesc.MinLOD = 0;
-    sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
-    this->m_pD3dDevice->CreateSamplerState(&sampDesc,&m_pSamplerAF);
+    ////Create Sampler
+    //D3D11_SAMPLER_DESC sampDesc;
+    //ZeroMemory(&sampDesc, sizeof(sampDesc));
+    //sampDesc.Filter = D3D11_FILTER_ANISOTROPIC;
+    //sampDesc.MaxAnisotropy = 16;
+    //sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+    //sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+    //sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+    //sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+    //sampDesc.MinLOD = 0;
+    //sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+    //this->m_pD3dDevice->CreateSamplerState(&sampDesc,&m_pSamplerAF);
 
     
 }
@@ -166,7 +152,7 @@ void Model::GenerateShaderAndLayout()
     ID3DBlob* pVSBlob = NULL;
     
     //Compile the vertex shader
-    hr = CompileShaderFromFile(L"Test.fx", "VS", "vs_4_0", &pVSBlob);
+    hr = CompileShaderFromFile(L"StaticMesh.fx", "VS", "vs_4_0", &pVSBlob);
     if(FAILED(hr))
     {
         MessageBox(NULL,L"The FX file cannot be compiled. Please run this executable from the directory that contains the FX file.",L"Error", MB_OK );
@@ -198,7 +184,7 @@ void Model::GenerateShaderAndLayout()
     
     //Compile pixel shader
     ID3DBlob* pPSBlob = NULL;
-    hr = CompileShaderFromFile(L"Test.fx", "PS","ps_4_0", &pPSBlob);
+    hr = CompileShaderFromFile(L"StaticMesh.fx", "PS","ps_4_0", &pPSBlob);
     if( FAILED( hr ) )
     {
         MessageBox( NULL,

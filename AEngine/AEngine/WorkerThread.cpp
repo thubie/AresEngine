@@ -67,6 +67,10 @@ DWORD WorkerThread::ExecuteTasks()
         #endif
 
             currentTask->taskFunction(currentTask->pTaskData, currentTask->thisPointer);
+            if(currentTask->callback != nullptr)
+            {
+                currentTask->callback(currentTask->thisPointer,currentTask);
+            }
         
         #ifdef _DEBUG
             LARGE_INTEGER endStamp; 

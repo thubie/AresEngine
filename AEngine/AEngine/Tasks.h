@@ -10,13 +10,14 @@ struct TaskData
 };
 
 typedef void (*task)(TaskData*, void* thisPointer);
-typedef void (*callback)(void* thisPointer);
+typedef void (*callback)(void* thisPointer, void* task);
 
 struct Task
 {
-    void*       thisPointer;
-    task        taskFunction;
-    callback    callback;
-    TaskData*   pTaskData;
+    void* thisPointer;
+    task taskFunction;
+    callback callback;
+    TaskData* pTaskData;
+    unsigned int taskId;
 };
 

@@ -9,10 +9,10 @@ AEngine::AEngine()
     m_pRenderSystem     = nullptr;
     m_pTestRenderModel  = nullptr;
     m_pCamera           = nullptr;
-    m_pGeometryFactory  = nullptr;
+    m_pGeometryManager  = nullptr;
     m_stopped = false;
-    m_windowWidth = 640;
-    m_windowHeight = 480;
+    m_windowWidth = 1600;
+    m_windowHeight = 900;
 }
 
 AEngine::AEngine(const AEngine& other)
@@ -80,9 +80,18 @@ bool AEngine::Initialize()
     _aligned_free(target);
     _aligned_free(up);
 
-    m_pGeometryFactory = new GeometryFactory();
-    m_pGeometryFactory->SetGraphicsDeviceAndContext(m_pRenderSystem->m_pImmediateContext, m_pRenderSystem->m_pD3DDevice);
-    m_pTestRenderModel = m_pGeometryFactory->ImportAssetTest("D:\\Projects\\Ares\\AresEngine\\AEngine\\Debug\\Content\\dude.dae");
+    m_pGeometryManager = new GeometryManager();
+    m_pGeometryManager->Initialize(m_pRenderSystem->m_pD3DDevice, m_pRenderSystem->m_pImmediateContext, this);
+
+    //Start importing asset
+    m_pTaskSystem->EnqueueTask(m_pGeometryManager->ImportAssetTask("D:\\Projects\\Ares\\AresEngine\\AEngine\\Debug\\Content\\dude.dae"));
+
+    while(!m_pGeometryManager->DoneImporting())
+    {
+        bool done = false;
+        bool test = true;
+    }
+    //m_pTestRenderModel = m_pGeometryFactory->ImportAssetTest("D:\\Projects\\Ares\\AresEngine\\AEngine\\Debug\\Content\\dude.dae");
     return true;
 }
 
@@ -131,9 +140,9 @@ void AEngine::Run()
         {
             if (!m_stopped) 
             {
-                m_pRenderSystem->BeginRenderScene();
                 m_pCamera->UpdateViewMatrix();
-                m_pTestRenderModel->Render(m_pCamera);
+                m_pRenderSystem->BeginRenderScene();
+                m_pRenderSystem->RenderScene(m_pGeometryManager->m_pMeshCollection,m_pGeometryManager->m_count, m_pCamera);
                 m_pRenderSystem->EndRenderScene();           
             }
         }

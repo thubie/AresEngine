@@ -8,10 +8,12 @@
 #include"RenderSystem.h"
 #include"InputSystem.h"
 #include"HRTimer.h"
-#include"GeometryFactory.h"
-#define WIN32_LEAN_AND_MEAN
+#include"GeometryManager.h"
+
 
 class InputSystem;
+class GeometryManager;
+class RenderSystem;
 
 class AEngine
 {
@@ -38,11 +40,11 @@ private:
     HWND                m_hwnd;
     TaskSystem*         m_pTaskSystem;
     CounterTask*        m_TestTask;
-    RenderSystem*       m_pRenderSystem ;
+    RenderSystem*       m_pRenderSystem;
     HRTimer*            m_pGameTimer;
     Model*              m_pTestRenderModel;
     Camera*             m_pCamera;
-    GeometryFactory*    m_pGeometryFactory;
+    GeometryManager*    m_pGeometryManager;
     int                 m_windowWidth; //To do read window resolution from a config/ini file
     int                 m_windowHeight;
     bool                m_stopped;

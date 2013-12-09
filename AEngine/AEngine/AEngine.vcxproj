@@ -164,6 +164,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CounterTask.cpp" />
     <ClCompile Include="GeometryFactory.cpp" />
+    <ClCompile Include="GeometryManager.cpp" />
     <ClCompile Include="InputSystem.cpp" />
     <ClCompile Include="Lock.cpp" />
     <ClCompile Include="HRTimer.cpp" />
@@ -177,6 +178,8 @@
   <ItemGroup>
     <ClInclude Include="AEngine.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="GeometryManager.h" />
+    <ClInclude Include="GeometryObject.h" />
     <ClInclude Include="InputSystem.h" />
     <ClInclude Include="LinkListQueue.h" />
     <ClInclude Include="RingBufferQueue.h" />
@@ -189,12 +192,17 @@
     <ClInclude Include="Tasks.h" />
     <ClInclude Include="TaskSystem.h" />
     <ClInclude Include="Logger.h" />
+    <ClInclude Include="TextureManager.h" />
     <ClInclude Include="VertexTypes.h" />
     <ClInclude Include="WorkerThread.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="ClassDiagram.cd" />
     <None Include="Test.fx">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="StaticMesh.fx">
       <FileType>Document</FileType>
     </None>
   </ItemGroup>

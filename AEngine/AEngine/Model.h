@@ -3,7 +3,7 @@
 #include<Windows.h>
 #include<xnamath.h>
 #include<d3d11.h>
-#include<D3DX11.h>
+#include<d3dx11.h>
 #include<d3dcompiler.h>
 #include"Camera.h"
 #include<assert.h>
@@ -31,8 +31,7 @@ public:
     void SetGraphicsDeviceAndContext(ID3D11DeviceContext* immediateDevice,ID3D11Device* d3dDevice);
 
 private:
-    HRESULT CompileShaderFromFile(WCHAR* szFileName, LPCSTR szEntryPoint, 
-    LPCSTR szShaderModel,ID3DBlob** ppBlobOut);
+    HRESULT CompileShaderFromFile(WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel,ID3DBlob** ppBlobOut);
 
 private:
     ID3D11VertexShader*         m_pVertexShader;
@@ -47,6 +46,7 @@ private:
     ConstantBuffer*             m_pTestConstantBuffer;
     ID3D11SamplerState*         m_pSamplerAF;
     ID3D11ShaderResourceView*   m_pTexture; 
+
     //TODO: Put this in an camera class get it from there....
     XMMATRIX*                   m_WorldMatrix;
     unsigned int                m_numVertices;

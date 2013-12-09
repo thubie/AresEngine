@@ -110,6 +110,8 @@ void InputSystem::ProcessKeyboardInput(RAWINPUT* KeyboardInput)
             PostQuitMessage(0);
         }
     }
+
+    //Testcode to discover the scancodes for keyboards....!!!
     //hr = StringCchPrintf(tempString, STRSAFE_MAX_CCH, TEXT("keyBoard: make=%04x Flags:%04x Reserved:%04x, msg=%04x VK=%04x \n"),
     //    rawInput->data.keyboard.MakeCode, 
     //    rawInput->data.keyboard.Flags, 
@@ -175,21 +177,21 @@ void InputSystem::ProcessMouseInput(RAWINPUT* MouseInput)
     if(rawInput->data.mouse.ulButtons == 0x0020)
     {
         OutputDebugString(L"Middle mouse button released\n");
-    }
+    }*/
 
-    if(rawInput->data.mouse.ulButtons == 0x780400)
+    if(MouseInput->data.mouse.ulButtons == 0x780400)
     {
         OutputDebugString(L"Mouse wheel up\n");
         m_pAEngine->MoveCameraForward();
     }
 
-    if(rawInput->data.mouse.ulButtons == 0xff880400)
+    if(MouseInput->data.mouse.ulButtons == 0xff880400)
     {
         OutputDebugString(L"Mouse wheel down\n");
         m_pAEngine->MoveCameraBackward();
     }
 
-    if(!rawInput->data.mouse.ulButtons == 0x0)
+   /* if(!rawInput->data.mouse.ulButtons == 0x0)
     {
         OutputDebugString(tempString);
     }*/
