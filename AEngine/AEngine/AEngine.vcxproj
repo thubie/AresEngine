@@ -172,6 +172,7 @@
     <ClCompile Include="RenderSystem.cpp" />
     <ClCompile Include="TaskSystem.cpp" />
     <ClCompile Include="Logger.cpp" />
+    <ClCompile Include="TextureManager.cpp" />
     <ClCompile Include="WinMain.cpp" />
     <ClCompile Include="WorkerThread.cpp" />
   </ItemGroup>
@@ -189,10 +190,13 @@
     <ClInclude Include="HRTimer.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="RenderSystem.h" />
+    <ClInclude Include="ShaderManager.h" />
+    <ClInclude Include="ShaderObject.h" />
     <ClInclude Include="Tasks.h" />
     <ClInclude Include="TaskSystem.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="TextureManager.h" />
+    <ClInclude Include="TextureObject.h" />
     <ClInclude Include="VertexTypes.h" />
     <ClInclude Include="WorkerThread.h" />
   </ItemGroup>

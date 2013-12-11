@@ -16,9 +16,8 @@ GeometryFactory::~GeometryFactory()
 void GeometryFactory::DoImportAsset(TaskData* pdata)
 {
     const char* pFile = (char*)pdata->parameter1;
-    GeometryObject* MeshCollection = (GeometryObject*)pdata->parameter2;
+    std::vector<GeometryObject>* SubMeshCollection = (std::vector<GeometryObject>*)pdata->parameter2;
     unsigned int* MeshCount = (unsigned int*) pdata->parameter3;
-
     Assimp::Importer localImporter;
     
     //Import and parse the file 
@@ -40,7 +39,7 @@ void GeometryFactory::DoImportAsset(TaskData* pdata)
     for(int i = 0; i < pScene->mNumMeshes; ++i)
     {
         mesh = pScene->mMeshes[i];
-        GeometryObject Mesh = MeshCollection[i];
+        GeometryObject geoMesh;// = SubMeshCollection[i];
         numVertices = mesh->mNumVertices;
         numFaces = mesh->mNumFaces;
         numIndices = numFaces * 3;
@@ -72,7 +71,6 @@ void GeometryFactory::DoImportAsset(TaskData* pdata)
             index += 3;
         }
         
-        //Test code
         HRESULT hr;
         D3D11_BUFFER_DESC bd;
         ZeroMemory( &bd, sizeof(bd) );
@@ -83,27 +81,22 @@ void GeometryFactory::DoImportAsset(TaskData* pdata)
         D3D11_SUBRESOURCE_DATA InitData;
         ZeroMemory( &InitData, sizeof(InitData));
         InitData.pSysMem = vertices;
-        hr = m_pD3dDevice->CreateBuffer( &bd, &InitData, &Mesh.vertexBuffer );
+        hr = m_pD3dDevice->CreateBuffer( &bd, &InitData, &geoMesh.vertexBuffer );
         assert(!FAILED(hr)); 
 
-        //HRESULT hr;
-        //D3D11_BUFFER_DESC bd;
         ZeroMemory( &bd, sizeof(bd) );
         bd.Usage = D3D11_USAGE_DEFAULT;
         bd.ByteWidth = sizeof(unsigned int) * numIndices;
         bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
         bd.CPUAccessFlags = 0;
-        //D3D11_SUBRESOURCE_DATA InitData;
         InitData.pSysMem = indices;
-        hr = m_pD3dDevice->CreateBuffer(&bd, &InitData, &Mesh.indexBuffer);   
+        hr = m_pD3dDevice->CreateBuffer(&bd, &InitData, &geoMesh.indexBuffer);   
         assert(!FAILED(hr));
-
-        //CreateVertexBuffer(Mesh.vertexBuffer, vertices, numVertices);
-        //CreateIndexBuffer(Mesh.indexBuffer, indices, numFaces * 3);
-        Mesh.indicesCount = numIndices;
         
-        MeshCollection[i] = Mesh;
-
+        geoMesh.id = i;
+        geoMesh.indicesCount = numIndices;
+        SubMeshCollection->push_back(geoMesh);
+        
         delete[] vertices;
         delete[] indices;
     }
@@ -117,7 +110,7 @@ void GeometryFactory::SetGraphicsDeviceAndContext(ID3D11Device* d3dDevice, ID3D1
 }
 
 //Get the importAssetTask
-Task* GeometryFactory::ImportAsset(const char* pFile, GeometryObject* pMeshCollection, unsigned int* pMeshCount)
+Task* GeometryFactory::ImportAsset(const char* pFile, std::vector<GeometryObject>* pMeshCollection, unsigned int* pMeshCount)
 {
     Task* task = new Task;
     TaskData* data = new TaskData;
@@ -134,44 +127,13 @@ Task* GeometryFactory::ImportAsset(const char* pFile, GeometryObject* pMeshColle
     return task; 
 }
 
-//Callback function need to implement an 
-//better option like an event or message 
-//instead of an bool flag
+//Callback function 
 void GeometryFactory::DoneImportingAsset(void* task)
 {
+    //need to implement an 
+    //better option like an event or message 
+    //instead of an bool flag
     bool finished = true;
     m_DoneImporting = finished;
 }
 
-//Create the vertexBuffer
-void GeometryFactory::CreateVertexBuffer(ID3D11Buffer* vertexBuffer, PosNormUV* vertices, unsigned int count)
-{
-    HRESULT hr;
-    D3D11_BUFFER_DESC bd;
-	ZeroMemory( &bd, sizeof(bd) );
-    bd.Usage = D3D11_USAGE_DEFAULT;
-    bd.ByteWidth = sizeof(PosNormUV) * count;
-    bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	bd.CPUAccessFlags = 0;
-    D3D11_SUBRESOURCE_DATA InitData;
-	ZeroMemory( &InitData, sizeof(InitData));
-    InitData.pSysMem = vertices;
-    hr = m_pD3dDevice->CreateBuffer( &bd, &InitData, &vertexBuffer );
-    assert(!FAILED(hr)); 
-}
-
-//Create the indexBuffer
-void GeometryFactory::CreateIndexBuffer(ID3D11Buffer* indexBuffer, unsigned int* indices, unsigned int count)
-{
-    HRESULT hr;
-    D3D11_BUFFER_DESC bd;
-    ZeroMemory( &bd, sizeof(bd) );
-    bd.Usage = D3D11_USAGE_DEFAULT;
-    bd.ByteWidth = sizeof(unsigned int) * count;
-    bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-    bd.CPUAccessFlags = 0;
-    D3D11_SUBRESOURCE_DATA InitData;
-    InitData.pSysMem = indices;
-    hr = m_pD3dDevice->CreateBuffer(&bd, &InitData, &indexBuffer);   
-    assert(!FAILED(hr));
-}

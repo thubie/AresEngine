@@ -9,6 +9,7 @@
 #include"InputSystem.h"
 #include"HRTimer.h"
 #include"GeometryManager.h"
+#include"TextureManager.h"
 
 
 class InputSystem;
@@ -42,15 +43,14 @@ private:
     CounterTask*        m_TestTask;
     RenderSystem*       m_pRenderSystem;
     HRTimer*            m_pGameTimer;
-    Model*              m_pTestRenderModel;
     Camera*             m_pCamera;
     GeometryManager*    m_pGeometryManager;
+    TextureManager*     m_pTextureManager;
     int                 m_windowWidth; //To do read window resolution from a config/ini file
     int                 m_windowHeight;
     bool                m_stopped;
 public:
     InputSystem*        m_pInputSystem;
-
 };
 
 static LRESULT CALLBACK WndProc(HWND,UINT,WPARAM,LPARAM);

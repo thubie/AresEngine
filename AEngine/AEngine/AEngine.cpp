@@ -1,15 +1,13 @@
 #include<assert.h>
 #include"AEngine.h"
 
-
-
 AEngine::AEngine()
 {
     m_pTaskSystem       = nullptr;
     m_pRenderSystem     = nullptr;
-    m_pTestRenderModel  = nullptr;
     m_pCamera           = nullptr;
     m_pGeometryManager  = nullptr;
+    m_pTextureManager   = nullptr;
     m_stopped = false;
     m_windowWidth = 1600;
     m_windowHeight = 900;
@@ -32,9 +30,6 @@ bool AEngine::Initialize()
     bool result;
 
     InitializeWin();
-
-    //Delete this later only for testing.
-    m_TestTask = new CounterTask();
 
     m_pTaskSystem = new TaskSystem();
     if(m_pTaskSystem == nullptr)     
@@ -83,24 +78,22 @@ bool AEngine::Initialize()
     m_pGeometryManager = new GeometryManager();
     m_pGeometryManager->Initialize(m_pRenderSystem->m_pD3DDevice, m_pRenderSystem->m_pImmediateContext, this);
 
+    m_pTextureManager = new TextureManager(m_pRenderSystem->m_pD3DDevice,m_pRenderSystem->m_pImmediateContext);
+
     //Start importing asset
     m_pTaskSystem->EnqueueTask(m_pGeometryManager->ImportAssetTask("D:\\Projects\\Ares\\AresEngine\\AEngine\\Debug\\Content\\dude.dae"));
+    m_pTaskSystem->EnqueueTask(m_pTextureManager->ImportTextures());
 
-    while(!m_pGeometryManager->DoneImporting())
+    while(!(m_pGeometryManager->DoneImporting() && m_pTextureManager->m_Finished))
     {
         bool done = false;
         bool test = true;
     }
-    //m_pTestRenderModel = m_pGeometryFactory->ImportAssetTest("D:\\Projects\\Ares\\AresEngine\\AEngine\\Debug\\Content\\dude.dae");
     return true;
 }
 
 bool AEngine::Shutdown()
 {
-    if(m_pTestRenderModel != nullptr)
-        m_pTestRenderModel->CleanUpModelData();
-    m_pTestRenderModel = nullptr;
-
     if(m_pTaskSystem != nullptr)
         m_pTaskSystem->Shutdown();
     m_pTaskSystem = nullptr;
@@ -108,6 +101,10 @@ bool AEngine::Shutdown()
     if(m_pInputSystem != nullptr)
         delete m_pInputSystem;
     m_pInputSystem = nullptr;
+
+    if(m_pGeometryManager != nullptr)
+        m_pGeometryManager->Shutdown();
+    m_pGeometryManager = nullptr;
 
     if(m_pRenderSystem != nullptr)
         m_pRenderSystem->Shutdown();
@@ -142,7 +139,7 @@ void AEngine::Run()
             {
                 m_pCamera->UpdateViewMatrix();
                 m_pRenderSystem->BeginRenderScene();
-                m_pRenderSystem->RenderScene(m_pGeometryManager->m_pMeshCollection,m_pGeometryManager->m_count, m_pCamera);
+                m_pRenderSystem->RenderScene(m_pGeometryManager,m_pTextureManager,m_pCamera);
                 m_pRenderSystem->EndRenderScene();           
             }
         }

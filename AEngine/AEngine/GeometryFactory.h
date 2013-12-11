@@ -22,8 +22,12 @@ public:
     GeometryFactory();
     ~GeometryFactory();
     void SetGraphicsDeviceAndContext(ID3D11Device* d3dDevice, ID3D11DeviceContext* immediateContext); 
-    Task* ImportAsset(const char* pFile, GeometryObject* pMeshCollection, unsigned int* meshCount);
+    Task* ImportAsset(const char* pFile, std::vector<GeometryObject>* pMeshCollection, unsigned int* meshCount);
     
+private:
+    void DoImportAsset(TaskData* pData); //import asset task
+    void DoneImportingAsset(void* task); //Callback function when done importing
+
     static void ImportAssetTask(TaskData* pData, void* thisPointer)
     {
         GeometryFactory* self = static_cast<GeometryFactory*>(thisPointer);
@@ -35,13 +39,6 @@ public:
         GeometryFactory* self = static_cast<GeometryFactory*>(thispointer);
         self->DoneImportingAsset(task);
     }
-
-private:
-    void DoImportAsset(TaskData* pData); //import asset task
-    void DoneImportingAsset(void* task); //Callback function when done importing
-    
-    void CreateVertexBuffer(ID3D11Buffer* vertexBuffer, PosNormUV* vertices, unsigned int count);
-    void CreateIndexBuffer(ID3D11Buffer* indexBuffer, unsigned int* indices, unsigned int count);
 
 private:
     ID3D11DeviceContext* m_pImmediateContext;

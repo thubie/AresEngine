@@ -8,6 +8,8 @@
 #include"GeometryManager.h"
 
 class AEngine;
+class GeometryManager;
+class TextureManager;
 
 class RenderSystem
 {
@@ -18,7 +20,6 @@ class RenderSystem
         XMMATRIX m_Projection;
     };
 
-
 public:
     RenderSystem();
     RenderSystem(const RenderSystem& other);
@@ -28,7 +29,7 @@ public:
 
     //Testing purpose
     void BeginRenderScene();
-    void RenderScene(GeometryObject* meshes, unsigned int meshCount,Camera* pCamera);
+    void RenderScene(GeometryManager* pGeoManager,TextureManager* pTextureManager,Camera* pCamera);
     void EndRenderScene();
 
 private:
@@ -38,16 +39,17 @@ private:
     void GenerateShaderAndLayout();
 
 private:
-    HWND                    m_hWnd;
-    D3D_DRIVER_TYPE         m_DriverType;
-    D3D_FEATURE_LEVEL       m_D3DFeatureLevel;
+    HWND m_hWnd;
+    D3D_DRIVER_TYPE m_DriverType;
+    D3D_FEATURE_LEVEL m_D3DFeatureLevel;
+
 
 public:   
-    ID3D11Device*           m_pD3DDevice;
-    ID3D11DeviceContext*    m_pImmediateContext;
-    IDXGISwapChain*         m_pSwapChain;
+    ID3D11Device* m_pD3DDevice;
+    ID3D11DeviceContext* m_pImmediateContext;
+    IDXGISwapChain* m_pSwapChain;
     ID3D11RenderTargetView* m_pRenderTargetView;
-    ID3D11Texture2D*        m_pDepthStencil;
+    ID3D11Texture2D* m_pDepthStencil;
     ID3D11DepthStencilView* m_pDepthStencilView;
 
     //TestCode

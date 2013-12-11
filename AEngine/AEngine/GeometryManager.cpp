@@ -6,7 +6,7 @@ GeometryManager::GeometryManager()
     m_pDevice = nullptr;
     m_pImmediateContext = nullptr;
     m_pAEngine = nullptr;
-    m_pMeshCollection = nullptr;
+    
 }
 
 GeometryManager::~GeometryManager()
@@ -16,21 +16,13 @@ GeometryManager::~GeometryManager()
 
 void GeometryManager::Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pImmediatieContext,AEngine* pAEngine)
 {
-    if(m_pDevice == nullptr)
         m_pDevice = pDevice;
-
-    if(m_pImmediateContext = nullptr)
         m_pImmediateContext = pImmediatieContext;
-
-    if(m_pAEngine == nullptr)
         m_pAEngine = pAEngine;
-
-    if(m_pGeoFactory == nullptr)
         m_pGeoFactory = new GeometryFactory;
-    m_pGeoFactory->SetGraphicsDeviceAndContext(m_pDevice, m_pImmediateContext);
-
-    if(m_pMeshCollection == nullptr)
-        m_pMeshCollection = new GeometryObject[16]();
+        assert(!(m_pGeoFactory == nullptr));
+        m_pGeoFactory->SetGraphicsDeviceAndContext(m_pDevice, m_pImmediateContext);
+        m_pMeshCollection = new std::vector<GeometryObject>;      
 }
 
 bool GeometryManager::DoneImporting()
@@ -42,8 +34,15 @@ bool GeometryManager::DoneImporting()
 void GeometryManager::Shutdown()
 {
     if(m_pMeshCollection != nullptr)
-        delete[] m_pMeshCollection;
-    m_pMeshCollection = nullptr;
+    {
+        for(int i = 0; i < m_pMeshCollection->size(); ++i)
+        {
+            GeometryObject temp = m_pMeshCollection->at(i);
+            temp.vertexBuffer->Release();
+            temp.indexBuffer->Release();
+        }
+
+    }
 
     if(m_pGeoFactory != nullptr)
         delete m_pGeoFactory;
@@ -55,15 +54,18 @@ void GeometryManager::Shutdown()
     m_pAEngine = nullptr;
 }
 
-void GeometryManager::GetSubmeshIndexed(unsigned int subMeshIndex, ID3D11Buffer* vertexBuffer,ID3D11Buffer* indexBuffer, unsigned int* indicesCount)
+void GeometryManager::SetSubmeshIndexed(unsigned int subMeshIndex, OUT unsigned int* indicesCount)
 {
-    GeometryObject temp = m_pMeshCollection[subMeshIndex];
-    vertexBuffer = temp.vertexBuffer;
-    indexBuffer = temp.indexBuffer;
-    *indicesCount = temp.indicesCount;
+    UINT stride = sizeof(PosNormUV);
+    UINT offset = 0;
+    m_pImmediateContext->IASetVertexBuffers( 0, 1, &m_pMeshCollection->at(subMeshIndex).vertexBuffer, &stride, &offset );
+    m_pImmediateContext->IASetIndexBuffer(m_pMeshCollection->at(subMeshIndex).indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+    m_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    *indicesCount = m_pMeshCollection->at(subMeshIndex).indicesCount;
 }
+
 
 Task* GeometryManager::ImportAssetTask(const char* pFile)
 {
-    return m_pGeoFactory->ImportAsset(pFile, m_pMeshCollection, &m_count);
+    return m_pGeoFactory->ImportAsset(pFile, m_pMeshCollection, &m_Count);
 }

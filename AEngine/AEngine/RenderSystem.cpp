@@ -95,8 +95,8 @@ void RenderSystem::InitDeviceAndSwapChain()
     sd.BufferDesc.Width = width;
     sd.BufferDesc.Height = height;
     sd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-    sd.BufferDesc.RefreshRate.Numerator = 60;
-    sd.BufferDesc.RefreshRate.Denominator = 1;
+    sd.BufferDesc.RefreshRate.Numerator = 0;//60;
+    sd.BufferDesc.RefreshRate.Denominator = 0;//1;
     sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
     sd.OutputWindow = m_hWnd;
     sd.SampleDesc.Count = 1;
@@ -162,24 +162,24 @@ void RenderSystem::InitDeviceAndSwapChain()
 //Need to refactor this later again mostly test code for now
 void RenderSystem::InitResources()
 {
-    //Create Textures
+    ////Create Textures
     HRESULT hr;
-    m_pTextures = new ID3D11ShaderResourceView*[4];
-    hr = D3DX11CreateShaderResourceViewFromFile(m_pD3DDevice,
-        L"D:\\Projects\\Ares\\AresEngine\\AEngine\\Debug\\Content\\head.dds", NULL,NULL,&m_pTextures[0],NULL);
-    assert(!FAILED(hr));
+    //m_pTextures = new ID3D11ShaderResourceView*[4];
+    //hr = D3DX11CreateShaderResourceViewFromFile(m_pD3DDevice,
+    //    L"D:\\Projects\\Ares\\AresEngine\\AEngine\\Debug\\Content\\head.dds", NULL,NULL,&m_pTextures[0],NULL);
+    //assert(!FAILED(hr));
 
-    hr = D3DX11CreateShaderResourceViewFromFile(m_pD3DDevice,
-        L"D:\\Projects\\Ares\\AresEngine\\AEngine\\Debug\\Content\\jacket.dds", NULL,NULL,&m_pTextures[1],NULL);
-    assert(!FAILED(hr));
+    //hr = D3DX11CreateShaderResourceViewFromFile(m_pD3DDevice,
+    //    L"D:\\Projects\\Ares\\AresEngine\\AEngine\\Debug\\Content\\jacket.dds", NULL,NULL,&m_pTextures[1],NULL);
+    //assert(!FAILED(hr));
 
-    hr = D3DX11CreateShaderResourceViewFromFile(m_pD3DDevice,
-        L"D:\\Projects\\Ares\\AresEngine\\AEngine\\Debug\\Content\\pants.dds", NULL,NULL,&m_pTextures[2],NULL);
-    assert(!FAILED(hr));
+    //hr = D3DX11CreateShaderResourceViewFromFile(m_pD3DDevice,
+    //    L"D:\\Projects\\Ares\\AresEngine\\AEngine\\Debug\\Content\\pants.dds", NULL,NULL,&m_pTextures[2],NULL);
+    //assert(!FAILED(hr));
 
-    hr = D3DX11CreateShaderResourceViewFromFile(m_pD3DDevice,
-        L"D:\\Projects\\Ares\\AresEngine\\AEngine\\Debug\\Content\\upBodyC.dds", NULL,NULL,&m_pTextures[3],NULL);
-    assert(!FAILED(hr));
+    //hr = D3DX11CreateShaderResourceViewFromFile(m_pD3DDevice,
+    //    L"D:\\Projects\\Ares\\AresEngine\\AEngine\\Debug\\Content\\upBodyC.dds", NULL,NULL,&m_pTextures[3],NULL);
+    //assert(!FAILED(hr));
 
     //Generate shaders and layout
     GenerateShaderAndLayout();
@@ -231,12 +231,8 @@ void RenderSystem::BeginRenderScene()
 
 }
 
-void RenderSystem::RenderScene(GeometryObject* meshes, unsigned int Count, Camera* pCamera)
+void RenderSystem::RenderScene(GeometryManager* pGeoManager,TextureManager* pTextureManager, Camera* pCamera)
 {
-    GeometryObject* testMeshes = meshes;
-    unsigned int meshCount = Count;
-    //test rendering run
-
     static float t = 0.0f;
     static DWORD dwTimeStart = 0;
     DWORD dwTimeCur = GetTickCount();
@@ -251,25 +247,31 @@ void RenderSystem::RenderScene(GeometryObject* meshes, unsigned int Count, Camer
     m_pTestConstantBuffer->m_Projection = XMMatrixTranspose(*(pCamera->GetProjectionMatrix()));
     m_pImmediateContext->UpdateSubresource(m_pConstantBuffer, 0, NULL,m_pTestConstantBuffer, 0, 0);
 
+    UINT stride = sizeof(PosNormUV);
+    UINT offset = 0;
+    unsigned int indicesCount = 0;
+
     for(int i = 0; i < 4/*meshCount*/; ++i)
     {
-        UINT stride = sizeof(PosNormUV);
-        UINT offset = 0;
+        
 
-        m_pImmediateContext->IASetVertexBuffers( 0, 1, &testMeshes[i].vertexBuffer, &stride, &offset );
-        m_pImmediateContext->IASetIndexBuffer(testMeshes[i].indexBuffer, DXGI_FORMAT_R32_UINT, 0);    
-        m_pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    
+        pGeoManager->SetSubmeshIndexed(i, &indicesCount);
+        pTextureManager->SetTexture(i);
 	    m_pImmediateContext->VSSetShader(m_pVertexShader, NULL, 0);
-        m_pImmediateContext->VSSetConstantBuffers(0, 1, &m_pConstantBuffer);
-	
+        m_pImmediateContext->VSSetConstantBuffers(0, 1, &m_pConstantBuffer);	
         m_pImmediateContext->PSSetShader(m_pPixelShader, NULL, 0 );
-        m_pImmediateContext->PSSetShaderResources(0,1,&m_pTextures[i]);
         m_pImmediateContext->PSSetSamplers(0,1,&m_pSamplerAF);
-
         m_pImmediateContext->RSSetState(m_wireframe);
-        m_pImmediateContext->DrawIndexed(testMeshes[i].indicesCount, 0, 0);
+        m_pImmediateContext->DrawIndexed(indicesCount, 0, 0);
     }
+    pGeoManager->SetSubmeshIndexed(4, &indicesCount);
+	m_pImmediateContext->VSSetShader(m_pVertexShader, NULL, 0);
+    m_pImmediateContext->VSSetConstantBuffers(0, 1, &m_pConstantBuffer);	
+    m_pImmediateContext->PSSetShader(m_pPixelShader, NULL, 0 );
+    m_pImmediateContext->PSSetSamplers(0,1,&m_pSamplerAF);
+    m_pImmediateContext->RSSetState(m_wireframe);
+    m_pImmediateContext->DrawIndexed(indicesCount, 0, 0);
+
 }
 
 void RenderSystem::EndRenderScene()
