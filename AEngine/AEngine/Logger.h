@@ -32,5 +32,4 @@ namespace Logger
     }
 }
 
-
 #define LOG(m, id, p) Logger::Log(m, id, p); //Logging macro

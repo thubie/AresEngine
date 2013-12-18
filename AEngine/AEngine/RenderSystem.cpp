@@ -42,19 +42,45 @@ void RenderSystem::Shutdown()
 {
     if(m_pImmediateContext)
         m_pImmediateContext->ClearState();
-    
+
     if( m_pDepthStencil ) 
+    {
         m_pDepthStencil->Release();
-    if( m_pDepthStencilView ) 
-        m_pDepthStencilView->Release();
+        m_pDepthStencil = nullptr;
+    }
+
+    if(m_pDepthStencilView) 
+    {
+       m_pDepthStencilView->Release();
+       m_pDepthStencilView = nullptr;
+    }
+
     if(m_pRenderTargetView)
+    {
         m_pRenderTargetView->Release();
+        m_pRenderTargetView = nullptr;
+    }
+
     if(m_pSwapChain)
+    {
         m_pSwapChain->Release();
+        m_pSwapChain = nullptr;
+    }
+
     if(m_pImmediateContext)
+    {
         m_pImmediateContext->Release();
+        m_pImmediateContext = nullptr;
+    }
+
+    m_pDebug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
+    m_pDebug->Release();
+
     if(m_pD3DDevice)
+    {
         m_pD3DDevice->Release();
+        m_pD3DDevice = nullptr;
+    }
 }
 
 void RenderSystem::InitDeviceAndSwapChain()
@@ -113,6 +139,8 @@ void RenderSystem::InitDeviceAndSwapChain()
     }
     assert(!FAILED(hr)); 
 
+    m_pD3DDevice->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void**>(&m_pDebug));
+
     //Create a render target view
     ID3D11Texture2D* pBackbuffer = NULL;
     hr = m_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*) &pBackbuffer);
@@ -157,40 +185,28 @@ void RenderSystem::InitDeviceAndSwapChain()
     viewport.TopLeftX = 0;
     viewport.TopLeftY = 0;
     m_pImmediateContext->RSSetViewports(1 , &viewport);
+
 }
 
-//Need to refactor this later again mostly test code for now
 void RenderSystem::InitResources()
 {
     ////Create Textures
     HRESULT hr;
-    //m_pTextures = new ID3D11ShaderResourceView*[4];
-    //hr = D3DX11CreateShaderResourceViewFromFile(m_pD3DDevice,
-    //    L"D:\\Projects\\Ares\\AresEngine\\AEngine\\Debug\\Content\\head.dds", NULL,NULL,&m_pTextures[0],NULL);
-    //assert(!FAILED(hr));
-
-    //hr = D3DX11CreateShaderResourceViewFromFile(m_pD3DDevice,
-    //    L"D:\\Projects\\Ares\\AresEngine\\AEngine\\Debug\\Content\\jacket.dds", NULL,NULL,&m_pTextures[1],NULL);
-    //assert(!FAILED(hr));
-
-    //hr = D3DX11CreateShaderResourceViewFromFile(m_pD3DDevice,
-    //    L"D:\\Projects\\Ares\\AresEngine\\AEngine\\Debug\\Content\\pants.dds", NULL,NULL,&m_pTextures[2],NULL);
-    //assert(!FAILED(hr));
-
-    //hr = D3DX11CreateShaderResourceViewFromFile(m_pD3DDevice,
-    //    L"D:\\Projects\\Ares\\AresEngine\\AEngine\\Debug\\Content\\upBodyC.dds", NULL,NULL,&m_pTextures[3],NULL);
-    //assert(!FAILED(hr));
-
-    //Generate shaders and layout
-    GenerateShaderAndLayout();
 
     //Create Renderstate
-    D3D11_RASTERIZER_DESC wireframedsc;
-    ZeroMemory(&wireframedsc,sizeof(D3D11_RASTERIZER_DESC));
-    wireframedsc.FillMode = D3D11_FILL_SOLID; //D3D11_FILL_SOLID;  D3D11_FILL_WIREFRAME;
-    wireframedsc.CullMode = D3D11_CULL_BACK; //D3D11_CULL_BACK   D3D10_CULL_FRONT
-    wireframedsc.FrontCounterClockwise = false;
-    this->m_pD3DDevice->CreateRasterizerState(&wireframedsc,&m_wireframe);
+    D3D11_RASTERIZER_DESC solidDesc;
+    ZeroMemory(&solidDesc,sizeof(D3D11_RASTERIZER_DESC));
+    solidDesc.FillMode = D3D11_FILL_SOLID; 
+    solidDesc.CullMode = D3D11_CULL_BACK; 
+    solidDesc.FrontCounterClockwise = false;
+    this->m_pD3DDevice->CreateRasterizerState(&solidDesc, &m_wireframe);
+
+    D3D11_RASTERIZER_DESC wireframeDesc;
+    ZeroMemory(&wireframeDesc,sizeof(D3D11_RASTERIZER_DESC));
+    wireframeDesc.FillMode = D3D11_FILL_WIREFRAME; 
+    wireframeDesc.CullMode = D3D11_CULL_BACK; 
+    wireframeDesc.FrontCounterClockwise = false;
+    this->m_pD3DDevice->CreateRasterizerState(&wireframeDesc,&m_wireframe);
 
     //Create Sampler
     D3D11_SAMPLER_DESC sampDesc;
@@ -219,20 +235,15 @@ void RenderSystem::InitResources()
     m_WorldMatrix = (XMMATRIX*)_aligned_malloc(sizeof(XMMATRIX),16);
     *m_WorldMatrix = XMMatrixIdentity();
     m_pTestConstantBuffer = (ConstantBuffer*) _aligned_malloc(sizeof(ConstantBuffer), 16);
-
 }
 
-void RenderSystem::BeginRenderScene()
+void RenderSystem::RenderScene(GeometryManager* pGeoManager,TextureManager* pTextureManager, ShaderManager* pShaderManager, Camera* pCamera)
 {
-    float clearColor[4] = {0.0f,0.125f,0.3f, 1.0f}; //Red,Green,Blue,alpha
-    //Clear backbuffer and depthbuffer(to 1.0 max depth)
+    //Clear the renderTarget
+    float clearColor[4] = {0.0f,0.125f,0.3f, 1.0f}; 
     m_pImmediateContext->ClearRenderTargetView(m_pRenderTargetView, clearColor);
     m_pImmediateContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-}
-
-void RenderSystem::RenderScene(GeometryManager* pGeoManager,TextureManager* pTextureManager, Camera* pCamera)
-{
     static float t = 0.0f;
     static DWORD dwTimeStart = 0;
     DWORD dwTimeCur = GetTickCount();
@@ -247,118 +258,26 @@ void RenderSystem::RenderScene(GeometryManager* pGeoManager,TextureManager* pTex
     m_pTestConstantBuffer->m_Projection = XMMatrixTranspose(*(pCamera->GetProjectionMatrix()));
     m_pImmediateContext->UpdateSubresource(m_pConstantBuffer, 0, NULL,m_pTestConstantBuffer, 0, 0);
 
-    UINT stride = sizeof(PosNormUV);
-    UINT offset = 0;
     unsigned int indicesCount = 0;
-
-    for(int i = 0; i < 4/*meshCount*/; ++i)
+    for(int i = 0; i < 4; ++i)
     {
-        
-
         pGeoManager->SetSubmeshIndexed(i, &indicesCount);
         pTextureManager->SetTexture(i);
-	    m_pImmediateContext->VSSetShader(m_pVertexShader, NULL, 0);
-        m_pImmediateContext->VSSetConstantBuffers(0, 1, &m_pConstantBuffer);	
-        m_pImmediateContext->PSSetShader(m_pPixelShader, NULL, 0 );
+        pShaderManager->SetVertexShader(0);
+        pShaderManager->SetPixelShader(0);
+        m_pImmediateContext->VSSetConstantBuffers(0, 1, &m_pConstantBuffer);
         m_pImmediateContext->PSSetSamplers(0,1,&m_pSamplerAF);
-        m_pImmediateContext->RSSetState(m_wireframe);
+        m_pImmediateContext->RSSetState(m_solid);
         m_pImmediateContext->DrawIndexed(indicesCount, 0, 0);
     }
     pGeoManager->SetSubmeshIndexed(4, &indicesCount);
-	m_pImmediateContext->VSSetShader(m_pVertexShader, NULL, 0);
-    m_pImmediateContext->VSSetConstantBuffers(0, 1, &m_pConstantBuffer);	
-    m_pImmediateContext->PSSetShader(m_pPixelShader, NULL, 0 );
-    m_pImmediateContext->PSSetSamplers(0,1,&m_pSamplerAF);
+	pShaderManager->SetVertexShader(0);
+    pShaderManager->SetPixelShader(0);
+    m_pImmediateContext->VSSetConstantBuffers(0, 1, &m_pConstantBuffer);
     m_pImmediateContext->RSSetState(m_wireframe);
     m_pImmediateContext->DrawIndexed(indicesCount, 0, 0);
 
-}
-
-void RenderSystem::EndRenderScene()
-{
     m_pSwapChain->Present(0,0);
 }
 
-void RenderSystem::GenerateShaderAndLayout()
-{
-    HRESULT hr;
-
-    ID3DBlob* pVSBlob = NULL;
-    
-    //Compile the vertex shader
-    hr = CompileShaderFromFile(L"StaticMesh.fx", "VS", "vs_4_0", &pVSBlob);
-    if(FAILED(hr))
-    {
-        MessageBox(NULL,L"The FX file cannot be compiled. Please run this executable from the directory that contains the FX file.",L"Error", MB_OK );
-    }
-
-    //Create the vertex shader
-    hr = m_pD3DDevice->CreateVertexShader(pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(),NULL, &m_pVertexShader);
-    if( FAILED( hr ) )	
-		pVSBlob->Release();
-
-    //Define the input layout
-    D3D11_INPUT_ELEMENT_DESC layout[] = 
-    {
-        {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,  D3D11_INPUT_PER_VERTEX_DATA, 0},
-        {"NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
-        {"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,    0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0},
-    };
-
-    unsigned int numElements = ARRAYSIZE(layout);
-
-    //Create the input layout
-    hr = m_pD3DDevice->CreateInputLayout(layout,numElements,pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(),&m_pVertexLayout);
-    assert(!FAILED(hr));
-
-    pVSBlob->Release();
-
-    //Set the input layout
-    m_pImmediateContext->IASetInputLayout(m_pVertexLayout);
-    
-    //Compile pixel shader
-    ID3DBlob* pPSBlob = NULL;
-    hr = CompileShaderFromFile(L"StaticMesh.fx", "PS","ps_4_0", &pPSBlob);
-    if( FAILED( hr ) )
-    {
-        MessageBox( NULL,
-                    L"The FX file cannot be compiled.  Please run this executable from the directory that contains the FX file.", L"Error", MB_OK );
-    }
-
-    //Create the Pixel shader
-    hr = m_pD3DDevice->CreatePixelShader(pPSBlob->GetBufferPointer(),pPSBlob->GetBufferSize(), NULL,&m_pPixelShader);
-    assert(!FAILED(hr));
-
-    pPSBlob->Release();
-}
-
-HRESULT RenderSystem::CompileShaderFromFile(WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel,ID3DBlob** ppBlobOut)
-{
-    HRESULT hr = S_OK;
-
-    DWORD dwShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
-#if defined( DEBUG ) || defined( _DEBUG )
-    // Set the D3DCOMPILE_DEBUG flag to embed debug information in the shaders.
-    // Setting this flag improves the shader debugging experience, but still allows 
-    // the shaders to be optimized and to run exactly the way they will run in 
-    // the release configuration of this program.
-    dwShaderFlags |= D3DCOMPILE_DEBUG;
-#endif
-
-    ID3DBlob* pErrorBlob;
-    hr = D3DX11CompileFromFile(szFileName,NULL,NULL,szEntryPoint,szShaderModel,
-        dwShaderFlags,0,NULL,ppBlobOut,&pErrorBlob,NULL);
-    if(FAILED(hr))
-    {
-        if(pErrorBlob != NULL)
-            OutputDebugStringA((char*)pErrorBlob->GetBufferPointer());
-        if(pErrorBlob) 
-            pErrorBlob->Release();
-        return hr;
-    }
-    if(pErrorBlob)
-        pErrorBlob->Release();
-
-    return S_OK;
-}
 

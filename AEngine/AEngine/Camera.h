@@ -24,9 +24,9 @@ public:
     void MoveCameraBackward();
 
 private:
-    XMMATRIX*   m_pViewMatrix;
-    XMMATRIX*   m_pProjectionMatrix;
-    XMFLOAT3*   m_pCamPosition;
-    XMFLOAT3*   m_pCamDirection;
-    XMFLOAT3*   m_pUpDirection;
+    XMMATRIX* m_pViewMatrix;
+    XMMATRIX* m_pProjectionMatrix;
+    XMFLOAT3* m_pCamPosition;
+    XMFLOAT3* m_pCamDirection;
+    XMFLOAT3* m_pUpDirection;
 };

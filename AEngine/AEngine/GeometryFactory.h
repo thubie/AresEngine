@@ -1,11 +1,13 @@
 #pragma once
 
-
 #include<assimp/Importer.hpp>
 #include<assimp/scene.h>
 #include<assimp/postprocess.h>
 #include<d3d11.h>
 #include<d3dx11.h>
+#include<vector>
+#include<map>
+#include<string>
 
 #include"Model.h"
 #include"Tasks.h"
@@ -18,6 +20,13 @@ class GeometryManager;
 
 class GeometryFactory
 {
+    struct BoneData
+    {
+        unsigned int index;
+        float weights[3];
+        unsigned int boneId[4];
+    };
+
 public:
     GeometryFactory();
     ~GeometryFactory();
@@ -27,24 +36,23 @@ public:
 private:
     void DoImportAsset(TaskData* pData); //import asset task
     void DoneImportingAsset(void* task); //Callback function when done importing
+    static void ImportAssetTask(TaskData* pData, void* thisPointer);
+    static void DoneImporting(void* thispointer, void* task);
+    
+    void GenerateVertices(PosNormalTexSkinned* vertices,unsigned int numVertices,aiMesh* mesh);
+    void GenerateIndices(unsigned int* indices, unsigned int numIndices,  aiMesh* mesh);
+    void GenerateBonesAndWeight();
 
-    static void ImportAssetTask(TaskData* pData, void* thisPointer)
-    {
-        GeometryFactory* self = static_cast<GeometryFactory*>(thisPointer);
-        self->DoImportAsset(pData);
-    }
-
-    static void DoneImporting(void* thispointer, void* task)
-    {
-        GeometryFactory* self = static_cast<GeometryFactory*>(thispointer);
-        self->DoneImportingAsset(task);
-    }
+    void ExtractSkeletonData(std::vector<std::string>* Bones, aiNode* Node);
+    unsigned int FindBoneIndex(std::string* boneName, std::vector<std::string>* BonesByName);
+    void AddBoneData(PosNormalTexSkinned*, unsigned int boneId, aiVertexWeight weight);
 
 private:
     ID3D11DeviceContext* m_pImmediateContext;
     ID3D11Device* m_pD3dDevice;
-    unsigned int m_taskidCounter;
     GeometryManager* m_pGeoManager; 
+    unsigned int nextId;
+    std::vector<unsigned int>* openTasks;
 public:
     bool m_DoneImporting;
 };

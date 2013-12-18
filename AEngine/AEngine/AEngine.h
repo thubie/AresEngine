@@ -2,13 +2,12 @@
 
 #include<Windows.h>
 #include"TaskSystem.h"
-#include"CounterTask.h"
-#include"Model.h"
 #include"Camera.h"
 #include"RenderSystem.h"
 #include"InputSystem.h"
 #include"HRTimer.h"
 #include"GeometryManager.h"
+#include"ShaderManager.h"
 #include"TextureManager.h"
 
 
@@ -36,21 +35,21 @@ private:
     void InitializeWin();
 
 private:
-    LPCWSTR             m_appName;
-    HINSTANCE           m_hInstance;
-    HWND                m_hwnd;
-    TaskSystem*         m_pTaskSystem;
-    CounterTask*        m_TestTask;
-    RenderSystem*       m_pRenderSystem;
-    HRTimer*            m_pGameTimer;
-    Camera*             m_pCamera;
-    GeometryManager*    m_pGeometryManager;
-    TextureManager*     m_pTextureManager;
-    int                 m_windowWidth; //To do read window resolution from a config/ini file
-    int                 m_windowHeight;
-    bool                m_stopped;
+    LPCWSTR m_appName;
+    HINSTANCE m_hInstance;
+    HWND m_hwnd;
+    TaskSystem* m_pTaskSystem;
+    RenderSystem* m_pRenderSystem;
+    HRTimer* m_pGameTimer;
+    Camera* m_pCamera;
+    GeometryManager* m_pGeometryManager;
+    ShaderManager* m_pShaderManager;
+    TextureManager* m_pTextureManager;
+    int m_windowWidth; //To do read window resolution from a config/ini file
+    int m_windowHeight;
+    bool m_stopped;
 public:
-    InputSystem*        m_pInputSystem;
+    InputSystem* m_pInputSystem;
 };
 
 static LRESULT CALLBACK WndProc(HWND,UINT,WPARAM,LPARAM);

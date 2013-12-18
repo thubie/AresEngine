@@ -9,11 +9,11 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
-    <Filter Include="Shaders">
-      <UniqueIdentifier>{02ea4a98-122c-4b93-8cfe-813d44c2943f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Concurrent DataStructures">
       <UniqueIdentifier>{21f60c61-641b-41cd-928a-ad5f7a90c3f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Shaders">
+      <UniqueIdentifier>{02ea4a98-122c-4b93-8cfe-813d44c2943f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -47,9 +47,6 @@
     <ClCompile Include="Lock.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CounterTask.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="GeometryFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -60,6 +57,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TextureManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -94,9 +94,6 @@
     <ClInclude Include="Lock.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CounterTask.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Tasks.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -127,16 +124,24 @@
     <ClInclude Include="TextureObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ShaderObject.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="VertexShaderObject.h">
+      <Filter>Header Files\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="PixelShaderObject.h">
+      <Filter>Header Files\Shaders</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Test.fx">
-      <Filter>Shaders</Filter>
+      <Filter>Header Files\Shaders</Filter>
     </None>
     <None Include="StaticMesh.fx">
-      <Filter>Shaders</Filter>
+      <Filter>Header Files\Shaders</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="SkinnedMesh.fx">
+      <Filter>Header Files\Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

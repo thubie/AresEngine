@@ -17,6 +17,8 @@ struct VS_OUTPUT
     float4 Pos : SV_POSITION;
     float4 Norm : NORMAL;
     float2 texCoord : TEXCOORD0;
+    float3 weights : WEIGHTS;
+    uint4  BoneIndices : BONEINDICES;
 };
 
 struct VS_INPUT
@@ -24,6 +26,8 @@ struct VS_INPUT
     float4 Pos : POSITION;
     float4 Norm : NORMAL;
     float2 texCoord : TEXCOORD0;
+    uint4  BoneIndices : BONEINDICES;
+    float3 weights : WEIGHTS;
 };
 
 //--------------------------------------------------------------------------------------
@@ -35,11 +39,13 @@ VS_OUTPUT VS(in VS_INPUT input)
     output.Pos = mul(input.Pos, World);
     output.Pos = mul(output.Pos, View );
     output.Pos = mul(output.Pos, Projection );
-
+    output.BoneIndices = input.BoneIndices;
+    output.weights = input.weights;
     output.Norm = mul(input.Norm, World);
     output.Norm = mul(output.Norm, View );
     output.Norm = mul(output.Norm, Projection );
-    
+   
+
     output.texCoord = input.texCoord;
 
     return output;

@@ -39,11 +39,11 @@ public:
     }
 
 private:
-    WorkerThread*               m_pWorkerThreads;
-    unsigned int                m_createdThreads;
-    unsigned int                m_ProcessorsCount;
-    LinkListQueue<Task*>*     m_pTaskQueue;
-    HANDLE*                     m_pThreadHandles;
-    bool                        m_Distributing;
+    WorkerThread* m_pWorkerThreads;
+    unsigned int m_createdThreads;
+    unsigned int m_ProcessorsCount;
+    LinkListQueue<Task*>* m_pTaskQueue;
+    HANDLE* m_pThreadHandles;
+    bool m_Distributing;
 };
 

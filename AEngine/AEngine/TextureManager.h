@@ -1,3 +1,5 @@
+#pragma once
+
 #include<d3d11.h>
 #include<d3dx11.h>
 #include<vector>
@@ -17,26 +19,19 @@ public:
     Task* ImportTextures();
     
 private:
+    void CleanUpResources();
     void DoImportTask(TaskData* data);
     void DoneImportingTask(void* task);
 
-    static void DoImportTextureTask(TaskData* pData, void* thisPointer)
-    {
-        TextureManager* self = static_cast<TextureManager*>(thisPointer);
-        self->DoImportTask(pData);
-    }
-
-    static void DoneImporting(void* thispointer, void* task)
-    {
-        TextureManager*  self = static_cast<TextureManager*>(thispointer);
-        self->DoneImportingTask(task);
-    }
+    static void DoImportTextureTask(TaskData* pData, void* thisPointer);
+    static void DoneImporting(void* thispointer, void* task);
 
 private:
     std::vector<TextureObject>* m_pTextureCollection;
     ID3D11SamplerState* m_pSamplerAF;
     ID3D11Device* m_pD3DDevice;
     ID3D11DeviceContext* m_pImmediateContext;
+
 public:
     bool m_Finished;
 };

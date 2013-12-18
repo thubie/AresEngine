@@ -54,7 +54,7 @@ void Camera::InitCamera(XMFLOAT3* pCamPos,XMFLOAT3* pCamDirection, XMFLOAT3* pUp
 
     //Calculate the projection matrix
     m_pProjectionMatrix  = (XMMATRIX*) _aligned_malloc(sizeof(XMMATRIX),16);
-    *m_pProjectionMatrix = XMMatrixPerspectiveFovLH(XM_PIDIV2, 1600 / (float)900, 0.01f, 100.0f );
+    *m_pProjectionMatrix = XMMatrixPerspectiveFovLH(XM_PIDIV2, 1600 / (float)900, 0.01f, 1000.0f );
 }
 
 //set the camera position

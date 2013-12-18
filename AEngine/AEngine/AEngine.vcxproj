@@ -162,7 +162,6 @@
   <ItemGroup>
     <ClCompile Include="AEngine.cpp" />
     <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="CounterTask.cpp" />
     <ClCompile Include="GeometryFactory.cpp" />
     <ClCompile Include="GeometryManager.cpp" />
     <ClCompile Include="InputSystem.cpp" />
@@ -170,6 +169,7 @@
     <ClCompile Include="HRTimer.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="RenderSystem.cpp" />
+    <ClCompile Include="ShaderManager.cpp" />
     <ClCompile Include="TaskSystem.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="TextureManager.cpp" />
@@ -183,15 +183,15 @@
     <ClInclude Include="GeometryObject.h" />
     <ClInclude Include="InputSystem.h" />
     <ClInclude Include="LinkListQueue.h" />
+    <ClInclude Include="PixelShaderObject.h" />
     <ClInclude Include="RingBufferQueue.h" />
-    <ClInclude Include="CounterTask.h" />
     <ClInclude Include="Lock.h" />
     <ClInclude Include="GeometryFactory.h" />
     <ClInclude Include="HRTimer.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="RenderSystem.h" />
     <ClInclude Include="ShaderManager.h" />
-    <ClInclude Include="ShaderObject.h" />
+    <ClInclude Include="VertexShaderObject.h" />
     <ClInclude Include="Tasks.h" />
     <ClInclude Include="TaskSystem.h" />
     <ClInclude Include="Logger.h" />
@@ -209,6 +209,14 @@
     <None Include="StaticMesh.fx">
       <FileType>Document</FileType>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="SkinnedMesh.fx">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

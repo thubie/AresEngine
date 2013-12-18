@@ -7,6 +7,7 @@ AEngine::AEngine()
     m_pRenderSystem     = nullptr;
     m_pCamera           = nullptr;
     m_pGeometryManager  = nullptr;
+    m_pShaderManager    = nullptr;
     m_pTextureManager   = nullptr;
     m_stopped = false;
     m_windowWidth = 1600;
@@ -76,13 +77,15 @@ bool AEngine::Initialize()
     _aligned_free(up);
 
     m_pGeometryManager = new GeometryManager();
-    m_pGeometryManager->Initialize(m_pRenderSystem->m_pD3DDevice, m_pRenderSystem->m_pImmediateContext, this);
-
+    m_pGeometryManager->Initialize(m_pRenderSystem->m_pD3DDevice, m_pRenderSystem->m_pImmediateContext);
     m_pTextureManager = new TextureManager(m_pRenderSystem->m_pD3DDevice,m_pRenderSystem->m_pImmediateContext);
+    m_pShaderManager = new ShaderManager(m_pRenderSystem->m_pD3DDevice, m_pRenderSystem->m_pImmediateContext);
 
     //Start importing asset
     m_pTaskSystem->EnqueueTask(m_pGeometryManager->ImportAssetTask("D:\\Projects\\Ares\\AresEngine\\AEngine\\Debug\\Content\\dude.dae"));
     m_pTaskSystem->EnqueueTask(m_pTextureManager->ImportTextures());
+    m_pTaskSystem->EnqueueTask(m_pShaderManager->CreateVertexShaderTask());
+    m_pTaskSystem->EnqueueTask(m_pShaderManager->CreatePixelShaderTask());
 
     while(!(m_pGeometryManager->DoneImporting() && m_pTextureManager->m_Finished))
     {
@@ -106,9 +109,18 @@ bool AEngine::Shutdown()
         m_pGeometryManager->Shutdown();
     m_pGeometryManager = nullptr;
 
+    if(m_pTextureManager != nullptr)
+        delete m_pTextureManager;
+    m_pTextureManager = nullptr;
+
+    if(m_pShaderManager != nullptr)
+        delete m_pShaderManager;
+    m_pShaderManager = nullptr;
+
     if(m_pRenderSystem != nullptr)
         m_pRenderSystem->Shutdown();
     m_pRenderSystem = nullptr;
+    
     m_stopped = true;
     return true;
 }
@@ -138,9 +150,7 @@ void AEngine::Run()
             if (!m_stopped) 
             {
                 m_pCamera->UpdateViewMatrix();
-                m_pRenderSystem->BeginRenderScene();
-                m_pRenderSystem->RenderScene(m_pGeometryManager,m_pTextureManager,m_pCamera);
-                m_pRenderSystem->EndRenderScene();           
+                m_pRenderSystem->RenderScene(m_pGeometryManager,m_pTextureManager, m_pShaderManager, m_pCamera);          
             }
         }
     }
