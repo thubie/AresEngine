@@ -62,6 +62,9 @@
     <ClCompile Include="ShaderManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="AnimationManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AEngine.h">
@@ -129,6 +132,9 @@
     </ClInclude>
     <ClInclude Include="PixelShaderObject.h">
       <Filter>Header Files\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimationManager.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

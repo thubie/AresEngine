@@ -9,6 +9,7 @@ AEngine::AEngine()
     m_pGeometryManager  = nullptr;
     m_pShaderManager    = nullptr;
     m_pTextureManager   = nullptr;
+    m_pAnimationManager = nullptr;
     m_stopped = false;
     m_windowWidth = 1600;
     m_windowHeight = 900;
@@ -80,17 +81,23 @@ bool AEngine::Initialize()
     m_pGeometryManager->Initialize(m_pRenderSystem->m_pD3DDevice, m_pRenderSystem->m_pImmediateContext);
     m_pTextureManager = new TextureManager(m_pRenderSystem->m_pD3DDevice,m_pRenderSystem->m_pImmediateContext);
     m_pShaderManager = new ShaderManager(m_pRenderSystem->m_pD3DDevice, m_pRenderSystem->m_pImmediateContext);
+    m_pAnimationManager = new AnimationManager();
 
     //Start importing asset
     m_pTaskSystem->EnqueueTask(m_pGeometryManager->ImportAssetTask("D:\\Projects\\Ares\\AresEngine\\AEngine\\Debug\\Content\\dude.dae"));
     m_pTaskSystem->EnqueueTask(m_pTextureManager->ImportTextures());
     m_pTaskSystem->EnqueueTask(m_pShaderManager->CreateVertexShaderTask());
     m_pTaskSystem->EnqueueTask(m_pShaderManager->CreatePixelShaderTask());
+    m_pTaskSystem->EnqueueTask(m_pAnimationManager->ImportTask("D:\\Projects\\Ares\\AresEngine\\AEngine\\Debug\\Content\\dude.dae"));
 
-    while(!(m_pGeometryManager->DoneImporting() && m_pTextureManager->m_Finished))
+    bool GeometryDone = false;
+    bool AnimationDone = false;
+
+    //Polling importing state.
+    while(!(GeometryDone && AnimationDone))
     {
-        bool done = false;
-        bool test = true;
+        GeometryDone = m_pGeometryManager->DoneImporting();
+        AnimationDone = m_pAnimationManager->done;
     }
     return true;
 }

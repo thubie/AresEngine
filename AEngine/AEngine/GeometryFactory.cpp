@@ -48,13 +48,13 @@ void GeometryFactory::DoImportAsset(TaskData* pdata)
     BoneData* boneDataCollection;
     BonesByName->reserve(70);
 
-    aiNode* rootNode = pScene->mRootNode;
+    aiNode* rootNode = pScene->mRootNode->mChildren[0];
     ExtractSkeletonData(BonesByName, rootNode);
 
     for(int i = 0; i < pScene->mNumMeshes; ++i)
     {
         mesh = pScene->mMeshes[i];
-        GeometryObject geoMesh;// = SubMeshCollection[i];
+        GeometryObject geoMesh;
         numVertices = mesh->mNumVertices;
         numFaces = mesh->mNumFaces;
         numIndices = numFaces * 3;
@@ -66,34 +66,10 @@ void GeometryFactory::DoImportAsset(TaskData* pdata)
         ZeroMemory(indices,sizeof(unsigned int) * numVertices);
         ZeroMemory(boneDataCollection,sizeof(BoneData) * numVertices);
 
-        GenerateVertices(vertices,numVertices,mesh);
-        GenerateIndices(indices,numFaces,mesh);
-
-        /*Set bones and weights*/
-        std::string boneName;
+        GenerateVertices(vertices, numVertices, mesh);
+        GenerateIndices(indices, numFaces, mesh);
+        GenerateBonesAndWeight(BonesByName, vertices, mesh);
         
-        
-        unsigned int numBones = mesh->mNumBones;
-        unsigned int numWeight = 0;
-        aiBone* bone;
-        int index = 0;
-        aiVertexWeight weight;
-        
-        for(int j = 0; j < numBones; ++j)
-        {
-            bone = mesh->mBones[j];
-            boneName = bone->mName.C_Str();
-            numWeight = bone->mNumWeights;
-            index = FindBoneIndex(&boneName,BonesByName);
-            BoneData boneDataInfo;
-
-            for(int k = 0; k < numWeight; ++k)
-            {
-                weight =  bone->mWeights[k];
-                AddBoneData(vertices, index, weight);
-            }
-        }
-
         HRESULT hr;
         D3D11_BUFFER_DESC bd;
         ZeroMemory( &bd, sizeof(bd) );
@@ -188,6 +164,34 @@ void GeometryFactory::GenerateIndices(unsigned int* indices, unsigned int numFac
             indices[l + index] = face.mIndices[l];
         }
         index += 3;
+    }
+}
+
+//Generate the Bones and Weights
+void GeometryFactory::GenerateBonesAndWeight(std::vector<std::string>* BonesByName, PosNormalTexSkinned* vertices, aiMesh* mesh)
+{
+    /*Set bones and weights*/
+    std::string boneName;
+        
+    unsigned int numBones = mesh->mNumBones;
+    unsigned int numWeight = 0;
+    aiBone* bone;
+    int index = 0;
+    aiVertexWeight weight;
+        
+    for(int j = 0; j < numBones; ++j)
+    {
+        bone = mesh->mBones[j];
+        boneName = bone->mName.C_Str();
+        numWeight = bone->mNumWeights;
+        index = FindBoneIndex(&boneName,BonesByName);
+        BoneData boneDataInfo;
+
+        for(int k = 0; k < numWeight; ++k)
+        {
+            weight =  bone->mWeights[k];
+            AddBoneData(vertices, index, weight);
+        }
     }
 }
 

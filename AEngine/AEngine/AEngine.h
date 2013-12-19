@@ -9,7 +9,7 @@
 #include"GeometryManager.h"
 #include"ShaderManager.h"
 #include"TextureManager.h"
-
+#include"AnimationManager.h"
 
 class InputSystem;
 class GeometryManager;
@@ -45,6 +45,7 @@ private:
     GeometryManager* m_pGeometryManager;
     ShaderManager* m_pShaderManager;
     TextureManager* m_pTextureManager;
+    AnimationManager* m_pAnimationManager;
     int m_windowWidth; //To do read window resolution from a config/ini file
     int m_windowHeight;
     bool m_stopped;

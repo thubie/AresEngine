@@ -41,7 +41,7 @@ private:
     
     void GenerateVertices(PosNormalTexSkinned* vertices,unsigned int numVertices,aiMesh* mesh);
     void GenerateIndices(unsigned int* indices, unsigned int numIndices,  aiMesh* mesh);
-    void GenerateBonesAndWeight();
+    void GenerateBonesAndWeight(std::vector<std::string>* BonesByName, PosNormalTexSkinned* vertices, aiMesh* mesh);
 
     void ExtractSkeletonData(std::vector<std::string>* Bones, aiNode* Node);
     unsigned int FindBoneIndex(std::string* boneName, std::vector<std::string>* BonesByName);

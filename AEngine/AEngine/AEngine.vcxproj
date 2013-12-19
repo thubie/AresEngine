@@ -161,6 +161,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AEngine.cpp" />
+    <ClCompile Include="AnimationManager.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="GeometryFactory.cpp" />
     <ClCompile Include="GeometryManager.cpp" />
@@ -178,6 +179,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AEngine.h" />
+    <ClInclude Include="AnimationManager.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="GeometryManager.h" />
     <ClInclude Include="GeometryObject.h" />
