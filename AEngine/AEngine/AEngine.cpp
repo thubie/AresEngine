@@ -50,6 +50,10 @@ bool AEngine::Initialize()
         return false;
     m_pRenderSystem->Initialize(m_hwnd);
 
+    m_pGameTimer = new HRTimer();
+    m_pStopWatch = new HRTimer();
+
+    //Need to clean up this code.
     m_pCamera = new Camera();
     if(m_pCamera == nullptr)
         return false;
@@ -58,11 +62,11 @@ bool AEngine::Initialize()
     XMFLOAT3* pos = (XMFLOAT3*)_aligned_malloc(sizeof(XMFLOAT3),16);
     pos->x = 0.0f;
     pos->y = 70.0f;
-    pos->z = -40.0f;  //-70.0
+    pos->z = 50.0f;  //-70.0
 
     XMFLOAT3* target = (XMFLOAT3*)_aligned_malloc(sizeof(XMFLOAT3),16);
     target->x = 0.0f;
-    target->y = 50.0f;
+    target->y = 30.0f;
     target->z = 0.0f;
 
     XMFLOAT3* up = (XMFLOAT3*)_aligned_malloc(sizeof(XMFLOAT3),16);
@@ -83,12 +87,32 @@ bool AEngine::Initialize()
     m_pShaderManager = new ShaderManager(m_pRenderSystem->m_pD3DDevice, m_pRenderSystem->m_pImmediateContext);
     m_pAnimationManager = new AnimationManager();
 
+    char currentDir[1024];
+    char Content[1024];
+    char Shader[1024];
+
+    GetCurrentDirectoryA(1024, currentDir);
+    strcpy_s(Content,currentDir);
+    strcat_s(Content, "\\Content\\dude.dae");
+    strcpy_s(Shader, currentDir);
+    strcat_s(Shader, "\\Shaders\\StaticMesh.fx");
+
+    FILE* fp;
+    strcat_s(currentDir, "\\Log.txt");
+    fopen_s(&fp,currentDir,"w");
+    fprintf(fp, currentDir);
+    fprintf(fp, "\n");
+    fprintf(fp, Content);
+    fprintf(fp, "\n");
+    fprintf(fp, Shader);
+    fprintf(fp, "\n");
+    fclose(fp);
     //Start importing asset
-    m_pTaskSystem->EnqueueTask(m_pGeometryManager->ImportAssetTask("D:\\Projects\\Ares\\AresEngine\\AEngine\\Debug\\Content\\dude.dae"));
+    m_pTaskSystem->EnqueueTask(m_pGeometryManager->ImportAssetTask(Content));
     m_pTaskSystem->EnqueueTask(m_pTextureManager->ImportTextures());
-    m_pTaskSystem->EnqueueTask(m_pShaderManager->CreateVertexShaderTask());
-    m_pTaskSystem->EnqueueTask(m_pShaderManager->CreatePixelShaderTask());
-    m_pTaskSystem->EnqueueTask(m_pAnimationManager->ImportTask("D:\\Projects\\Ares\\AresEngine\\AEngine\\Debug\\Content\\dude.dae"));
+    m_pTaskSystem->EnqueueTask(m_pShaderManager->CreateVertexShaderTask(Shader));
+    m_pTaskSystem->EnqueueTask(m_pShaderManager->CreatePixelShaderTask(Shader));
+    m_pTaskSystem->EnqueueTask(m_pAnimationManager->ImportTask(Content));
 
     bool GeometryDone = false;
     bool AnimationDone = false;
@@ -99,6 +123,7 @@ bool AEngine::Initialize()
         GeometryDone = m_pGeometryManager->DoneImporting();
         AnimationDone = m_pAnimationManager->done;
     }
+
     return true;
 }
 
@@ -113,11 +138,17 @@ bool AEngine::Shutdown()
     m_pInputSystem = nullptr;
 
     if(m_pGeometryManager != nullptr)
+    {
         m_pGeometryManager->Shutdown();
+        delete m_pGeometryManager;
+    }
     m_pGeometryManager = nullptr;
 
     if(m_pTextureManager != nullptr)
+    {
+        m_pTextureManager->Shutdown();
         delete m_pTextureManager;
+    }
     m_pTextureManager = nullptr;
 
     if(m_pShaderManager != nullptr)
@@ -145,6 +176,9 @@ void AEngine::MoveCameraBackward()
 void AEngine::Run()
 {
     MSG msg = {0};
+    m_pGameTimer->Start();
+    double animTime = 0.0;
+
     while(WM_QUIT != msg.message)
     {
         if(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
@@ -157,10 +191,17 @@ void AEngine::Run()
             if (!m_stopped) 
             {
                 m_pCamera->UpdateViewMatrix();
-                m_pRenderSystem->RenderScene(m_pGeometryManager,m_pTextureManager, m_pShaderManager, m_pCamera);          
+                m_pStopWatch->Start();
+                ElapsedGameTime =(float)m_pGameTimer->GetGameRunTime() * 0.5f;
+                m_pAnimationManager->UpdateAnimationTest(ElapsedGameTime);
+                m_pRenderSystem->RenderScene(m_pGeometryManager,m_pTextureManager, m_pShaderManager, m_pCamera, m_pAnimationManager); 
+                m_pStopWatch->Stop();
+                animTime = m_pStopWatch->GetElapsedAsSeconds();
+                bool finish = true;
             }
         }
     }
+    m_pGameTimer->Stop();
     Shutdown();   
 }
 

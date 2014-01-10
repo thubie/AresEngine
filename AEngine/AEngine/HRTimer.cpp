@@ -43,10 +43,19 @@ LONGLONG HRTimer::GetElapsed()
 {
     return (m_Stop.QuadPart - m_Start.QuadPart);
 }
-    
+
 double HRTimer::GetElapsedAsSeconds()
 {
     LARGE_INTEGER frequency;
     QueryPerformanceFrequency(&frequency);
     return ((double)GetElapsed() / (double)frequency.QuadPart);
+}
+
+double HRTimer::GetGameRunTime()
+{
+    LARGE_INTEGER frequency;
+    QueryPerformanceFrequency(&frequency);
+    LONGLONG current = GetCurrentTick();
+    double elapsed = current - m_Start.QuadPart; 
+    return (((double)elapsed / (double)frequency.QuadPart) * 1000.0);
 }

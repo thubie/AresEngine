@@ -41,6 +41,7 @@ private:
     TaskSystem* m_pTaskSystem;
     RenderSystem* m_pRenderSystem;
     HRTimer* m_pGameTimer;
+    HRTimer* m_pStopWatch;
     Camera* m_pCamera;
     GeometryManager* m_pGeometryManager;
     ShaderManager* m_pShaderManager;
@@ -49,6 +50,7 @@ private:
     int m_windowWidth; //To do read window resolution from a config/ini file
     int m_windowHeight;
     bool m_stopped;
+    float ElapsedGameTime; //Total time running.
 public:
     InputSystem* m_pInputSystem;
 };

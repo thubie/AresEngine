@@ -145,9 +145,4 @@
       <Filter>Header Files\Shaders</Filter>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="SkinnedMesh.fx">
-      <Filter>Header Files\Shaders</Filter>
-    </FxCompile>
-  </ItemGroup>
 </Project>

@@ -21,6 +21,6 @@ struct PosNormalTexSkinned
     XMFLOAT3 norm;
     XMFLOAT2 uv;
     unsigned int boneIndices[4];
-    float weights[3];
+    float weights[4];
     
 };

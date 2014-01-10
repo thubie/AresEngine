@@ -17,6 +17,7 @@ public:
 
     LONGLONG GetElapsed();
     double GetElapsedAsSeconds();
+    double GetGameRunTime();
 
 private:
     LONGLONG GetCurrentTick();

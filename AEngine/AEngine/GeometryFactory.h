@@ -6,6 +6,7 @@
 #include<d3d11.h>
 #include<d3dx11.h>
 #include<vector>
+#include<queue>
 #include<map>
 #include<string>
 
@@ -23,7 +24,7 @@ class GeometryFactory
     struct BoneData
     {
         unsigned int index;
-        float weights[3];
+        float weights[4];
         unsigned int boneId[4];
     };
 
@@ -53,6 +54,8 @@ private:
     GeometryManager* m_pGeoManager; 
     unsigned int nextId;
     std::vector<unsigned int>* openTasks;
+    
+
 public:
     bool m_DoneImporting;
 };

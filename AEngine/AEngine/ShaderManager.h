@@ -19,8 +19,8 @@ public:
     void SetVertexShader(unsigned int vsId);
     void SetPixelShader(unsigned int psId);
 
-    Task* CreateVertexShaderTask();
-    Task* CreatePixelShaderTask();
+    Task* CreateVertexShaderTask(const char* pVertexPath);
+    Task* CreatePixelShaderTask(const char* pPixelPath);
 
 private:
     static void StartCreateVertexShader(TaskData* pData, void* thisPointer);

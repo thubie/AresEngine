@@ -1,0 +1,3 @@
+D:\Projects\Ares\AresEngine\AEngine\AEngine\Log.txt
+D:\Projects\Ares\AresEngine\AEngine\AEngine\Content\dude.dae
+D:\Projects\Ares\AresEngine\AEngine\AEngine\Shaders\StaticMesh.fx

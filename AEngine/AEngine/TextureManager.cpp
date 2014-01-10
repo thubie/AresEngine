@@ -28,6 +28,16 @@ TextureManager::~TextureManager()
     }
 }
 
+void TextureManager::Shutdown()
+{
+    unsigned int numTextures = this->m_pTextureCollection->size();
+    for(int i = 0; i < numTextures; ++i)
+    {
+        //m_pTextureCollection->at(i).texture->Release();
+
+    }
+}
+
 void TextureManager::DoImportTextureTask(TaskData* pData, void* thisPointer)
 {
     TextureManager* self = static_cast<TextureManager*>(thisPointer);

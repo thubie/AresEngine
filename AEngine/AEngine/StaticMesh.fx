@@ -9,6 +9,7 @@ cbuffer ConstantBuffer : register( b0 )
 	matrix World;
 	matrix View;
 	matrix Projection;
+    float4x4 BoneTransforms[100];
 }
 
 //--------------------------------------------------------------------------------------
@@ -17,8 +18,7 @@ struct VS_OUTPUT
     float4 Pos : SV_POSITION;
     float4 Norm : NORMAL;
     float2 texCoord : TEXCOORD0;
-    float3 weights : WEIGHTS;
-    uint4  BoneIndices : BONEINDICES;
+
 };
 
 struct VS_INPUT
@@ -35,17 +35,26 @@ struct VS_INPUT
 //--------------------------------------------------------------------------------------
 VS_OUTPUT VS(in VS_INPUT input)
 {
-    VS_OUTPUT output;// = (VS_OUTPUT)0;
-    output.Pos = mul(input.Pos, World);
-    output.Pos = mul(output.Pos, View );
-    output.Pos = mul(output.Pos, Projection );
-    output.BoneIndices = input.BoneIndices;
-    output.weights = input.weights;
-    output.Norm = mul(input.Norm, World);
-    output.Norm = mul(output.Norm, View );
-    output.Norm = mul(output.Norm, Projection );
-   
+    VS_OUTPUT output;
+    float4x4 worldViewProj = mul(mul(World,View),Projection);
+    float4 position = float4(0.0f, 0.0f, 0.0f, 1.0f);
+    float lastWeight = 0.0f;
+    int n = 3;
+    uint4 boneIndices = input.BoneIndices;
+    float3  boneWeights = input.weights;
 
+    for(int i = 0; i < n; i++)
+    {
+        lastWeight += boneWeight[i];
+        position += weights[i] * mul(BoneTransforms[boneIndices[i]], position);
+    }
+
+    lastWeight = 1.0f - lastWeight;
+    p += lastWeight * mul(BoneTransforms[boneIndices[0]],position);
+
+
+    output.Pos = mul(input.Pos, worldViewProj);
+    output.Norm = mul(input.Norm,worldViewProj);
     output.texCoord = input.texCoord;
 
     return output;

@@ -61,12 +61,12 @@ void ShaderManager::SetPixelShader(unsigned int pixelShaderId)
     m_pImmediateContext->PSSetShader(pixelShader.pixelShader, NULL, 0);
 }
 
-Task* ShaderManager::CreateVertexShaderTask()
+Task* ShaderManager::CreateVertexShaderTask(const char* pVertexPath)
 {
     Task* task = new Task;
     TaskData* data = new TaskData;
     data->parameter1 = (void*)m_pVertexShaders;
-    data->parameter2 = nullptr;
+    data->parameter2 = (void*)pVertexPath;
     data->parameter3 = nullptr;
     data->parameter4 = nullptr;
     data->parameter5 = nullptr;
@@ -78,12 +78,12 @@ Task* ShaderManager::CreateVertexShaderTask()
     return task; 
 }
 
-Task* ShaderManager::CreatePixelShaderTask()
+Task* ShaderManager::CreatePixelShaderTask(const char* pPixelPath)
 {
     Task* task = new Task;
     TaskData* data = new TaskData;
     data->parameter1 = (void*)m_pPixelShaders;
-    data->parameter2 = nullptr;
+    data->parameter2 = (void*)pPixelPath;
     data->parameter3 = nullptr;
     data->parameter4 = nullptr;
     data->parameter5 = nullptr;
@@ -111,12 +111,17 @@ void ShaderManager::CreateVertexShader(TaskData* data)
 {
     std::vector<VertexShaderObject>* pVertexShaders; 
     pVertexShaders = static_cast<std::vector<VertexShaderObject>*>(data->parameter1);
+    const char* path = (char*)data->parameter2;
+    const int length = 1024;
+    size_t convertedChar;
+    WCHAR wcharPath[length];
+    mbstowcs_s(&convertedChar,wcharPath,path,length);
     HRESULT hr;
     ID3DBlob* pVSBlob = NULL;
     VertexShaderObject vertexShaderObj;
 
     //Compile the vertex shader
-    CompileShaderFromFile(L"StaticMesh.fx", "VS", "vs_5_0", &pVSBlob);
+    CompileShaderFromFile(wcharPath, "VS", "vs_5_0", &pVSBlob);
    
     //Create the vertex shader
     hr = m_pD3DDevice->CreateVertexShader(pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(),NULL, &vertexShaderObj.vertexShader);
@@ -129,7 +134,7 @@ void ShaderManager::CreateVertexShader(TaskData* data)
         {"NORMAL"     , 0, DXGI_FORMAT_R32G32B32_FLOAT     , 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
         {"TEXCOORD"   , 0, DXGI_FORMAT_R32G32_FLOAT        , 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
         {"BONEINDICES", 0, DXGI_FORMAT_R32G32B32A32_UINT   , 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
-        {"WEIGHTS"    , 0, DXGI_FORMAT_R32G32B32_FLOAT     , 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+        {"WEIGHTS"    , 0, DXGI_FORMAT_R32G32B32A32_FLOAT  , 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
     };
 
     unsigned int numElements = ARRAYSIZE(layout);
@@ -151,10 +156,15 @@ void ShaderManager::CreatePixelShader(TaskData* data)
     pPixelShaders = static_cast<std::vector<PixelShaderObject>*>(data->parameter1);
     PixelShaderObject pixelShaderObj;
     HRESULT hr;
+    const char* path = (char*)data->parameter2;
+    const int length = 1024;
+    size_t convertedChar;
+    WCHAR wcharPath[length];
+    mbstowcs_s(&convertedChar,wcharPath,path,length);
 
      //Compile pixel shader
     ID3DBlob* pPSBlob = NULL;
-    CompileShaderFromFile(L"StaticMesh.fx", "PS","ps_5_0", &pPSBlob);
+    CompileShaderFromFile(wcharPath, "PS","ps_5_0", &pPSBlob);
 
     //Create the Pixel shader
     hr = m_pD3DDevice->CreatePixelShader(pPSBlob->GetBufferPointer(),pPSBlob->GetBufferSize(), NULL,&pixelShaderObj.pixelShader);

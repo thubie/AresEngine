@@ -8,6 +8,7 @@
 #include"GeometryManager.h"
 #include"TextureManager.h"
 #include"ShaderManager.h"
+#include"AnimationManager.h"
 
 class AEngine;
 
@@ -18,6 +19,7 @@ class RenderSystem
         XMMATRIX m_World;
         XMMATRIX m_View;
         XMMATRIX m_Projection;
+        XMMATRIX m_FinalTransform[100];
     };
 
 public:
@@ -26,8 +28,8 @@ public:
     ~RenderSystem();
     void Initialize(HWND handleWindow);
     void Shutdown();
-    void RenderScene(GeometryManager* pGeoManager,TextureManager* pTextureManager, ShaderManager* pShaderManager, Camera* pCamera);
-
+    void RenderScene(GeometryManager* pGeoManager,TextureManager* pTextureManager, ShaderManager* pShaderManager, Camera* pCamera, AnimationManager* pAnimationManager);
+    //void ChangeRenderState
 private:
     void InitDeviceAndSwapChain();
     void InitResources(); //TestCode

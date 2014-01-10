@@ -17,7 +17,8 @@ public:
 
     void SetTexture(unsigned int ID);
     Task* ImportTextures();
-    
+    void Shutdown();
+
 private:
     void CleanUpResources();
     void DoImportTask(TaskData* data);

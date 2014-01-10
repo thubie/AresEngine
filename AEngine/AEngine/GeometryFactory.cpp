@@ -14,7 +14,9 @@ GeometryFactory::~GeometryFactory()
 void GeometryFactory::SetGraphicsDeviceAndContext(ID3D11Device* d3dDevice, ID3D11DeviceContext* immediateContext)
 {
     m_pImmediateContext = immediateContext;
+    m_pImmediateContext->AddRef();
     m_pD3dDevice = d3dDevice;
+    m_pD3dDevice->AddRef();
 }
 
 
@@ -46,7 +48,7 @@ void GeometryFactory::DoImportAsset(TaskData* pdata)
     int boneIndex = 0;
     std::vector<std::string>* BonesByName = new std::vector<std::string>();
     BoneData* boneDataCollection;
-    BonesByName->reserve(70);
+    BonesByName->reserve(100);
 
     aiNode* rootNode = pScene->mRootNode->mChildren[0];
     ExtractSkeletonData(BonesByName, rootNode);
@@ -106,13 +108,13 @@ void GeometryFactory::DoImportAsset(TaskData* pdata)
 }
 
 //Extract Skeleton data 
-void GeometryFactory::ExtractSkeletonData(std::vector<std::string>* skeletonData, aiNode* Node)
+void GeometryFactory::ExtractSkeletonData(std::vector<std::string>* skeletonData, aiNode* node)
 {
-    std::string boneName(Node->mName.C_Str()); 
+    std::string boneName(node->mName.C_Str()); 
     skeletonData->push_back(boneName);
-    for(int i = 0; i < Node->mNumChildren; ++i)
+    for(int i = 0; i < node->mNumChildren; ++i)
     {
-        ExtractSkeletonData(skeletonData, Node->mChildren[i]);
+        ExtractSkeletonData(skeletonData, node->mChildren[i]);
     }
 }
 
@@ -204,10 +206,7 @@ void GeometryFactory::AddBoneData(PosNormalTexSkinned* vertices, unsigned int bo
         if(temp.boneIndices[i] == 0)
         {
             temp.boneIndices[i] = boneId;
-            if( i != 3)
-            {
-                temp.weights[i] = weight.mWeight;
-            }
+            temp.weights[i] = weight.mWeight;
             vertices[weight.mVertexId] = temp;
             return;
         }
