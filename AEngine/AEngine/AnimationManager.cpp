@@ -59,12 +59,11 @@ void AnimationManager::DoImportAnimation(TaskData* pData)
         aiProcess_SplitByBoneCount);
     
     aiNode* rootNode = m_pScene->mRootNode->mChildren[0];
-    XMMATRIX globalInverse = XMLoadFloat4x4((XMFLOAT4X4*)&rootNode->mTransformation.a1);
-    XMVECTOR determinant = XMMatrixDeterminant(globalInverse);
-    m_GlobalInverseTransform = XMMatrixInverse(&determinant, globalInverse);
+    m_GlobalInverseTransformAssimp = rootNode->mTransformation;
+    m_GlobalInverseTransformAssimp.Inverse();
     ExtractSkeletonData(m_pSkeletonBones, rootNode);
     m_numBones = m_pSkeletonBones->size();
-    GenerateOffsetMatrixes(m_pOffsetMatrices, m_pScene);
+    GenerateOffsetMatrixes(m_pScene);
     done = true;
 }
 
@@ -143,9 +142,10 @@ void AnimationManager::GenerateSkeletonStructure(Bone* skeletonBones)
     bool test = true;
 }
 
-void AnimationManager::GenerateOffsetMatrixes(XMMATRIX* pOffsetMatrices, const aiScene* pScene)
+void AnimationManager::GenerateOffsetMatrixes(const aiScene* pScene)
 {
-    m_pOffsetMatrices = (XMMATRIX*) _aligned_malloc(sizeof(XMMATRIX) * m_numBones, 16); //new XMMATRIX[m_numBones];
+    m_pOffsetMatricesAssimp = new aiMatrix4x4[m_numBones];
+
     unsigned int numMeshes = pScene->mNumMeshes;
     unsigned int numBones  = 0;
     unsigned int index = 0;
@@ -161,8 +161,7 @@ void AnimationManager::GenerateOffsetMatrixes(XMMATRIX* pOffsetMatrices, const a
             bone = pScene->mMeshes[i]->mBones[j];
             boneName = bone->mName.C_Str();
             index = FindBoneIndex(&boneName, m_pSkeletonBones);
-            offsetMatrix = XMLoadFloat4x4((XMFLOAT4X4*)&bone->mOffsetMatrix.a1);
-            m_pOffsetMatrices[index] = offsetMatrix;
+            m_pOffsetMatricesAssimp[index] = bone->mOffsetMatrix;
         }
     }
 }
@@ -214,7 +213,8 @@ void AnimationManager::DoneUpdatingAnimation(void* thisPointer, void* task)
 
 void AnimationManager::UpdateAnimationTest(float gameTime)
 {
-    XMMATRIX idMatrix = XMMatrixIdentity();
+    //initializes to an id matrix
+    aiMatrix4x4 idMatrix;
 
     //Get the ticks per second if the ticks per second isn't zero.
     //Set ticks per second to the ticks per second of the animation 
@@ -245,58 +245,48 @@ aiNodeAnim* AnimationManager::FindNodeAnim(const aiAnimation* animation, std::st
     return result;
 }
 
-void AnimationManager::ProcessAnimation(float animTime, const aiNode* node, XMMATRIX& parentTransform)
+//Update animation information.
+void AnimationManager::ProcessAnimation(float animTime, const aiNode* node, aiMatrix4x4& parentTransform)
 {
     std::string NodeName(node->mName.data);
     unsigned int index = FindBoneIndex(&NodeName,m_pSkeletonBones); 
-    XMMATRIX nodeTransformation = XMLoadFloat4x4((XMFLOAT4X4*)&node->mTransformation.a1);
+    aiMatrix4x4 nodeTransformation = node->mTransformation;
     const aiAnimation* pAnimation = m_pScene->mAnimations[animationIndex];
     const aiNodeAnim* pNodeAnim = FindNodeAnim(pAnimation, NodeName);
-    //pNodeAnim = nullptr;
+
     if(pNodeAnim)
     {
         //Interpolate rotation and generate rotation transformation matrix
-        aiQuaternion rotationQ;
-        XMVECTOR position;
-        XMVECTOR scaling;
-        XMVECTOR rotation;
-       
-        XMMATRIX rotationMat;
-        XMMATRIX positionMat;
-        XMMATRIX scalingMat;
+        aiQuaternion rotationAssimp;
+        aiVector3D positionAssimp(0,0,0);
+        aiVector3D scalingAssimp(0,0,0);
 
-        InterpolateRotation(rotation, animTime,pNodeAnim);
-        InterpolateRotation(rotationQ,animTime,pNodeAnim);
-        InterpolatePosition(position,animTime,pNodeAnim);
-        InterpolateScaling(scaling,animTime,pNodeAnim);
+        InterpolateRotation(rotationAssimp,animTime,pNodeAnim);
+        InterpolatePosition(positionAssimp,animTime,pNodeAnim);
+        InterpolateScaling(scalingAssimp,animTime,pNodeAnim);
 
-        aiMatrix4x4 rotationAssimp;
-        rotationAssimp = aiMatrix4x4(rotationQ.GetMatrix());
-        rotationMat = XMLoadFloat4x4((const XMFLOAT4X4*)&rotationAssimp.a1);
+        aiMatrix4x4 nodeTransAssimp;
+        aiMatrix4x4 translation;
+        aiMatrix4x4 scaling;
+        aiMatrix4x4 rotation;
 
-        //rotationMat = XMMatrixRotationQuaternion(rotation);
-        //rotationMat = XMMatrixTranspose(rotationMat);
-        scalingMat = XMMatrixScalingFromVector(scaling);
-        //scalingMat = XMMatrixTranspose(scalingMat);
-        positionMat = XMMatrixTranslationFromVector(position);
-        //positionMat = XMMatrixTranspose(positionMat);
-
-        rotationMat._11 *= scaling.m128_f32[0]; rotationMat._21 *= scaling.m128_f32[0];  rotationMat._31 *= scaling.m128_f32[0]; 
-        rotationMat._12 *= scaling.m128_f32[1]; rotationMat._22 *= scaling.m128_f32[1];  rotationMat._32 *= scaling.m128_f32[1];
-        rotationMat._13 *= scaling.m128_f32[2]; rotationMat._23 *= scaling.m128_f32[2];  rotationMat._33 *= scaling.m128_f32[2];
-        rotationMat._14 *= position.m128_f32[0]; rotationMat._24 *= position.m128_f32[1];  rotationMat._34 *= position.m128_f32[3];
-
-        nodeTransformation = rotationMat;//rotationMat * scalingMat * positionMat ;
-        //nodeTransformation = XMMatrixTranspose(nodeTransformation);
+        nodeTransAssimp = aiMatrix4x4(rotationAssimp.GetMatrix());
+        rotation = aiMatrix4x4(rotationAssimp.GetMatrix());
+        aiMatrix4x4::Translation(positionAssimp,translation);
+        aiMatrix4x4::Scaling(scalingAssimp,scaling);
+        
+        nodeTransformation = translation *  rotation * scaling;
         bool finish = true;
     }
 
-    XMMATRIX globalTransformation = parentTransform * nodeTransformation ;
-    XMMATRIX GlobalInverse = m_GlobalInverseTransform;
-    XMMATRIX offsetMatrix = m_pOffsetMatrices[index];
-    XMMATRIX result =  GlobalInverse * globalTransformation * offsetMatrix;
-    result = XMMatrixTranspose(result);
-    m_pFinalTransformsCollection->at(0)->skeletonData[index] = result;
+    aiMatrix4x4 globalTransformation =  parentTransform * nodeTransformation;
+    aiMatrix4x4 globalInverse = m_GlobalInverseTransformAssimp;
+    aiMatrix4x4 offsetMatrix = m_pOffsetMatricesAssimp[index];
+    aiMatrix4x4 result =  globalTransformation * offsetMatrix;
+    result.Transpose();
+
+    
+    m_pFinalTransformsCollection->at(0)->skeletonData[index] = XMLoadFloat4x4((const XMFLOAT4X4*)&result.a1);
 
     for(int i = 0; i < node->mNumChildren; ++i)
     {
@@ -304,94 +294,46 @@ void AnimationManager::ProcessAnimation(float animTime, const aiNode* node, XMMA
     }
 }
 
-//lerp scaling
-void AnimationManager::InterpolateScaling(XMVECTOR& result,float animTime, const aiNodeAnim* pNodeAnim)
-{
+//Interpolate scaling.
+void AnimationManager::InterpolateScaling(aiVector3D& result,float animTime, const aiNodeAnim* pNodeAnim)
+{ 
     if(pNodeAnim->mNumScalingKeys == 1)
     {
-        result = XMLoadFloat3((const XMFLOAT3*)&pNodeAnim->mScalingKeys[0].mValue);       
+        result = pNodeAnim->mScalingKeys[0].mValue;       
         return;
     }
 
     unsigned int scalingKey = FindScaling(animTime,pNodeAnim);
     unsigned int nextScalingKey = scalingKey + 1;
-
-    XMVECTOR startScale;
-    XMVECTOR endScale;
-
-    startScale =  XMLoadFloat3((const XMFLOAT3*)&pNodeAnim->mScalingKeys[scalingKey].mValue.x);
-    endScale = XMLoadFloat3((const XMFLOAT3*)&pNodeAnim->mScalingKeys[nextScalingKey].mValue.x);
-    
     float deltaTime = pNodeAnim->mScalingKeys[nextScalingKey].mTime - pNodeAnim->mScalingKeys[scalingKey].mTime;
-    float factor = (animTime -(float)pNodeAnim->mScalingKeys[scalingKey].mTime) / deltaTime;; 
-    result =  XMVectorLerp(startScale, endScale, factor);
+    float factor = (animTime -(float)pNodeAnim->mScalingKeys[scalingKey].mTime) / deltaTime;
+    const aiVector3D& start = pNodeAnim->mScalingKeys[scalingKey].mValue;
+    const aiVector3D& end = pNodeAnim->mScalingKeys[nextScalingKey].mValue;
+    aiVector3D delta = end - start;
+    result = start + (factor * delta);
 }
 
-
-
-//Lerp Position
-void AnimationManager::InterpolatePosition(XMVECTOR& result,float animTime, const aiNodeAnim* pNodeAnim)
+//Interpolate Position.
+void AnimationManager::InterpolatePosition(aiVector3D& result,float animTime, const aiNodeAnim* pNodeAnim)
 {
     if(pNodeAnim->mNumPositionKeys == 1)
     {
-        result = XMLoadFloat3((const XMFLOAT3*)&pNodeAnim->mScalingKeys[0].mValue); 
+        result = pNodeAnim->mPositionKeys[0].mValue;       
         return;
     }
 
-    unsigned int scalingKey = FindPosition(animTime,pNodeAnim);
-    unsigned int nextScalingKey = scalingKey + 1;
+    unsigned int positionKey = FindPosition(animTime,pNodeAnim);
+    unsigned int nextPositionKey = positionKey + 1;
+    float deltaTime = pNodeAnim->mPositionKeys[nextPositionKey].mTime - pNodeAnim->mPositionKeys[positionKey].mTime;
+    float factor = (animTime -(float)pNodeAnim->mPositionKeys[positionKey].mTime) / deltaTime; 
 
-    XMVECTOR startPosition;
-    XMVECTOR endPosition;
-
-    startPosition =  XMLoadFloat3((const XMFLOAT3*)&pNodeAnim->mScalingKeys[scalingKey].mValue.x);
-    endPosition = XMLoadFloat3((const XMFLOAT3*)&pNodeAnim->mScalingKeys[nextScalingKey].mValue.x);
-    
-    float deltaTime = pNodeAnim->mScalingKeys[nextScalingKey].mTime - pNodeAnim->mScalingKeys[scalingKey].mTime;
-    float factor = (animTime -(float)pNodeAnim->mScalingKeys[scalingKey].mTime) / deltaTime; 
-    result = XMVectorLerp(startPosition, endPosition, factor);
+    const aiVector3D& start = pNodeAnim->mPositionKeys[positionKey].mValue;
+    const aiVector3D& end = pNodeAnim->mPositionKeys[nextPositionKey].mValue;
+    aiVector3D delta = end - start;
+    result = start + (factor * delta);
 }
 
-//slerp quaternions
-void AnimationManager::InterpolateRotation(XMVECTOR& result, float AnimTime, const aiNodeAnim* pNodeAnim)
-{
-    if(pNodeAnim->mNumRotationKeys == 1)
-    {
-        result.m128_f32[0] = pNodeAnim->mRotationKeys[0].mValue.x;
-        result.m128_f32[1] = pNodeAnim->mRotationKeys[0].mValue.y;
-        result.m128_f32[2] = pNodeAnim->mRotationKeys[0].mValue.z;
-        result.m128_f32[3] = pNodeAnim->mRotationKeys[0].mValue.w;
-        return;
-    }
-    unsigned int rotationIndex = FindRotation(AnimTime, pNodeAnim);
-    unsigned int nextRotationIndex = rotationIndex + 1;
-    float startTime = (float)pNodeAnim->mRotationKeys[rotationIndex].mTime;
-    float endTime = (float)pNodeAnim->mRotationKeys[nextRotationIndex].mTime;
-    float deltaTime =  endTime - startTime; 
-    float factor = (AnimTime - startTime) / deltaTime;
- 
-    const aiQuaternion& startRotationQ = pNodeAnim->mRotationKeys[rotationIndex].mValue;
-    const aiQuaternion& endRotationQ = pNodeAnim->mRotationKeys[nextRotationIndex].mValue;    
-    XMVECTOR startQ;
-    XMVECTOR endQuat;
-    XMVECTOR resultQuat;
-
-    startQ.m128_f32[0] = startRotationQ.x;
-    startQ.m128_f32[1] = startRotationQ.y;
-    startQ.m128_f32[2] = startRotationQ.z;
-    startQ.m128_f32[3] = startRotationQ.w;
-
-    endQuat.m128_f32[0] = endRotationQ.x;
-    endQuat.m128_f32[1] = endRotationQ.y;
-    endQuat.m128_f32[2] = endRotationQ.z;
-    endQuat.m128_f32[3] = endRotationQ.w;
-
-    resultQuat = XMQuaternionSlerp(startQ, endQuat,factor);
-    result = XMQuaternionNormalize(resultQuat);
-    bool finish = true;
-}
-
-//Slerp quaternions
+//Slerp quaternions.
 void AnimationManager::InterpolateRotation(aiQuaternion& result, float AnimTime, const aiNodeAnim* pNodeAnim)
 {
     if(pNodeAnim->mNumRotationKeys == 1)
@@ -413,7 +355,7 @@ void AnimationManager::InterpolateRotation(aiQuaternion& result, float AnimTime,
     result.Normalize();
 }
 
-//Scaling index
+//Find scaling index.
 unsigned int AnimationManager::FindScaling(float animTime, const aiNodeAnim* pNodeAnim)
 {
     for(int i = 0; i < pNodeAnim->mNumScalingKeys - 1; ++i)
@@ -425,7 +367,7 @@ unsigned int AnimationManager::FindScaling(float animTime, const aiNodeAnim* pNo
     return 0;
 }
 
-//Find rotation index
+//Find rotation index.
 unsigned int AnimationManager::FindRotation(float animTime, const aiNodeAnim* pNodeAnim)
 {
     for(int i = 0; i < pNodeAnim->mNumRotationKeys - 1; ++i)
@@ -437,7 +379,7 @@ unsigned int AnimationManager::FindRotation(float animTime, const aiNodeAnim* pN
     return 0;
 }
 
-//Find position index
+//Find position index.
 unsigned int AnimationManager::FindPosition(float animTime, const aiNodeAnim* pNodeAnim)
 {
     for(int i = 0; i < pNodeAnim->mNumPositionKeys - 1; ++i)

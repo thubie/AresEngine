@@ -16,7 +16,7 @@ public:
     ~TextureManager();
 
     void SetTexture(unsigned int ID);
-    Task* ImportTextures();
+    Task* ImportTextures(const char* contentPath);
     void Shutdown();
 
 private:

@@ -57,5 +57,5 @@ double HRTimer::GetGameRunTime()
     QueryPerformanceFrequency(&frequency);
     LONGLONG current = GetCurrentTick();
     double elapsed = current - m_Start.QuadPart; 
-    return (((double)elapsed / (double)frequency.QuadPart) * 1000.0);
+    return (elapsed / (double)frequency.QuadPart);
 }

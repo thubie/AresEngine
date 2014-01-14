@@ -235,8 +235,22 @@ void RenderSystem::InitResources()
     m_WorldMatrix = (XMMATRIX*)_aligned_malloc(sizeof(XMMATRIX),16);
     *m_WorldMatrix = XMMatrixIdentity();
     m_pTestConstantBuffer = (ConstantBuffer*) _aligned_malloc(sizeof(ConstantBuffer), 16);
-
     m_pImmediateContext->RSSetState(m_solid);
+    m_TestWorldTransForms.reserve(1024);
+    //Testing code
+    float x,y,z;
+    XMMATRIX currentWorld;
+    y = 0;
+    for(int i = 0; i < 8; ++i)
+    {
+        z = i * 45;
+        for(int j = 0; j < 8; ++j)
+        {
+            x = j * 45;
+            currentWorld = XMMatrixTranslation(x, y, z);
+            m_TestWorldTransForms.push_back(currentWorld);
+        }
+    }
 }
 
 void RenderSystem::RenderScene(GeometryManager* pGeoManager,TextureManager* pTextureManager, ShaderManager* pShaderManager, Camera* pCamera, AnimationManager* pAnimationManager)
@@ -245,45 +259,30 @@ void RenderSystem::RenderScene(GeometryManager* pGeoManager,TextureManager* pTex
     float clearColor[4] = {0.0f,0.125f,0.3f, 1.0f}; 
     m_pImmediateContext->ClearRenderTargetView(m_pRenderTargetView, clearColor);
     m_pImmediateContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+    XMMATRIX world;
+    int count = m_TestWorldTransForms.size();
+    memcpy((void*)m_pTestConstantBuffer->m_FinalTransform, (void*)pAnimationManager->m_pFinalTransformsCollection->at(0)->skeletonData, sizeof(XMMATRIX) * 100);
+    pShaderManager->SetVertexShader(0);
+    pShaderManager->SetPixelShader(0);
+    m_pImmediateContext->VSSetConstantBuffers(0, 1, &m_pConstantBuffer);
+    m_pImmediateContext->PSSetSamplers(0,1,&m_pSamplerAF);
 
-    XMMATRIX world = XMMatrixIdentity();
-    float x,y,z;
-    for(int w = 0; w < 1; ++w)
-    {
-        x = 45 * w;
-        y = 0;
-        z = 0;
+    m_pTestConstantBuffer->m_View = XMMatrixTranspose(*(pCamera->GetViewMatrix()));
+    m_pTestConstantBuffer->m_Projection = XMMatrixTranspose(*(pCamera->GetProjectionMatrix())); 
 
-        world = XMMatrixTranslation(x,y,z);
-
-        
-
-    
-        m_pTestConstantBuffer->m_World = XMMatrixTranspose(world); //XMMatrixTranspose(*m_WorldMatrix);
-        m_pTestConstantBuffer->m_View = XMMatrixTranspose(*(pCamera->GetViewMatrix()));
-        m_pTestConstantBuffer->m_Projection = XMMatrixTranspose(*(pCamera->GetProjectionMatrix()));
-        for(int i = 0; i < 100; ++i)
-        {
-            m_pTestConstantBuffer->m_FinalTransform[i] =  pAnimationManager->m_pFinalTransformsCollection->at(0)->skeletonData[i];
-        }
+    for(int i = 0; i < count ; ++i)
+    {        
+        world = m_TestWorldTransForms.at(i);  
+        m_pTestConstantBuffer->m_World = XMMatrixTranspose(world);            
         m_pImmediateContext->UpdateSubresource(m_pConstantBuffer, 0, NULL,m_pTestConstantBuffer, 0, 0);
-
         unsigned int indicesCount = 0;
+
         for(int i = 0; i < 4; ++i)
         {
             pGeoManager->SetSubmeshIndexed(i, &indicesCount);
-            pTextureManager->SetTexture(i);
-            pShaderManager->SetVertexShader(0);
-            pShaderManager->SetPixelShader(0);
-            m_pImmediateContext->VSSetConstantBuffers(0, 1, &m_pConstantBuffer);
-            m_pImmediateContext->PSSetSamplers(0,1,&m_pSamplerAF);
+            pTextureManager->SetTexture(i);           
             m_pImmediateContext->DrawIndexed(indicesCount, 0, 0);
         }
-        pGeoManager->SetSubmeshIndexed(4, &indicesCount);
-	    pShaderManager->SetVertexShader(0);
-        pShaderManager->SetPixelShader(0);
-        m_pImmediateContext->VSSetConstantBuffers(0, 1, &m_pConstantBuffer);
-        m_pImmediateContext->DrawIndexed(indicesCount, 0, 0);
     }
     m_pSwapChain->Present(0,0);
 }

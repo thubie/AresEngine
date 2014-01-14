@@ -51,6 +51,7 @@ public:
     ID3D11Texture2D* m_pDepthStencil;
     ID3D11DepthStencilView* m_pDepthStencilView;
     ID3D11Debug* m_pDebug;
+    std::vector<XMMATRIX> m_TestWorldTransForms;
 
     //TestCode
     ID3D11Buffer*               m_pConstantBuffer;

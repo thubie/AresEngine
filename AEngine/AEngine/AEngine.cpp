@@ -60,12 +60,12 @@ bool AEngine::Initialize()
 
     //Need to refactor this..
     XMFLOAT3* pos = (XMFLOAT3*)_aligned_malloc(sizeof(XMFLOAT3),16);
-    pos->x = 0.0f;
-    pos->y = 70.0f;
-    pos->z = 50.0f;  //-70.0
+    pos->x = 180.0f;
+    pos->y = 150.0f;
+    pos->z = 450.0f;  //-70.0
 
     XMFLOAT3* target = (XMFLOAT3*)_aligned_malloc(sizeof(XMFLOAT3),16);
-    target->x = 0.0f;
+    target->x = 180.0f;
     target->y = 30.0f;
     target->z = 0.0f;
 
@@ -88,42 +88,40 @@ bool AEngine::Initialize()
     m_pAnimationManager = new AnimationManager();
 
     char currentDir[1024];
-    char Content[1024];
-    char Shader[1024];
+    char modelsDir[1024];
+    char texturesDir[1024];
+    char ShaderDir[1024];
 
     GetCurrentDirectoryA(1024, currentDir);
-    strcpy_s(Content,currentDir);
-    strcat_s(Content, "\\Content\\dude.dae");
-    strcpy_s(Shader, currentDir);
-    strcat_s(Shader, "\\Shaders\\StaticMesh.fx");
+    
+    strcpy_s(modelsDir,currentDir);
+    strcat_s(modelsDir, "\\Content\\dude.dae");
+    strcpy_s(texturesDir,currentDir);
+    strcat_s(texturesDir,"\\Content");
+    strcpy_s(ShaderDir, currentDir);
+    strcat_s(ShaderDir, "\\Shaders\\StaticMesh.fx");
 
+    //Logging testing if dir are right
     FILE* fp;
     strcat_s(currentDir, "\\Log.txt");
     fopen_s(&fp,currentDir,"w");
     fprintf(fp, currentDir);
     fprintf(fp, "\n");
-    fprintf(fp, Content);
+    fprintf(fp, modelsDir);
     fprintf(fp, "\n");
-    fprintf(fp, Shader);
+    fprintf(fp, ShaderDir);
+    fprintf(fp, "\n");
+    fprintf(fp, texturesDir);
     fprintf(fp, "\n");
     fclose(fp);
+
     //Start importing asset
-    m_pTaskSystem->EnqueueTask(m_pGeometryManager->ImportAssetTask(Content));
-    m_pTaskSystem->EnqueueTask(m_pTextureManager->ImportTextures());
-    m_pTaskSystem->EnqueueTask(m_pShaderManager->CreateVertexShaderTask(Shader));
-    m_pTaskSystem->EnqueueTask(m_pShaderManager->CreatePixelShaderTask(Shader));
-    m_pTaskSystem->EnqueueTask(m_pAnimationManager->ImportTask(Content));
-
-    bool GeometryDone = false;
-    bool AnimationDone = false;
-
-    //Polling importing state.
-    while(!(GeometryDone && AnimationDone))
-    {
-        GeometryDone = m_pGeometryManager->DoneImporting();
-        AnimationDone = m_pAnimationManager->done;
-    }
-
+    m_pTaskSystem->EnqueueTask(m_pGeometryManager->ImportAssetTask(modelsDir));
+    m_pTaskSystem->EnqueueTask(m_pTextureManager->ImportTextures(texturesDir));
+    m_pTaskSystem->EnqueueTask(m_pShaderManager->CreateVertexShaderTask(ShaderDir));
+    m_pTaskSystem->EnqueueTask(m_pShaderManager->CreatePixelShaderTask(ShaderDir));
+    m_pTaskSystem->EnqueueTask(m_pAnimationManager->ImportTask(modelsDir));
+   
     return true;
 }
 
@@ -179,6 +177,23 @@ void AEngine::Run()
     m_pGameTimer->Start();
     double animTime = 0.0;
 
+
+    bool GeometryDone = false;
+    bool AnimationDone = false;
+
+    //Polling importing state.
+    while(!(GeometryDone && AnimationDone))
+    {
+        GeometryDone = m_pGeometryManager->DoneImporting();
+        AnimationDone = m_pAnimationManager->done;
+        if(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+        {
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
+        Sleep(1);
+    }
+
     while(WM_QUIT != msg.message)
     {
         if(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
@@ -190,13 +205,13 @@ void AEngine::Run()
         {
             if (!m_stopped) 
             {
-                m_pCamera->UpdateViewMatrix();
-                m_pStopWatch->Start();
-                ElapsedGameTime =(float)m_pGameTimer->GetGameRunTime() * 0.5f;
+                m_pCamera->UpdateViewMatrix();               
+                ElapsedGameTime = (float)m_pGameTimer->GetGameRunTime();
                 m_pAnimationManager->UpdateAnimationTest(ElapsedGameTime);
-                m_pRenderSystem->RenderScene(m_pGeometryManager,m_pTextureManager, m_pShaderManager, m_pCamera, m_pAnimationManager); 
+                m_pStopWatch->Start();
+                m_pRenderSystem->RenderScene(m_pGeometryManager,m_pTextureManager, m_pShaderManager, m_pCamera, m_pAnimationManager);
                 m_pStopWatch->Stop();
-                animTime = m_pStopWatch->GetElapsedAsSeconds();
+                animTime = m_pStopWatch->GetElapsedAsSeconds() * 1000.0f;
                 bool finish = true;
             }
         }

@@ -51,6 +51,7 @@ private:
     int m_windowHeight;
     bool m_stopped;
     float ElapsedGameTime; //Total time running.
+
 public:
     InputSystem* m_pInputSystem;
 };

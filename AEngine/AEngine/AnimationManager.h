@@ -54,13 +54,15 @@ public:
 
     //Returns the amount of animation task created
     unsigned int UpdateAnimation(float gameTime);
+    
     void UpdateAnimationTest(float gameTime);
+
 private:
     static void ImportAnimation(TaskData* pData, void* thisPointer);
     static void DoneImporting(void* thispointer, void* task);
     void DoImportAnimation(TaskData* pData);
     void GenerateAnimations(Animation* pAnimations, const aiScene* pScene);
-    void GenerateOffsetMatrixes(XMMATRIX* OffsetMatrices, const aiScene* pScene);
+    void GenerateOffsetMatrixes(const aiScene* pScene);
     void GenerateSkeletonStructure(Bone* skeletonBones);
     void ExtractSkeletonData(std::vector<aiNode>* SkeletonBones,const aiNode* rootNode);
     unsigned int FindBoneIndex(std::string* boneName, std::vector<aiNode>* SkeletonBones);
@@ -70,11 +72,12 @@ private:
     static void DoneUpdatingAnimation(void* thisPointer, void* task);
 
     //Animation calculation
-    void ProcessAnimation(float animTime, const aiNode* node, XMMATRIX& parentTransform);
-    void InterpolateScaling(XMVECTOR& result,float animTime, const aiNodeAnim* pNodeAnim);
-    void InterpolateRotation(XMVECTOR& result,float AnimTime, const aiNodeAnim* pNodeAnim); 
+    void ProcessAnimation(float animTime, const aiNode* node, aiMatrix4x4& parentTransform);
+    
+    void InterpolateScaling(aiVector3D& result,float animTime, const aiNodeAnim* pNodeAnim);
+    void InterpolatePosition(aiVector3D& result,float animTime, const aiNodeAnim* pNodeAnim);
     void InterpolateRotation(aiQuaternion& result, float AnimTime, const aiNodeAnim* pNodeAnim); // testing
-    void InterpolatePosition(XMVECTOR& result,float animTime, const aiNodeAnim* pNodeAnim);
+    
     unsigned int FindScaling(float animTime, const aiNodeAnim* pNodeAnim);
     unsigned int FindRotation(float animTime, const aiNodeAnim* pNodeAnim);
     unsigned int FindPosition(float animTime, const aiNodeAnim* pNodeAnim);
@@ -86,11 +89,11 @@ private:
     std::vector<Task*>* m_pAnimationTask;
     std::vector<float>* m_pAnimationTimes;
     std::vector<float>* m_pTimeScalers;
-    XMMATRIX* m_pOffsetMatrices;
+    aiMatrix4x4* m_pOffsetMatricesAssimp;
     Bone* m_pSkeletonStructure;  //Clean this up 
     const aiScene* m_pScene;
     Assimp::Importer* m_pImporter;
-    XMMATRIX m_GlobalInverseTransform;
+    aiMatrix4x4 m_GlobalInverseTransformAssimp;
     unsigned int m_numBones;
     //Debug testing
     unsigned int animationIndex;

@@ -58,12 +58,12 @@ void TextureManager::CleanUpResources()
     }
 }
 
-Task* TextureManager::ImportTextures()
+Task* TextureManager::ImportTextures(const char* texturesPath)
 {
     Task* task = new Task;
     TaskData* data = new TaskData;
     data->parameter1 = (void*)m_pTextureCollection;
-    data->parameter2 = nullptr;
+    data->parameter2 = (void*)texturesPath;
     data->parameter3 = nullptr;
     data->parameter4 = nullptr;
     data->parameter5 = nullptr;
@@ -83,29 +83,54 @@ void TextureManager::SetTexture(unsigned int ID)
 void TextureManager::DoImportTask(TaskData* data)
 {
     std::vector<TextureObject>* m_pTextures = static_cast<std::vector<TextureObject>*>(data->parameter1);
+    const char* texturePath = (const char*)data->parameter2;
+    
     HRESULT hr;
     TextureObject temp;
+    
+    const unsigned int length = 1024;
+    size_t convertedChar;
 
+    char texture1[length];
+    char texture2[length];
+    char texture3[length];
+    char texture4[length];
+    WCHAR CurrentTexturePath[length];
+    
+    strcpy_s(texture1, texturePath);
+    strcpy_s(texture2, texturePath);
+    strcpy_s(texture3, texturePath);
+    strcpy_s(texture4, texturePath);
+
+    strcat_s(texture1, "\\head.dds");
+    strcat_s(texture2, "\\jacket.dds");
+    strcat_s(texture3, "\\pants.dds");
+    strcat_s(texture4, "\\upBodyC.dds");
+
+    mbstowcs_s(&convertedChar,CurrentTexturePath,texture1,length);
     hr = D3DX11CreateShaderResourceViewFromFile(m_pD3DDevice,
-        L"D:\\Projects\\Ares\\AresEngine\\AEngine\\Debug\\Content\\head.dds", NULL,NULL,&temp.texture,NULL);
+        CurrentTexturePath, NULL,NULL,&temp.texture,NULL);
     assert(!FAILED(hr));
     temp.id = 0;
     m_pTextures->push_back(temp);
 
+    mbstowcs_s(&convertedChar,CurrentTexturePath,texture2,length);
     hr = D3DX11CreateShaderResourceViewFromFile(m_pD3DDevice,
-        L"D:\\Projects\\Ares\\AresEngine\\AEngine\\Debug\\Content\\jacket.dds", NULL,NULL,&temp.texture,NULL);
+        CurrentTexturePath, NULL,NULL,&temp.texture,NULL);
     assert(!FAILED(hr));
     temp.id = 1;
     m_pTextures->push_back(temp);
 
+    mbstowcs_s(&convertedChar,CurrentTexturePath,texture3,length);
     hr = D3DX11CreateShaderResourceViewFromFile(m_pD3DDevice,
-        L"D:\\Projects\\Ares\\AresEngine\\AEngine\\Debug\\Content\\pants.dds", NULL,NULL,&temp.texture,NULL);
+        CurrentTexturePath, NULL,NULL,&temp.texture,NULL);
     assert(!FAILED(hr));
     temp.id = 2;
     m_pTextures->push_back(temp);
 
+    mbstowcs_s(&convertedChar,CurrentTexturePath,texture4,length);
     hr = D3DX11CreateShaderResourceViewFromFile(m_pD3DDevice,
-        L"D:\\Projects\\Ares\\AresEngine\\AEngine\\Debug\\Content\\upBodyC.dds", NULL,NULL,&temp.texture,NULL);
+       CurrentTexturePath, NULL,NULL,&temp.texture,NULL);
     assert(!FAILED(hr));
     temp.id = 3;
     m_pTextures->push_back(temp);
