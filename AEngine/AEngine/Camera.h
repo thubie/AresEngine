@@ -12,7 +12,7 @@ public:
     Camera(const Camera& other);
     ~Camera();
 
-    void InitCamera(XMFLOAT3* camPos,XMFLOAT3* camDirection, XMFLOAT3* upDir);
+    void InitCamera(XMFLOAT3 camPos,XMFLOAT3 camDirection, XMFLOAT3 upDir);
 
     XMMATRIX* GetProjectionMatrix();
     XMMATRIX* GetViewMatrix();

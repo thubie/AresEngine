@@ -10,10 +10,16 @@
 #include"ShaderManager.h"
 #include"TextureManager.h"
 #include"AnimationManager.h"
+#include"RingBufferQueue.h"
+#include"Message.h"
 
 class InputSystem;
-class GeometryManager;
 class RenderSystem;
+class GeometryManager;
+class TextureManager;
+class AnimationManager;
+class ShaderManager;
+
 
 class AEngine
 {
@@ -26,6 +32,8 @@ public:
     void Run();
     bool Shutdown();
 
+    void SubmitMessage(Message);
+
     //Test input code delete later.
     void MoveCameraForward();
     void MoveCameraBackward();
@@ -33,6 +41,9 @@ public:
 private:
     bool Draw();
     void InitializeWin();
+    void SubmitTask(unsigned int createdTasks);
+    void ProcessMessageQueue();
+    void SetWindowTitle(float time);
 
 private:
     LPCWSTR m_appName;
@@ -43,14 +54,20 @@ private:
     HRTimer* m_pGameTimer;
     HRTimer* m_pStopWatch;
     Camera* m_pCamera;
+    ///Put this into rendering System
     GeometryManager* m_pGeometryManager;
     ShaderManager* m_pShaderManager;
     TextureManager* m_pTextureManager;
     AnimationManager* m_pAnimationManager;
-    int m_windowWidth; //To do read window resolution from a config/ini file
-    int m_windowHeight;
+    RingBufferQueue<Message>* m_messageQueue;
+    unsigned int m_ImportingBitfield;
+    unsigned int m_CreatedTasks;
+    unsigned int m_openTasks;
+    unsigned int m_windowWidth; //To do read window resolution from a config/ini file
+    unsigned int m_windowHeight;
     bool m_stopped;
-    float ElapsedGameTime; //Total time running.
+    
+    
 
 public:
     InputSystem* m_pInputSystem;

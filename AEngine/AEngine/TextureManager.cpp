@@ -1,13 +1,13 @@
 #include"TextureManager.h"
 
-TextureManager::TextureManager(ID3D11Device* pD3DDevice, ID3D11DeviceContext* pImmediateContext)
+TextureManager::TextureManager(ID3D11Device* pD3DDevice, ID3D11DeviceContext* pImmediateContext,AEngine* pEngine )
 {
     m_pD3DDevice = pD3DDevice;
     m_pD3DDevice->AddRef();
 
     m_pImmediateContext = pImmediateContext;
     m_pImmediateContext->AddRef();
-
+    m_pEngine = pEngine; 
     m_pTextureCollection = new std::vector<TextureObject>;
 }
 
@@ -25,16 +25,6 @@ TextureManager::~TextureManager()
     {
         m_pImmediateContext->Release();
         m_pImmediateContext = nullptr;
-    }
-}
-
-void TextureManager::Shutdown()
-{
-    unsigned int numTextures = this->m_pTextureCollection->size();
-    for(int i = 0; i < numTextures; ++i)
-    {
-        //m_pTextureCollection->at(i).texture->Release();
-
     }
 }
 
@@ -138,10 +128,11 @@ void TextureManager::DoImportTask(TaskData* data)
 
 void TextureManager::DoneImportingTask(void* task)
 {
-    //need to implement an 
-    //better option like an event or message 
-    //instead of setting an bool flag
+    Message message;
+    message.MessageType =  IMPORT_TEXTURE_DONE;
+    m_pEngine->SubmitMessage(message);
     m_Finished = true;
+    delete task;
 }
 
 

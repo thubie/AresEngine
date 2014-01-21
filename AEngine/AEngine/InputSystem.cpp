@@ -40,9 +40,6 @@ void InputSystem::RegisterDevices(HWND hWnd)
 
 void InputSystem::ProcessUserInput(RAWINPUT* rawInput)
 {
-    TCHAR tempString[1024];
-    HRESULT hr;
-
     if(rawInput->header.dwType == RIM_TYPEKEYBOARD)
     {
         this->ProcessKeyboardInput(rawInput);    
@@ -129,8 +126,6 @@ void InputSystem::ProcessMouseInput(RAWINPUT* MouseInput)
 {
     unsigned short usFlag = MouseInput->data.mouse.usFlags;
     unsigned long ulBtn = MouseInput->data.mouse.ulButtons;
-
-
 
     TCHAR tempString[1024];
     HRESULT hr;

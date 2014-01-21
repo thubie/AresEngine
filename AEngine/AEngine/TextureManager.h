@@ -5,19 +5,20 @@
 #include<vector>
 #include<assert.h>
 
+#include"AEngine.h"
 #include"TextureObject.h"
 #include"Tasks.h"
 
+class AEngine;
 
 class TextureManager
 {
 public:
-    TextureManager(ID3D11Device* pD3DDevice, ID3D11DeviceContext* pImmediateContext);
+    TextureManager(ID3D11Device* pD3DDevice, ID3D11DeviceContext* pImmediateContext, AEngine* pEngine);
     ~TextureManager();
 
     void SetTexture(unsigned int ID);
     Task* ImportTextures(const char* contentPath);
-    void Shutdown();
 
 private:
     void CleanUpResources();
@@ -32,7 +33,7 @@ private:
     ID3D11SamplerState* m_pSamplerAF;
     ID3D11Device* m_pD3DDevice;
     ID3D11DeviceContext* m_pImmediateContext;
-
+    AEngine* m_pEngine;
 public:
     bool m_Finished;
 };

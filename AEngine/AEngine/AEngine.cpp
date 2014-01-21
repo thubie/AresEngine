@@ -29,71 +29,14 @@ AEngine::~AEngine()
 
 bool AEngine::Initialize()
 {
-    bool result;
-
     InitializeWin();
-
-    m_pTaskSystem = new TaskSystem();
-    if(m_pTaskSystem == nullptr)     
-        return false;
-    int numMaxThreads = 8;
-    m_pTaskSystem->Initialize(numMaxThreads);
-    m_pTaskSystem->StartDistributing();
-    
-    m_pInputSystem = new InputSystem(appHandle);
-    if(m_pInputSystem == nullptr)
-        return false;
-    m_pInputSystem->RegisterDevices(m_hwnd);
-
-    m_pRenderSystem = new RenderSystem();
-    if(m_pRenderSystem == nullptr)
-        return false;
-    m_pRenderSystem->Initialize(m_hwnd);
-
-    m_pGameTimer = new HRTimer();
-    m_pStopWatch = new HRTimer();
-
-    //Need to clean up this code.
-    m_pCamera = new Camera();
-    if(m_pCamera == nullptr)
-        return false;
-
-    //Need to refactor this..
-    XMFLOAT3* pos = (XMFLOAT3*)_aligned_malloc(sizeof(XMFLOAT3),16);
-    pos->x = 180.0f;
-    pos->y = 150.0f;
-    pos->z = 450.0f;  //-70.0
-
-    XMFLOAT3* target = (XMFLOAT3*)_aligned_malloc(sizeof(XMFLOAT3),16);
-    target->x = 180.0f;
-    target->y = 30.0f;
-    target->z = 0.0f;
-
-    XMFLOAT3* up = (XMFLOAT3*)_aligned_malloc(sizeof(XMFLOAT3),16);
-    up->x = 0.0f;
-    up->y = 1.0f;
-    up->z = 0.0f;
-
-    m_pCamera->InitCamera(pos,target,up);
-    m_pCamera->UpdateViewMatrix();
-
-    _aligned_free(pos);
-    _aligned_free(target);
-    _aligned_free(up);
-
-    m_pGeometryManager = new GeometryManager();
-    m_pGeometryManager->Initialize(m_pRenderSystem->m_pD3DDevice, m_pRenderSystem->m_pImmediateContext);
-    m_pTextureManager = new TextureManager(m_pRenderSystem->m_pD3DDevice,m_pRenderSystem->m_pImmediateContext);
-    m_pShaderManager = new ShaderManager(m_pRenderSystem->m_pD3DDevice, m_pRenderSystem->m_pImmediateContext);
-    m_pAnimationManager = new AnimationManager();
-
+   
     char currentDir[1024];
     char modelsDir[1024];
     char texturesDir[1024];
     char ShaderDir[1024];
 
     GetCurrentDirectoryA(1024, currentDir);
-    
     strcpy_s(modelsDir,currentDir);
     strcat_s(modelsDir, "\\Content\\dude.dae");
     strcpy_s(texturesDir,currentDir);
@@ -101,19 +44,57 @@ bool AEngine::Initialize()
     strcpy_s(ShaderDir, currentDir);
     strcat_s(ShaderDir, "\\Shaders\\StaticMesh.fx");
 
-    //Logging testing if dir are right
-    FILE* fp;
-    strcat_s(currentDir, "\\Log.txt");
-    fopen_s(&fp,currentDir,"w");
-    fprintf(fp, currentDir);
-    fprintf(fp, "\n");
-    fprintf(fp, modelsDir);
-    fprintf(fp, "\n");
-    fprintf(fp, ShaderDir);
-    fprintf(fp, "\n");
-    fprintf(fp, texturesDir);
-    fprintf(fp, "\n");
-    fclose(fp);
+    m_messageQueue = new RingBufferQueue<Message>(2048);
+
+    m_pTaskSystem = new TaskSystem();
+    if(m_pTaskSystem == nullptr)     
+        return false;
+
+    int numMaxThreads = 8;
+    m_pTaskSystem->Initialize(numMaxThreads);
+    m_pTaskSystem->StartDistributing();
+    
+    m_pInputSystem = new InputSystem(appHandle);
+    if(m_pInputSystem == nullptr)
+        return false;
+
+    m_pInputSystem->RegisterDevices(m_hwnd);
+
+    m_pRenderSystem = new RenderSystem(this);
+    if(m_pRenderSystem == nullptr)
+        return false;
+
+    m_pRenderSystem->Initialize(m_hwnd);
+
+    m_pGameTimer = new HRTimer();
+    
+    //Need to clean up this code.
+    m_pCamera = new Camera();
+    if(m_pCamera == nullptr)
+        return false;
+
+    XMFLOAT3 camPosition(450.0f, 300.0f, 1000.0f); 
+    XMFLOAT3 camTarget(450.0f, 30.0f, 450.0f); 
+    XMFLOAT3 camUpDir(0.0f, 1.0f, 0.0f); 
+
+    m_pCamera->InitCamera(camPosition, camTarget, camUpDir);
+    m_pCamera->UpdateViewMatrix();
+
+    m_pGeometryManager = new GeometryManager(this);
+    m_pGeometryManager->Initialize(m_pRenderSystem->m_pD3DDevice, m_pRenderSystem->m_pImmediateContext);
+    m_pTextureManager = new TextureManager(m_pRenderSystem->m_pD3DDevice,m_pRenderSystem->m_pImmediateContext, this);
+    m_pShaderManager = new ShaderManager(m_pRenderSystem->m_pD3DDevice, m_pRenderSystem->m_pImmediateContext, this);
+    m_pAnimationManager = new AnimationManager(this);
+    
+    //testing code
+    std::vector<unsigned int> TestGameObjects;
+    for(int i = 0; i < 400; ++i)
+    {
+        TestGameObjects.push_back(i);
+    }
+    m_pAnimationManager->RegisterGameObjects(TestGameObjects);
+    m_CreatedTasks = m_pAnimationManager->CreateAnimationTasks(); 
+    m_pRenderSystem->RegisterGameObjects(TestGameObjects);
 
     //Start importing asset
     m_pTaskSystem->EnqueueTask(m_pGeometryManager->ImportAssetTask(modelsDir));
@@ -121,7 +102,25 @@ bool AEngine::Initialize()
     m_pTaskSystem->EnqueueTask(m_pShaderManager->CreateVertexShaderTask(ShaderDir));
     m_pTaskSystem->EnqueueTask(m_pShaderManager->CreatePixelShaderTask(ShaderDir));
     m_pTaskSystem->EnqueueTask(m_pAnimationManager->ImportTask(modelsDir));
-   
+
+    MSG msg = {0};
+    m_ImportingBitfield = 0;
+    bool GeometryDone = false;
+    bool AnimationDone = false;
+
+    //Polling importing state.
+    while(!(GeometryDone && AnimationDone))
+    {
+        GeometryDone = m_pGeometryManager->DoneImporting();
+        AnimationDone = m_pAnimationManager->ImportingDone;
+        if(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+        {
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
+        ProcessMessageQueue();
+        Sleep(1);      
+    }
     return true;
 }
 
@@ -144,7 +143,6 @@ bool AEngine::Shutdown()
 
     if(m_pTextureManager != nullptr)
     {
-        m_pTextureManager->Shutdown();
         delete m_pTextureManager;
     }
     m_pTextureManager = nullptr;
@@ -161,6 +159,11 @@ bool AEngine::Shutdown()
     return true;
 }
 
+void AEngine::SubmitMessage(Message message)
+{
+    m_messageQueue->Enqueue(message);
+}
+
 void AEngine::MoveCameraForward()
 {
     m_pCamera->MoveCameraForward();
@@ -173,27 +176,8 @@ void AEngine::MoveCameraBackward()
 
 void AEngine::Run()
 {
-    MSG msg = {0};
-    m_pGameTimer->Start();
-    double animTime = 0.0;
-
-
-    bool GeometryDone = false;
-    bool AnimationDone = false;
-
-    //Polling importing state.
-    while(!(GeometryDone && AnimationDone))
-    {
-        GeometryDone = m_pGeometryManager->DoneImporting();
-        AnimationDone = m_pAnimationManager->done;
-        if(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-        {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
-        }
-        Sleep(1);
-    }
-
+    m_pStopWatch = new HRTimer();
+    MSG msg = {0};  
     while(WM_QUIT != msg.message)
     {
         if(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
@@ -205,19 +189,141 @@ void AEngine::Run()
         {
             if (!m_stopped) 
             {
-                m_pCamera->UpdateViewMatrix();               
-                ElapsedGameTime = (float)m_pGameTimer->GetGameRunTime();
-                m_pAnimationManager->UpdateAnimationTest(ElapsedGameTime);
-                m_pStopWatch->Start();
-                m_pRenderSystem->RenderScene(m_pGeometryManager,m_pTextureManager, m_pShaderManager, m_pCamera, m_pAnimationManager);
-                m_pStopWatch->Stop();
-                animTime = m_pStopWatch->GetElapsedAsSeconds() * 1000.0f;
-                bool finish = true;
+                ProcessMessageQueue();
+                Sleep(1);              
             }
         }
     }
     m_pGameTimer->Stop();
     Shutdown();   
+}
+
+//Processing the MessageQueue
+void AEngine::ProcessMessageQueue()
+{
+    Message currentMessage;
+    unsigned int numMessages = m_messageQueue->GetCount();
+    float frameTime = 0.0f;
+    float deltaTime = 0.0f;
+
+    for(unsigned int i = 0; i < numMessages; ++i)
+    {
+        currentMessage = m_messageQueue->Dequeue();
+        switch(currentMessage.MessageType)
+        {
+            case ANIMATIONS_DONE:
+            {   
+                m_pStopWatch->Stop();
+                frameTime = m_pStopWatch->GetElapsedAsSeconds();
+                frameTime *= 1000.0f;
+                SetWindowTitle(frameTime);
+                m_pRenderSystem->RenderScene(m_pGeometryManager,m_pTextureManager, m_pShaderManager, m_pCamera, m_pAnimationManager);
+                break;
+            }
+
+            case RENDERING_DONE:
+            {
+                deltaTime = (float)m_pGameTimer->GetDeltaTime();
+                m_pCamera->UpdateViewMatrix();
+                m_pAnimationManager->UpdateAnimationTime(deltaTime);
+                SubmitTask(m_CreatedTasks);
+                m_pStopWatch->Start();
+                break;
+            }
+
+            case  IMPORT_TEXTURE_DONE:
+            {
+                m_ImportingBitfield += IMPORT_TEXTURE_DONE;
+                if(m_ImportingBitfield == IMPORTING_DONE)
+                {
+                    Message doneImporting;
+                    doneImporting.MessageType = IMPORTING_DONE;
+                    SubmitMessage(doneImporting);
+                }
+                break;
+            }
+
+            case IMPORT_GEOMETRY_DONE:
+            {
+                m_ImportingBitfield += IMPORT_GEOMETRY_DONE;
+                if(m_ImportingBitfield == IMPORTING_DONE)
+                {
+                    Message doneImporting;
+                    doneImporting.MessageType = IMPORTING_DONE;
+                    SubmitMessage(doneImporting);
+                }
+                break;
+            }
+
+            case IMPORT_VERTEXSHADER_DONE:
+            {
+                m_ImportingBitfield += IMPORT_VERTEXSHADER_DONE;
+                if(m_ImportingBitfield == IMPORTING_DONE)
+                {
+                    Message doneImporting;
+                    doneImporting.MessageType = IMPORTING_DONE;
+                    SubmitMessage(doneImporting);
+                }
+                break;
+            }
+
+            case IMPORT_PIXELSHADER_DONE:
+            {
+                m_ImportingBitfield += IMPORT_PIXELSHADER_DONE;
+                if(m_ImportingBitfield == IMPORTING_DONE)
+                {
+                    Message doneImporting;
+                    doneImporting.MessageType = IMPORTING_DONE;
+                    SubmitMessage(doneImporting);
+                }
+                break;
+            }
+
+            case IMPORT_ANIMATION_DONE:
+            {
+                m_ImportingBitfield += IMPORT_ANIMATION_DONE;
+                if(m_ImportingBitfield == IMPORTING_DONE)
+                {
+                    Message doneImporting;
+                    doneImporting.MessageType = IMPORTING_DONE;
+                    SubmitMessage(doneImporting);
+                }
+                break;
+            }
+
+            case IMPORTING_DONE:
+            {
+                m_pGameTimer->Start();
+                m_pAnimationManager->UpdateAnimationTime(0.0f);
+                SubmitTask(m_CreatedTasks);
+                break;
+            }
+
+            default:
+            {
+                break;
+            }
+        }
+    }
+}
+
+void AEngine::SetWindowTitle(float animTime)
+{
+    char titleStats[512]; 
+    sprintf_s(titleStats,"AresEngine animTime: %f ms", animTime);
+    SetWindowTextA(m_hwnd,titleStats);
+}
+
+void AEngine::SubmitTask(unsigned int createdTasks)
+{
+    m_openTasks = createdTasks;
+
+    for(unsigned int i = 0; i < createdTasks; ++i)
+    {
+        Task* newTask = &m_pAnimationManager->m_AnimationTask[i];
+        m_pTaskSystem->EnqueueTask(newTask);
+    }
+    
 }
 
 void AEngine::InitializeWin()

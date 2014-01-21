@@ -1,7 +1,9 @@
 #include"ShaderManager.h"
 
- ShaderManager:: ShaderManager(ID3D11Device* pD3DDevice,ID3D11DeviceContext* pImmediateContext)
+ShaderManager:: ShaderManager(ID3D11Device* pD3DDevice,ID3D11DeviceContext* pImmediateContext, AEngine* pEngine)
  {
+     m_pEngine = pEngine;
+
      m_pD3DDevice = pD3DDevice;
      m_pD3DDevice->AddRef();
 
@@ -178,13 +180,17 @@ void ShaderManager::CreatePixelShader(TaskData* data)
 void ShaderManager::DoneCreatingVertexShader(void* thispointer, void* task)
 {
     ShaderManager* self = static_cast<ShaderManager*>(thispointer);
-    self->finishedVertexShader = true;
+    Message doneImporting;
+    doneImporting.MessageType = IMPORT_VERTEXSHADER_DONE;
+    self->m_pEngine->SubmitMessage(doneImporting);
 }
 
 void ShaderManager::DoneCreatingPixelShader(void* thispointer, void* task)
 {
     ShaderManager* self = static_cast<ShaderManager*>(thispointer);
-    self->finishedPixelShader = true;
+    Message doneImporting;
+    doneImporting.MessageType = IMPORT_PIXELSHADER_DONE;
+    self->m_pEngine->SubmitMessage(doneImporting);
 }
 
 void ShaderManager::CompileShaderFromFile(WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel,ID3DBlob** ppBlobOut)

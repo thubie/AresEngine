@@ -18,10 +18,11 @@ public:
     LONGLONG GetElapsed();
     double GetElapsedAsSeconds();
     double GetGameRunTime();
+    double GetDeltaTime();
 
 private:
     LONGLONG GetCurrentTick();
 
 private:
-    LARGE_INTEGER m_Start, m_Current, m_Stop;
+    LARGE_INTEGER m_Start, m_Current, m_Stop, m_Last;
 };

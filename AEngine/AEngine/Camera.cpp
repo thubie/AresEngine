@@ -38,21 +38,20 @@ Camera::~Camera()
 }
 
 
-void Camera::InitCamera(XMFLOAT3* pCamPos,XMFLOAT3* pCamDirection, XMFLOAT3* pUpDir)
+void Camera::InitCamera(XMFLOAT3 camPos,XMFLOAT3 camDirection, XMFLOAT3 upDir)
 {
     //Allign memory on 16byte boundaries.
     m_pCamPosition = (XMFLOAT3*) _aligned_malloc(sizeof(XMFLOAT3),16);
-    *m_pCamPosition = *pCamPos;
+    *m_pCamPosition = camPos;
 
     m_pCamDirection = (XMFLOAT3*) _aligned_malloc(sizeof(XMFLOAT3),16);
-    *m_pCamDirection = *pCamDirection;
+    *m_pCamDirection = camDirection;
 
     m_pUpDirection = (XMFLOAT3*) _aligned_malloc(sizeof(XMFLOAT3),16);
-    *m_pUpDirection = *pUpDir;
+    *m_pUpDirection = upDir;
 
     m_pViewMatrix = (XMMATRIX*) _aligned_malloc(sizeof(XMMATRIX),16);
 
-    //Calculate the projection matrix
     m_pProjectionMatrix  = (XMMATRIX*) _aligned_malloc(sizeof(XMMATRIX),16);
     *m_pProjectionMatrix = XMMatrixPerspectiveFovLH(XM_PIDIV2, 1600 / (float)900, 0.01f, 10000.0f );
 }
@@ -69,14 +68,13 @@ void Camera::SetCameraDirection(XMFLOAT3* direction)
     *m_pCamDirection = *direction;
 }
 
-
 //test code for input
-
 void Camera::MoveCameraForward()
 {
     m_pCamPosition->z += 1;
 }
 
+//test code for input
 void Camera::MoveCameraBackward()
 {
     m_pCamPosition->z -= 1;

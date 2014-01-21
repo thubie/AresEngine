@@ -8,97 +8,76 @@
 #include<d3dx11.h>
 #include<xnamath.h>
 #include"Tasks.h"
+#include"AEngine.h"
 
-struct Bone
-{
-    XMMATRIX transformation;
-    int parentIndex;
-};
-
-struct KeyFrame
-{
-    float time;
-    XMFLOAT3 position;
-    XMVECTOR rotQuat;
-    XMFLOAT3 scale;
-};
-
-struct Channel
-{
-    unsigned int boneIndex;
-    unsigned int numKeyFrames;
-    KeyFrame* keyFrames;
-};
-
-struct Animation
-{
-    unsigned int animationId;
-    float duration;
-    float ticksPerSecond;
-    unsigned int numChannels;
-    Channel* channels;
-};
+class AEngine;
 
 struct SkeletonCBufferData
 {
-    XMMATRIX skeletonData[100];
+    XMFLOAT4X4 skeletonData[100];
 };
 
 class AnimationManager
 {
 public:
-    AnimationManager();
+    AnimationManager(AEngine* pEngine);
     ~AnimationManager();
 
     Task* ImportTask(const char* pFile);
-
-    //Returns the amount of animation task created
-    unsigned int UpdateAnimation(float gameTime);
-    
-    void UpdateAnimationTest(float gameTime);
+    unsigned int CreateAnimationTasks(); //Returns the amount of animation task created   
+    void UpdateAnimationTest(float elapsedTime);
+    void UpdateAnimationTime(float elapsedTime);
+    void RegisterGameObjects(std::vector<unsigned int>& gameId);
+    std::vector<SkeletonCBufferData>* GetFinalTransforms(); 
 
 private:
     static void ImportAnimation(TaskData* pData, void* thisPointer);
     static void DoneImporting(void* thispointer, void* task);
     void DoImportAnimation(TaskData* pData);
-    void GenerateAnimations(Animation* pAnimations, const aiScene* pScene);
     void GenerateOffsetMatrixes(const aiScene* pScene);
-    void GenerateSkeletonStructure(Bone* skeletonBones);
-    void ExtractSkeletonData(std::vector<aiNode>* SkeletonBones,const aiNode* rootNode);
-    unsigned int FindBoneIndex(std::string* boneName, std::vector<aiNode>* SkeletonBones);
+    void ExtractSkeletonData(const aiNode* rootNode);
+    unsigned int FindBoneIndex(std::string* boneName);
+    unsigned int FindBoneIndex(const aiNode* node);
 
     //Skeleton data calculations
-    static void UpdateAnimation(TaskData* pData, void* thisPointer);
+    static void AnimationUpdate(TaskData* pData, void* thisPointer);
     static void DoneUpdatingAnimation(void* thisPointer, void* task);
+    void DoAnimationUpdate(TaskData* pData);
 
     //Animation calculation
-    void ProcessAnimation(float animTime, const aiNode* node, aiMatrix4x4& parentTransform);
+    void ProcessAnimation(float animTime, const aiNode* node, aiMatrix4x4& parentTransform, unsigned int gameobjectID);
     
     void InterpolateScaling(aiVector3D& result,float animTime, const aiNodeAnim* pNodeAnim);
     void InterpolatePosition(aiVector3D& result,float animTime, const aiNodeAnim* pNodeAnim);
-    void InterpolateRotation(aiQuaternion& result, float AnimTime, const aiNodeAnim* pNodeAnim); // testing
+    void InterpolateRotation(aiQuaternion& result, float AnimTime, const aiNodeAnim* pNodeAnim);
     
     unsigned int FindScaling(float animTime, const aiNodeAnim* pNodeAnim);
     unsigned int FindRotation(float animTime, const aiNodeAnim* pNodeAnim);
     unsigned int FindPosition(float animTime, const aiNodeAnim* pNodeAnim);
-    aiNodeAnim* FindNodeAnim(const aiAnimation* animation, std::string nodeName);
+    aiNodeAnim* FindNodeAnim(const aiAnimation* animation, const aiNode* node); 
 
-private:
-    Animation* m_pAnimations;
-    std::vector<aiNode>* m_pSkeletonBones;
-    std::vector<Task*>* m_pAnimationTask;
-    std::vector<float>* m_pAnimationTimes;
-    std::vector<float>* m_pTimeScalers;
-    aiMatrix4x4* m_pOffsetMatricesAssimp;
-    Bone* m_pSkeletonStructure;  //Clean this up 
+private:   
+    AEngine* m_pEngine;
     const aiScene* m_pScene;
     Assimp::Importer* m_pImporter;
-    aiMatrix4x4 m_GlobalInverseTransformAssimp;
+    
     unsigned int m_numBones;
-    //Debug testing
     unsigned int animationIndex;
-    unsigned int Keyframe;
+    float m_DeltaGameTime;
+    
+    std::vector<unsigned int> m_GameObjectIds;    
+    std::vector<float> m_TimeScalers;
+    std::vector<float> m_AnimationTimes;
+    std::vector<aiNode> m_SkeletonBones;
+    
+    std::vector<TaskData> m_AnimationTaskData;
+    std::vector<aiMatrix4x4> m_OffsetMatricesAssimp;
+
+    std::vector<SkeletonCBufferData> m_FinalTransforms;
+   
 public:
-    bool done;
-    std::vector<SkeletonCBufferData*>* m_pFinalTransformsCollection;
+    bool ImportingDone;
+    LONG m_OpenAnimationTasks;
+    bool m_updateAnimationDone;
+    std::vector<Task> m_AnimationTask;
 };

@@ -78,7 +78,7 @@ DWORD WorkerThread::ExecuteTasks()
             LOG("Finished Task",m_threadID,(DWORD)endStamp.QuadPart - beginStamp.QuadPart);
         #endif  
 
-            delete currentTask;
+            //delete currentTask; //put this in the callback function
             currentTask = nullptr;
         }
         currentTask = m_pTaskSystem->DequeueTask();

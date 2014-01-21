@@ -1,7 +1,7 @@
 #include"RenderSystem.h"
 
 
-RenderSystem::RenderSystem()
+RenderSystem::RenderSystem(AEngine* pEngine)
 {
     m_hWnd = nullptr;
     m_DriverType = D3D_DRIVER_TYPE_NULL;
@@ -12,7 +12,7 @@ RenderSystem::RenderSystem()
     m_pRenderTargetView = nullptr;
     m_pDepthStencil = nullptr;
     m_pDepthStencilView = nullptr;
-
+    m_pEngine = pEngine;
 }
 
 RenderSystem::RenderSystem(const RenderSystem& other)
@@ -29,6 +29,30 @@ RenderSystem::RenderSystem(const RenderSystem& other)
 RenderSystem::~RenderSystem()
 {
 
+}
+
+void RenderSystem::RegisterGameObjects(std::vector<unsigned int>& gameId)
+{
+    unsigned int numGameObjects = gameId.size();
+    unsigned int numObjectsX = 20;
+    unsigned int numObjectsZ = numGameObjects / numObjectsX;
+
+    m_TestWorldTransForms.reserve(numGameObjects);
+    float x,y,z;
+    XMMATRIX currentWorld;
+    y = 0;
+    for(int i = 0; i < numObjectsZ; ++i)
+    {
+        z = i * 75;
+        for(int j = 0; j < numObjectsX; ++j)
+        {
+            x = j * 75;
+            currentWorld = XMMatrixTranslation(x, y, z);
+            XMFLOAT4X4 worldTrans;
+            XMStoreFloat4x4(&worldTrans, currentWorld);
+            m_TestWorldTransForms.push_back(worldTrans);
+        }
+    }
 }
 
 void RenderSystem::Initialize(HWND handleWindow)
@@ -72,9 +96,6 @@ void RenderSystem::Shutdown()
         m_pImmediateContext->Release();
         m_pImmediateContext = nullptr;
     }
-
-    m_pDebug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
-    m_pDebug->Release();
 
     if(m_pD3DDevice)
     {
@@ -138,8 +159,6 @@ void RenderSystem::InitDeviceAndSwapChain()
             break;
     }
     assert(!FAILED(hr)); 
-
-    m_pD3DDevice->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void**>(&m_pDebug));
 
     //Create a render target view
     ID3D11Texture2D* pBackbuffer = NULL;
@@ -236,47 +255,38 @@ void RenderSystem::InitResources()
     *m_WorldMatrix = XMMatrixIdentity();
     m_pTestConstantBuffer = (ConstantBuffer*) _aligned_malloc(sizeof(ConstantBuffer), 16);
     m_pImmediateContext->RSSetState(m_solid);
-    m_TestWorldTransForms.reserve(1024);
-    //Testing code
-    float x,y,z;
-    XMMATRIX currentWorld;
-    y = 0;
-    for(int i = 0; i < 8; ++i)
-    {
-        z = i * 45;
-        for(int j = 0; j < 8; ++j)
-        {
-            x = j * 45;
-            currentWorld = XMMatrixTranslation(x, y, z);
-            m_TestWorldTransForms.push_back(currentWorld);
-        }
-    }
+    
 }
 
+//Renders the Scene
 void RenderSystem::RenderScene(GeometryManager* pGeoManager,TextureManager* pTextureManager, ShaderManager* pShaderManager, Camera* pCamera, AnimationManager* pAnimationManager)
 {
     //Clear the renderTarget
     float clearColor[4] = {0.0f,0.125f,0.3f, 1.0f}; 
     m_pImmediateContext->ClearRenderTargetView(m_pRenderTargetView, clearColor);
     m_pImmediateContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+
     XMMATRIX world;
     int count = m_TestWorldTransForms.size();
-    memcpy((void*)m_pTestConstantBuffer->m_FinalTransform, (void*)pAnimationManager->m_pFinalTransformsCollection->at(0)->skeletonData, sizeof(XMMATRIX) * 100);
+    unsigned int indicesCount = 0;
+    XMMATRIX* finalTransformsCbuffer = m_pTestConstantBuffer->m_FinalTransform;
+    std::vector<SkeletonCBufferData>* pSkeletonBufferData = pAnimationManager->GetFinalTransforms();
+    
+    m_pTestConstantBuffer->m_View = XMMatrixTranspose(*(pCamera->GetViewMatrix()));
+    m_pTestConstantBuffer->m_Projection = XMMatrixTranspose(*(pCamera->GetProjectionMatrix()));
     pShaderManager->SetVertexShader(0);
     pShaderManager->SetPixelShader(0);
     m_pImmediateContext->VSSetConstantBuffers(0, 1, &m_pConstantBuffer);
     m_pImmediateContext->PSSetSamplers(0,1,&m_pSamplerAF);
 
-    m_pTestConstantBuffer->m_View = XMMatrixTranspose(*(pCamera->GetViewMatrix()));
-    m_pTestConstantBuffer->m_Projection = XMMatrixTranspose(*(pCamera->GetProjectionMatrix())); 
-
     for(int i = 0; i < count ; ++i)
     {        
-        world = m_TestWorldTransForms.at(i);  
-        m_pTestConstantBuffer->m_World = XMMatrixTranspose(world);            
+        world = XMLoadFloat4x4(&m_TestWorldTransForms.at(i));  
+        m_pTestConstantBuffer->m_World = XMMatrixTranspose(world);
+        XMFLOAT4X4* finalTransforms = pSkeletonBufferData->at(i).skeletonData;
+        memcpy((void*)finalTransformsCbuffer, (void*)finalTransforms, sizeof(XMMATRIX) * 100);
         m_pImmediateContext->UpdateSubresource(m_pConstantBuffer, 0, NULL,m_pTestConstantBuffer, 0, 0);
-        unsigned int indicesCount = 0;
-
+        
         for(int i = 0; i < 4; ++i)
         {
             pGeoManager->SetSubmeshIndexed(i, &indicesCount);
@@ -285,6 +295,9 @@ void RenderSystem::RenderScene(GeometryManager* pGeoManager,TextureManager* pTex
         }
     }
     m_pSwapChain->Present(0,0);
+    Message doneRendering;
+    doneRendering.MessageType = RENDERING_DONE;
+    m_pEngine->SubmitMessage(doneRendering);
 }
 
 

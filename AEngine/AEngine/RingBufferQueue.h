@@ -12,11 +12,11 @@ public:
     {
         m_pEnqueueLock = new Lock();
         m_pDequeueLock = new Lock();
-        m_RingBuffer = new Type[length];
-        m_RingBufferLength = length;
-        m_Head = 0;
-        m_Tail = 0;
-        m_Count = 0;
+        m_pRingBuffer = new Type[length];
+        m_ringBufferLength = length;
+        m_head = 0;
+        m_tail = 0;
+        m_count = 0;
     }
 
     //Go through the list and delete all nodes.
@@ -32,10 +32,10 @@ public:
     {
         m_pEnqueueLock->EnterLock();
         {
-            m_RingBuffer[m_head] = object;
+            m_pRingBuffer[m_head] = object;
             m_head++;
-            m_Count++;
-            if(m_head == m_RingBufferLength)
+            m_count++;
+            if(m_head == m_ringBufferLength)
                 m_head = 0; //Put head at index 0 if at end 
         }
         m_pEnqueueLock->LeaveLock();
@@ -46,26 +46,26 @@ public:
     Type Dequeue()
     {
         Type value;        
-        value = m_RingBuffer[tail];
+        value = m_pRingBuffer[m_tail];
         m_tail++;
         m_count--;
-        if(m_tail == m_RingBufferLength)
+        if(m_tail == m_ringBufferLength)
             m_tail = 0;
 
         return value;
     }
 
-    inline unsigned int GetTaskCount()
+    inline unsigned int GetCount()
     {
-        return Count;
+        return m_count;
     }
 
 private: 
-    Type*               m_RingBuffer;
-    unsigned int        m_Head;
-    unsigned int        m_Tail;
-    unsigned int        m_RingBufferLength;
-    unsigned int        m_Count;
+    Type*               m_pRingBuffer;
+    unsigned int        m_head;
+    unsigned int        m_tail;
+    unsigned int        m_ringBufferLength;
+    unsigned int        m_count;
     Lock*               m_pEnqueueLock;
     Lock*               m_pDequeueLock;
 };

@@ -1,8 +1,9 @@
 #include"GeometryFactory.h"
 
 
-GeometryFactory::GeometryFactory()
+GeometryFactory::GeometryFactory(GeometryManager* pGeoManager)
 {
+    m_pGeoManager = pGeoManager;
     m_DoneImporting = false;
 }
 
@@ -19,13 +20,11 @@ void GeometryFactory::SetGraphicsDeviceAndContext(ID3D11Device* d3dDevice, ID3D1
     m_pD3dDevice->AddRef();
 }
 
-
 //Import the asset.
 void GeometryFactory::DoImportAsset(TaskData* pdata)
 {
     const char* pFile = (char*)pdata->parameter1;
     std::vector<GeometryObject>* SubMeshCollection = (std::vector<GeometryObject>*)pdata->parameter2;
-    unsigned int* MeshCount = (unsigned int*) pdata->parameter3;
     Assimp::Importer localImporter;
     
     //Import and parse the file 
@@ -45,7 +44,7 @@ void GeometryFactory::DoImportAsset(TaskData* pdata)
     unsigned int numFaces;
     unsigned int numIndices;
 
-    int boneIndex = 0;
+    //int boneIndex = 0;
     std::vector<std::string>* BonesByName = new std::vector<std::string>();
     BoneData* boneDataCollection;
     BonesByName->reserve(100);
@@ -121,7 +120,6 @@ void GeometryFactory::ExtractSkeletonData(std::vector<std::string>* skeletonData
 //find the bone index 
 unsigned int GeometryFactory::FindBoneIndex(std::string* boneName, std::vector<std::string>* BonesByName)
 {
-    unsigned int Index = 0;
     unsigned int numBones = BonesByName->size();
     std::string boneNameToFind = *boneName;
     std::string curBoneName;
@@ -133,6 +131,7 @@ unsigned int GeometryFactory::FindBoneIndex(std::string* boneName, std::vector<s
             return i;
         }
     }
+    return 0;
 }
 
 //Generate the vertices.
@@ -187,7 +186,6 @@ void GeometryFactory::GenerateBonesAndWeight(std::vector<std::string>* BonesByNa
         boneName = bone->mName.C_Str();
         numWeight = bone->mNumWeights;
         index = FindBoneIndex(&boneName,BonesByName);
-        BoneData boneDataInfo;
 
         for(int k = 0; k < numWeight; ++k)
         {
@@ -214,12 +212,12 @@ void GeometryFactory::AddBoneData(PosNormalTexSkinned* vertices, unsigned int bo
 }
 
 //Get the importAssetTask
-Task* GeometryFactory::ImportAsset(const char* pFile, std::vector<GeometryObject>* pMeshCollection, unsigned int* pMeshCount)
+Task* GeometryFactory::ImportAsset(const char* pFile, std::vector<GeometryObject>& pMeshCollection, unsigned int* pMeshCount)
 {
     Task* task = new Task;
     TaskData* data = new TaskData;
     data->parameter1 = (void*)pFile;
-    data->parameter2 = (void*)pMeshCollection;
+    data->parameter2 = (void*)&pMeshCollection;
     data->parameter3 = (void*)pMeshCount;
     data->parameter4 = nullptr;
     data->parameter5 = nullptr;
@@ -240,7 +238,9 @@ void GeometryFactory::ImportAssetTask(TaskData* pData, void* thisPointer)
 void GeometryFactory::DoneImporting(void* thispointer, void* task)
 {
     GeometryFactory* self = static_cast<GeometryFactory*>(thispointer);
-    self->DoneImportingAsset(task);
+    self->m_pGeoManager->SubmitMessage();
+    self->m_DoneImporting = true;
+    
 }
 
 //Callback function 
@@ -249,7 +249,6 @@ void GeometryFactory::DoneImportingAsset(void* task)
     //need to implement an 
     //better option like an event or message 
     //instead of an bool flag
-    bool finished = true;
-    m_DoneImporting = finished;
+    
 }
 

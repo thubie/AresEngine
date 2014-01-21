@@ -11,6 +11,10 @@
 #include"AnimationManager.h"
 
 class AEngine;
+class TextureManager;
+class AnimationManager;
+class GeometryManager;
+class ShaderManager;
 
 class RenderSystem
 {
@@ -23,13 +27,14 @@ class RenderSystem
     };
 
 public:
-    RenderSystem();
+    RenderSystem(AEngine* pEngine);
     RenderSystem(const RenderSystem& other);
     ~RenderSystem();
     void Initialize(HWND handleWindow);
     void Shutdown();
     void RenderScene(GeometryManager* pGeoManager,TextureManager* pTextureManager, ShaderManager* pShaderManager, Camera* pCamera, AnimationManager* pAnimationManager);
-    //void ChangeRenderState
+    void RegisterGameObjects(std::vector<unsigned int>& gameId);
+   
 private:
     void InitDeviceAndSwapChain();
     void InitResources(); //TestCode
@@ -42,6 +47,7 @@ private:
     D3D_FEATURE_LEVEL m_D3DFeatureLevel;
     ID3D11RasterizerState* m_wireframe;
     ID3D11RasterizerState* m_solid;
+    AEngine* m_pEngine;
 
 public:   
     ID3D11Device* m_pD3DDevice;
@@ -50,8 +56,7 @@ public:
     ID3D11RenderTargetView* m_pRenderTargetView;
     ID3D11Texture2D* m_pDepthStencil;
     ID3D11DepthStencilView* m_pDepthStencilView;
-    ID3D11Debug* m_pDebug;
-    std::vector<XMMATRIX> m_TestWorldTransForms;
+    std::vector<XMFLOAT4X4> m_TestWorldTransForms;
 
     //TestCode
     ID3D11Buffer*               m_pConstantBuffer;

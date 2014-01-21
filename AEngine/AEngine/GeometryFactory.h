@@ -29,10 +29,10 @@ class GeometryFactory
     };
 
 public:
-    GeometryFactory();
+    GeometryFactory(GeometryManager* pGeoManager);
     ~GeometryFactory();
     void SetGraphicsDeviceAndContext(ID3D11Device* d3dDevice, ID3D11DeviceContext* immediateContext); 
-    Task* ImportAsset(const char* pFile, std::vector<GeometryObject>* pMeshCollection, unsigned int* meshCount);
+    Task* ImportAsset(const char* pFile, std::vector<GeometryObject>& pMeshCollection, unsigned int* meshCount);
     
 private:
     void DoImportAsset(TaskData* pData); //import asset task
