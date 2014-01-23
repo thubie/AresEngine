@@ -126,16 +126,17 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <Optimization>Disabled</Optimization>
+      <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <TreatWarningAsError>true</TreatWarningAsError>
+      <TreatWarningAsError>false</TreatWarningAsError>
       <ExceptionHandling>Async</ExceptionHandling>
+      <DebugInformationFormat>None</DebugInformationFormat>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -168,13 +169,12 @@
     <ClCompile Include="AEngine.cpp" />
     <ClCompile Include="AnimationManager.cpp" />
     <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="GameObjectManager.cpp" />
     <ClCompile Include="GeometryFactory.cpp" />
     <ClCompile Include="GeometryManager.cpp" />
     <ClCompile Include="InputSystem.cpp" />
     <ClCompile Include="Lock.cpp" />
     <ClCompile Include="HRTimer.cpp" />
-    <ClCompile Include="Model.cpp" />
+    <ClCompile Include="MessageQueue.cpp" />
     <ClCompile Include="RenderSystem.cpp" />
     <ClCompile Include="ShaderManager.cpp" />
     <ClCompile Include="TaskSystem.cpp" />
@@ -187,18 +187,17 @@
     <ClInclude Include="AEngine.h" />
     <ClInclude Include="AnimationManager.h" />
     <ClInclude Include="Camera.h" />
-    <ClInclude Include="GameObjectManager.h" />
     <ClInclude Include="GeometryManager.h" />
     <ClInclude Include="GeometryObject.h" />
     <ClInclude Include="InputSystem.h" />
     <ClInclude Include="LinkListQueue.h" />
     <ClInclude Include="Message.h" />
+    <ClInclude Include="MessageQueue.h" />
     <ClInclude Include="PixelShaderObject.h" />
     <ClInclude Include="RingBufferQueue.h" />
     <ClInclude Include="Lock.h" />
     <ClInclude Include="GeometryFactory.h" />
     <ClInclude Include="HRTimer.h" />
-    <ClInclude Include="Model.h" />
     <ClInclude Include="RenderSystem.h" />
     <ClInclude Include="ShaderManager.h" />
     <ClInclude Include="VertexShaderObject.h" />

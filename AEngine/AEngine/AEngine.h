@@ -11,6 +11,7 @@
 #include"TextureManager.h"
 #include"AnimationManager.h"
 #include"RingBufferQueue.h"
+#include"MessageQueue.h"
 #include"Message.h"
 
 class InputSystem;
@@ -20,23 +21,16 @@ class TextureManager;
 class AnimationManager;
 class ShaderManager;
 
-
 class AEngine
 {
 public:
     AEngine();
-    AEngine(const AEngine& other);
     ~AEngine();
 
     bool Initialize();
     void Run();
     bool Shutdown();
-
     void SubmitMessage(Message);
-
-    //Test input code delete later.
-    void MoveCameraForward();
-    void MoveCameraBackward();
 
 private:
     bool Draw();
@@ -54,21 +48,19 @@ private:
     HRTimer* m_pGameTimer;
     HRTimer* m_pStopWatch;
     Camera* m_pCamera;
-    ///Put this into rendering System
     GeometryManager* m_pGeometryManager;
     ShaderManager* m_pShaderManager;
     TextureManager* m_pTextureManager;
     AnimationManager* m_pAnimationManager;
+
     RingBufferQueue<Message>* m_messageQueue;
+    MessageQueue* m_pMessageQueue;
     unsigned int m_ImportingBitfield;
     unsigned int m_CreatedTasks;
-    unsigned int m_openTasks;
     unsigned int m_windowWidth; //To do read window resolution from a config/ini file
     unsigned int m_windowHeight;
     bool m_stopped;
     
-    
-
 public:
     InputSystem* m_pInputSystem;
 };

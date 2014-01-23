@@ -45,7 +45,7 @@ void WorkerThread::EndWorkerThread()
 DWORD WorkerThread::ExecuteTasks()
 {
     Task* currentTask = nullptr;
-
+    
     while(m_running)
     {
         if(!m_pTaskSystem->DistributingTasks())
@@ -54,6 +54,7 @@ DWORD WorkerThread::ExecuteTasks()
             continue;
         }
 
+        
         if(currentTask == nullptr)
         {
             Sleep(1);
@@ -65,6 +66,12 @@ DWORD WorkerThread::ExecuteTasks()
             QueryPerformanceCounter(&beginStamp);
             LOG("Starting Task",m_threadID,100);
         #endif
+            /*currentTask = m_pTaskSystem->DequeueTask();
+            currentTask.taskFunction(currentTask.pTaskData, currentTask.thisPointer);
+            if(currentTask.callback != nullptr)
+            {
+                currentTask.callback(currentTask.thisPointer, &currentTask);
+            }*/
 
             currentTask->taskFunction(currentTask->pTaskData, currentTask->thisPointer);
             if(currentTask->callback != nullptr)

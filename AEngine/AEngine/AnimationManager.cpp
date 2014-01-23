@@ -1,16 +1,23 @@
 #include"AnimationManager.h"
 
-AnimationManager::AnimationManager(AEngine* pEngine)
+AnimationManager::AnimationManager(AEngine* pEngine, const char* currentDir)
 {
-    m_pEngine = pEngine;
     m_pImporter = new Assimp::Importer;
     animationIndex = 0;
-    ImportingDone = false;
+    m_pAnimationPath = new char[1024];
+    strcpy_s(m_pAnimationPath, 1024, currentDir);
+    strcat_s(m_pAnimationPath, 1024, "\\Content\\dude.dae");
+    m_pEngine = pEngine;
 }
 
 AnimationManager::~AnimationManager()
 {
-    //Delete data
+   /* m_GameObjectIds.clear();    
+    m_TimeScalers.clear();
+    m_AnimationTimes.clear();   
+    m_AnimationTaskData.clear();
+    m_OffsetMatricesAssimp.clear();
+    m_FinalTransforms.clear();*/
 }
 
 //Creates the animation tasks and returns the number of animation tasks created.
@@ -22,14 +29,14 @@ unsigned int AnimationManager::CreateAnimationTasks()
     unsigned int startIndex = 0;
     unsigned int endIndex = 0;
 
-    for(int i = 0; i < numTaskToCreate; ++i)
+    for(unsigned int i = 0; i < numTaskToCreate; ++i)
     { 
         startIndex = i * 8;
         endIndex = startIndex + 7;
 
         gameObjectID = m_GameObjectIds[i];
         m_AnimationTaskData[gameObjectID].parameter1 = (void*)i; //start Index
-        m_AnimationTaskData[gameObjectID].parameter2 = (void*)endIndex; //End index
+        m_AnimationTaskData[gameObjectID].parameter2 = nullptr; //End index
         m_AnimationTaskData[gameObjectID].parameter3 = nullptr; 
         m_AnimationTaskData[gameObjectID].parameter4 = nullptr; 
         m_AnimationTaskData[gameObjectID].parameter5 = nullptr; 
@@ -45,6 +52,7 @@ unsigned int AnimationManager::CreateAnimationTasks()
     return numCreatedTask;
 }
 
+//Register game objects
 void AnimationManager::RegisterGameObjects(std::vector<unsigned int>& gameIds)
 {
     unsigned int numGameObjects = gameIds.size();
@@ -52,7 +60,7 @@ void AnimationManager::RegisterGameObjects(std::vector<unsigned int>& gameIds)
     TaskData taskData;
     Task task;
 
-    for(int i = 0; i < numGameObjects; ++i)
+    for(unsigned int i = 0; i < numGameObjects; ++i)
     {
         gameId = gameIds[i];
         m_GameObjectIds.push_back(gameId);
@@ -91,11 +99,10 @@ void AnimationManager::AnimationUpdate(TaskData* pData, void* thisPointer)
 void AnimationManager::UpdateAnimationTime(float elapsedTime)
 {
     unsigned int numGameObjects = m_GameObjectIds.size();
-    for(int i = 0; i < numGameObjects; ++i)
+    for(unsigned int i = 0; i < numGameObjects; ++i)
     {
-        m_AnimationTimes[i] += m_TimeScalers[i] * elapsedTime;
+        m_AnimationTimes.at(i) += elapsedTime * m_TimeScalers.at(i);
     }
-    m_updateAnimationDone = false;
     m_OpenAnimationTasks = numGameObjects;
 }
 
@@ -120,24 +127,6 @@ void AnimationManager::DoAnimationUpdate(TaskData* pData)
     ProcessAnimation(animTime, m_pScene->mRootNode->mChildren[0], idMatrix, gameObjectId); 
 }
 
-//Test code for animation
-void AnimationManager::UpdateAnimationTest(float gameTime)
-{
-    //initializes to an id matrix
-    aiMatrix4x4 idMatrix;
-
-    //Get the ticks per second if the ticks per second isn't zero.
-    //Set ticks per second to the ticks per second of the animation 
-    //else set it at 25 ticks per second
-    float tickPerSecond = m_pScene->mAnimations[animationIndex]->mTicksPerSecond != 0 ?
-        m_pScene->mAnimations[animationIndex]->mTicksPerSecond : 25.0f;
-
-    float timeInTicks = gameTime * tickPerSecond;
-    float animationTime = fmod(timeInTicks, m_pScene->mAnimations[animationIndex]->mDuration);
-
-    ProcessAnimation(animationTime, m_pScene->mRootNode->mChildren[0], idMatrix, 0);
-}
-
 //Find the node within the animation channel collection
 aiNodeAnim* AnimationManager::FindNodeAnim(const aiAnimation* animation,const aiNode* node)
 {
@@ -145,7 +134,7 @@ aiNodeAnim* AnimationManager::FindNodeAnim(const aiAnimation* animation,const ai
     aiNodeAnim* result = nullptr;
     std::string currentNodeName;
 
-    for(int i = 0; i < numChannels; ++i)
+    for(unsigned int i = 0; i < numChannels; ++i)
     {
         if(animation->mChannels[i]->mNodeName == node->mName)
         {
@@ -186,7 +175,6 @@ void AnimationManager::ProcessAnimation(float animTime, const aiNode* node, aiMa
         aiMatrix4x4::Scaling(scalingAssimp,scaling);
         
         nodeTransformation = translation *  rotation * scaling;
-        bool finish = true;
     }
 
     aiMatrix4x4 globalTransformation =  parentTransform * nodeTransformation;
@@ -196,7 +184,7 @@ void AnimationManager::ProcessAnimation(float animTime, const aiNode* node, aiMa
     XMMATRIX resultXM = XMLoadFloat4x4((const XMFLOAT4X4*)&result.a1);
     XMStoreFloat4x4(&m_FinalTransforms.at(gameobjectID).skeletonData[index],resultXM);
 
-    for(int i = 0; i < node->mNumChildren; ++i)
+    for(unsigned int i = 0; i < node->mNumChildren; ++i)
     {
         ProcessAnimation(animTime, node->mChildren[i], globalTransformation, gameobjectID);
     }
@@ -266,7 +254,7 @@ void AnimationManager::InterpolateRotation(aiQuaternion& result, float AnimTime,
 //Find scaling index.
 unsigned int AnimationManager::FindScaling(float animTime, const aiNodeAnim* pNodeAnim)
 {
-    for(int i = 0; i < pNodeAnim->mNumScalingKeys - 1; ++i)
+    for(unsigned int i = 0; i < pNodeAnim->mNumScalingKeys - 1; ++i)
     {
         if(animTime < (float)pNodeAnim->mScalingKeys[i + 1].mTime)
             return i;
@@ -278,7 +266,7 @@ unsigned int AnimationManager::FindScaling(float animTime, const aiNodeAnim* pNo
 //Find rotation index.
 unsigned int AnimationManager::FindRotation(float animTime, const aiNodeAnim* pNodeAnim)
 {
-    for(int i = 0; i < pNodeAnim->mNumRotationKeys - 1; ++i)
+    for(unsigned int i = 0; i < pNodeAnim->mNumRotationKeys - 1; ++i)
     {
         if(animTime < (float)pNodeAnim->mRotationKeys[i + 1].mTime)
             return i;
@@ -290,7 +278,7 @@ unsigned int AnimationManager::FindRotation(float animTime, const aiNodeAnim* pN
 //Find position index.
 unsigned int AnimationManager::FindPosition(float animTime, const aiNodeAnim* pNodeAnim)
 {
-    for(int i = 0; i < pNodeAnim->mNumPositionKeys - 1; ++i)
+    for(unsigned int i = 0; i < pNodeAnim->mNumPositionKeys - 1; ++i)
     {
         if(animTime < (float)pNodeAnim->mPositionKeys[i + 1].mTime)
             return i;
@@ -306,12 +294,12 @@ std::vector<SkeletonCBufferData>* AnimationManager:: GetFinalTransforms()
 }
 
 //Create the import task for the workerthreads.
-Task* AnimationManager::ImportTask(const char* pFile)
+Task* AnimationManager::ImportTask()
 {
     Task* task = new Task;
 
     TaskData* data = new TaskData;
-    data->parameter1 = (void*)pFile;
+    data->parameter1 = nullptr;
     data->parameter2 = nullptr;
     data->parameter3 = nullptr;
     data->parameter4 = nullptr;
@@ -335,7 +323,7 @@ void AnimationManager::ImportAnimation(TaskData* pData, void* thisPointer)
 //Import the animation.
 void AnimationManager::DoImportAnimation(TaskData* pData)
 {
-    const char* pFile = (char*)pData->parameter1;
+    const char* pFile = m_pAnimationPath;
     m_SkeletonBones.reserve(100);
    
     //Import and parse the file 
@@ -352,7 +340,6 @@ void AnimationManager::DoImportAnimation(TaskData* pData)
     ExtractSkeletonData(rootNode);
     m_numBones = m_SkeletonBones.size();
     GenerateOffsetMatrixes(m_pScene); 
-    ImportingDone = true;
 }
 
 //Generates the model's offsetmatix collection 
@@ -365,10 +352,10 @@ void AnimationManager::GenerateOffsetMatrixes(const aiScene* pScene)
     aiBone* bone;
     std::string boneName;
    
-    for(int i = 0; i < numMeshes; ++i)
+    for(unsigned int i = 0; i < numMeshes; ++i)
     {
         numBones = pScene->mMeshes[i]->mNumBones;
-        for(int j = 0; j < numBones; ++j)
+        for(unsigned int j = 0; j < numBones; ++j)
         {
             bone = pScene->mMeshes[i]->mBones[j];
             boneName = bone->mName.C_Str();
@@ -395,7 +382,7 @@ void  AnimationManager::ExtractSkeletonData(const aiNode* node)
     *currentNode = *node;
     m_SkeletonBones.push_back(*currentNode);
 
-    for(int i = 0; i < numChildBones; ++i)
+    for(unsigned int i = 0; i < numChildBones; ++i)
     {
         ExtractSkeletonData(node->mChildren[i]);
     }
@@ -404,11 +391,9 @@ void  AnimationManager::ExtractSkeletonData(const aiNode* node)
 //Finds the bone index
 unsigned int AnimationManager::FindBoneIndex(std::string* boneName)
 {
-    unsigned int Index = 0;
-    unsigned int numBones = m_SkeletonBones.size();
     std::string boneNameToFind = *boneName;
     std::string curBoneName;
-    for(int i = 0; i < numBones; ++i)
+    for(unsigned int i = 0; i < m_numBones; ++i)
     {
         curBoneName = m_SkeletonBones[i].mName.C_Str();
         if(curBoneName == boneNameToFind)
@@ -421,10 +406,8 @@ unsigned int AnimationManager::FindBoneIndex(std::string* boneName)
 
 //Finds the bone index
 unsigned int AnimationManager::FindBoneIndex(const aiNode* node)
-{
-
-    unsigned int numBones = m_SkeletonBones.size();   
-    for(int i = 0; i < numBones; ++i)
+{  
+    for(unsigned int i = 0; i < m_numBones; ++i)
     {
         if(m_SkeletonBones[i].mName == node->mName)
         {

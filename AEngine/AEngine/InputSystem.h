@@ -20,7 +20,7 @@ class InputSystem
 public:
     InputSystem(AEngine* controller);
     ~InputSystem();
-
+    XMVECTOR GetUserInput(float deltaTime);
     void RegisterDevices(HWND hWnd);
     void ProcessUserInput(RAWINPUT* rawInput);
     void SetMovementButtons();
@@ -32,5 +32,10 @@ private:
 private:
     AEngine* m_pAEngine;
     bool m_movementBtnStates[4];
+    bool m_mouseMoveBtnStates[3];
     unsigned short m_movementScancodes[4];
+    LONG lastMousX;
+    LONG lastMouseY;
+    RAWMOUSE m_CurrMouseInput;
+    
 };

@@ -6,7 +6,38 @@ InputSystem::InputSystem(AEngine* controller)
 }
 
 InputSystem::~InputSystem()
-{}
+{
+    m_pAEngine = nullptr;
+}
+
+XMVECTOR InputSystem::GetUserInput(float deltaTime)
+{
+    XMVECTOR userInput;
+    userInput = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+    float speed = 150.0f * deltaTime;
+
+    if(m_movementBtnStates[0] == true)
+    {
+        userInput.m128_f32[1] += speed;  
+    }
+    if(m_movementBtnStates[1] == true)
+    {
+        userInput.m128_f32[1] -= speed;  
+    }
+    if(m_movementBtnStates[2] == true)
+    {
+        userInput.m128_f32[0] -= speed;  
+    }
+    if(m_movementBtnStates[3] == true)
+    {
+        userInput.m128_f32[0] += speed;  
+    }
+
+    userInput.m128_f32[2] = m_CurrMouseInput.lLastX * 0.3f * deltaTime;
+    userInput.m128_f32[3] = m_CurrMouseInput.lLastY * 0.3f * deltaTime;
+
+    return userInput;
+}
 
 void InputSystem::SetMovementButtons()
 {
@@ -52,10 +83,10 @@ void InputSystem::ProcessUserInput(RAWINPUT* rawInput)
 
 }
 
-void InputSystem::ProcessKeyboardInput(RAWINPUT* KeyboardInput)
+void InputSystem::ProcessKeyboardInput(RAWINPUT* keyboardInput)
 {
-    unsigned short makeCode = KeyboardInput->data.keyboard.MakeCode;
-    unsigned short flags = KeyboardInput->data.keyboard.Flags;
+    unsigned short makeCode = keyboardInput->data.keyboard.MakeCode;
+    unsigned short flags = keyboardInput->data.keyboard.Flags;
 
     switch(makeCode)
     {
@@ -107,87 +138,9 @@ void InputSystem::ProcessKeyboardInput(RAWINPUT* KeyboardInput)
             PostQuitMessage(0);
         }
     }
-
-    //Testcode to discover the scancodes for keyboards....!!!
-    //hr = StringCchPrintf(tempString, STRSAFE_MAX_CCH, TEXT("keyBoard: make=%04x Flags:%04x Reserved:%04x, msg=%04x VK=%04x \n"),
-    //    rawInput->data.keyboard.MakeCode, 
-    //    rawInput->data.keyboard.Flags, 
-    //    rawInput->data.keyboard.Reserved, 
-    //    rawInput->data.keyboard.Message, 
-    //    rawInput->data.keyboard.VKey);
-
-    //if(FAILED(hr))
-    //{}
-
-    //OutputDebugString(tempString);
 }
 
-void InputSystem::ProcessMouseInput(RAWINPUT* MouseInput)
+void InputSystem::ProcessMouseInput(RAWINPUT* mouseInput)
 {
-    unsigned short usFlag = MouseInput->data.mouse.usFlags;
-    unsigned long ulBtn = MouseInput->data.mouse.ulButtons;
-
-    TCHAR tempString[1024];
-    HRESULT hr;
-    hr = StringCchPrintf(tempString, STRSAFE_MAX_CCH, TEXT("Mouse: usFlags=%04x ulButtons=%04x usButtonFlags=%04x usButtonData=%04x ulRawButtons=%04x lLastX=%04x lLastY=%04x ulExtraInformation=%04x\r\n"), 
-            MouseInput->data.mouse.usFlags, 
-            MouseInput->data.mouse.ulButtons, 
-            MouseInput->data.mouse.usButtonFlags, 
-            MouseInput->data.mouse.usButtonData, 
-            MouseInput->data.mouse.ulRawButtons, 
-            MouseInput->data.mouse.lLastX, 
-            MouseInput->data.mouse.lLastY, 
-            MouseInput->data.mouse.ulExtraInformation);
-
-	if (FAILED(hr))
-	{
-	// TODO: write error handler
-	}
-
-    if(MouseInput->data.mouse.ulButtons == 0x001)
-    {
-        OutputDebugString(L"Left mouse button clicked\n");
-    }
-
-    if(MouseInput->data.mouse.ulButtons == 0x002)
-    {
-        OutputDebugString(L"Left mouse button released\n");
-    }
-
-    if(MouseInput->data.mouse.ulButtons == 0x004)
-    {
-        OutputDebugString(L"Right mouse button clicked\n");
-    }
-
-    if(MouseInput->data.mouse.ulButtons == 0x008)
-    {
-        OutputDebugString(L"Right mouse button released\n");
-    }
-
-    /*if(rawInput->data.mouse.ulButtons == 0x0010)
-    {
-        OutputDebugString(L"Middle mouse button clicked\n");
-    }
-
-    if(rawInput->data.mouse.ulButtons == 0x0020)
-    {
-        OutputDebugString(L"Middle mouse button released\n");
-    }*/
-
-    if(MouseInput->data.mouse.ulButtons == 0x780400)
-    {
-        OutputDebugString(L"Mouse wheel up\n");
-        m_pAEngine->MoveCameraForward();
-    }
-
-    if(MouseInput->data.mouse.ulButtons == 0xff880400)
-    {
-        OutputDebugString(L"Mouse wheel down\n");
-        m_pAEngine->MoveCameraBackward();
-    }
-
-   /* if(!rawInput->data.mouse.ulButtons == 0x0)
-    {
-        OutputDebugString(tempString);
-    }*/
+    m_CurrMouseInput = mouseInput->data.mouse;
 }

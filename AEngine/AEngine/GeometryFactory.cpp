@@ -4,12 +4,13 @@
 GeometryFactory::GeometryFactory(GeometryManager* pGeoManager)
 {
     m_pGeoManager = pGeoManager;
-    m_DoneImporting = false;
 }
 
 GeometryFactory::~GeometryFactory()
 {
-
+    m_pImmediateContext = nullptr;
+    m_pD3dDevice = nullptr;
+    m_pGeoManager = nullptr;
 }
 
 void GeometryFactory::SetGraphicsDeviceAndContext(ID3D11Device* d3dDevice, ID3D11DeviceContext* immediateContext)
@@ -52,7 +53,7 @@ void GeometryFactory::DoImportAsset(TaskData* pdata)
     aiNode* rootNode = pScene->mRootNode->mChildren[0];
     ExtractSkeletonData(BonesByName, rootNode);
 
-    for(int i = 0; i < pScene->mNumMeshes; ++i)
+    for(unsigned int i = 0; i < pScene->mNumMeshes; ++i)
     {
         mesh = pScene->mMeshes[i];
         GeometryObject geoMesh;
@@ -111,7 +112,7 @@ void GeometryFactory::ExtractSkeletonData(std::vector<std::string>* skeletonData
 {
     std::string boneName(node->mName.C_Str()); 
     skeletonData->push_back(boneName);
-    for(int i = 0; i < node->mNumChildren; ++i)
+    for(unsigned int i = 0; i < node->mNumChildren; ++i)
     {
         ExtractSkeletonData(skeletonData, node->mChildren[i]);
     }
@@ -123,7 +124,7 @@ unsigned int GeometryFactory::FindBoneIndex(std::string* boneName, std::vector<s
     unsigned int numBones = BonesByName->size();
     std::string boneNameToFind = *boneName;
     std::string curBoneName;
-    for(int i = 0; i < numBones; ++i)
+    for(unsigned int i = 0; i < numBones; ++i)
     {
         curBoneName = BonesByName->at(i);
         if(curBoneName == boneNameToFind)
@@ -138,7 +139,7 @@ unsigned int GeometryFactory::FindBoneIndex(std::string* boneName, std::vector<s
 void GeometryFactory::GenerateVertices(PosNormalTexSkinned* vertices,unsigned int numVertices, aiMesh* mesh)
 {
     //Get the position, normal and texcoord information
-    for(int j = 0; j < numVertices; j++)
+    for(unsigned int j = 0; j < numVertices; j++)
     {
         vertices[j].pos.x = mesh->mVertices[j].x;
         vertices[j].pos.y = mesh->mVertices[j].y;
@@ -157,7 +158,7 @@ void GeometryFactory::GenerateVertices(PosNormalTexSkinned* vertices,unsigned in
 void GeometryFactory::GenerateIndices(unsigned int* indices, unsigned int numFaces, aiMesh* mesh)
 {
     unsigned int index = 0;
-    for(int k = 0; k < numFaces; k++)
+    for(unsigned int k = 0; k < numFaces; k++)
     {
         aiFace face = mesh->mFaces[k];
         for(int l = 0; l < 3; l++)
@@ -180,14 +181,14 @@ void GeometryFactory::GenerateBonesAndWeight(std::vector<std::string>* BonesByNa
     int index = 0;
     aiVertexWeight weight;
         
-    for(int j = 0; j < numBones; ++j)
+    for(unsigned int j = 0; j < numBones; ++j)
     {
         bone = mesh->mBones[j];
         boneName = bone->mName.C_Str();
         numWeight = bone->mNumWeights;
         index = FindBoneIndex(&boneName,BonesByName);
 
-        for(int k = 0; k < numWeight; ++k)
+        for(unsigned int k = 0; k < numWeight; ++k)
         {
             weight =  bone->mWeights[k];
             AddBoneData(vertices, index, weight);
@@ -239,16 +240,7 @@ void GeometryFactory::DoneImporting(void* thispointer, void* task)
 {
     GeometryFactory* self = static_cast<GeometryFactory*>(thispointer);
     self->m_pGeoManager->SubmitMessage();
-    self->m_DoneImporting = true;
-    
+    delete task;
 }
 
-//Callback function 
-void GeometryFactory::DoneImportingAsset(void* task)
-{
-    //need to implement an 
-    //better option like an event or message 
-    //instead of an bool flag
-    
-}
 

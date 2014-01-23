@@ -1,11 +1,14 @@
 #include"GeometryManager.h"
 
-GeometryManager::GeometryManager(AEngine* pEngine)
+GeometryManager::GeometryManager(AEngine* pEngine, const char* currentDir)
 {
-    m_pEngine = pEngine;
     m_pGeoFactory = nullptr;
     m_pDevice = nullptr;
     m_pImmediateContext = nullptr;
+    m_pContentPath = new char[1024];
+    strcpy_s(m_pContentPath, 1024, currentDir);
+    strcat_s(m_pContentPath, 1024, "\\Content\\dude.dae");
+    m_pEngine = pEngine;
 }
 
 GeometryManager::~GeometryManager()
@@ -26,25 +29,20 @@ void GeometryManager::Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pIm
         m_pGeoFactory->SetGraphicsDeviceAndContext(m_pDevice, m_pImmediateContext);   
 }
 
-bool GeometryManager::DoneImporting()
-{
-    bool done = m_pGeoFactory->m_DoneImporting;
-    return done;
-}
 
 void GeometryManager::SubmitMessage()
 {
     Message doneImporting;
     doneImporting.MessageType = IMPORT_GEOMETRY_DONE;
     m_pEngine->SubmitMessage(doneImporting);
-    bool done = m_pGeoFactory->m_DoneImporting;
+
 }
 
 
 void GeometryManager::Shutdown()
 {
 
-    for(int i = 0; i < m_MeshCollection.size(); ++i)
+    for(unsigned int i = 0; i < m_MeshCollection.size(); ++i)
     {
         GeometryObject temp = m_MeshCollection.at(i);
         temp.vertexBuffer->Release();
@@ -83,7 +81,7 @@ void GeometryManager::SetSubmeshIndexed(unsigned int subMeshIndex, OUT unsigned 
     *indicesCount = geometryObj.indicesCount;
 }
 
-Task* GeometryManager::ImportAssetTask(const char* pFile)
+Task* GeometryManager::ImportAssetTask()
 {
-    return m_pGeoFactory->ImportAsset(pFile, m_MeshCollection, &m_Count);
+    return m_pGeoFactory->ImportAsset(m_pContentPath, m_MeshCollection, &m_Count);
 }

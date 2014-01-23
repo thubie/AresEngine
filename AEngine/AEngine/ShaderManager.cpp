@@ -1,19 +1,21 @@
 #include"ShaderManager.h"
 
-ShaderManager:: ShaderManager(ID3D11Device* pD3DDevice,ID3D11DeviceContext* pImmediateContext, AEngine* pEngine)
+ShaderManager:: ShaderManager(ID3D11Device* pD3DDevice,ID3D11DeviceContext* pImmediateContext, AEngine* pEngine, const char* currentDir)
  {
-     m_pEngine = pEngine;
-
      m_pD3DDevice = pD3DDevice;
      m_pD3DDevice->AddRef();
 
      m_pImmediateContext = pImmediateContext;
      m_pImmediateContext->AddRef();
 
-     m_pVertexShaders = new std::vector<VertexShaderObject>;
-     m_pPixelShaders = new std::vector<PixelShaderObject>;
-     finishedVertexShader = false;
-     finishedPixelShader = false;
+    ///* m_pVertexShaders = new std::vector<VertexShaderObject>;
+    // m_pPixelShaders = new std::vector<PixelShaderObject>;*/
+    // finishedVertexShader = false;
+    // finishedPixelShader = false;
+    m_pShadersPath = new char[1024];
+    strcpy_s(m_pShadersPath, 1024, currentDir);
+    strcat_s(m_pShadersPath, 1024, "\\Shaders\\StaticMesh.fx");
+    m_pEngine = pEngine;
  }
  
  ShaderManager::~ShaderManager()
@@ -35,22 +37,22 @@ void ShaderManager::CleanUpResources()
          m_pImmediateContext = nullptr;
      }
 
-     for(int i = 0; i < m_pVertexShaders->size(); i++)
+     for(unsigned int i = 0; i < m_VertexShaders.size(); i++)
      {
-         m_pVertexShaders->at(i).vertexShader->Release();
-         m_pVertexShaders->at(i).inputLayout->Release();
+         m_VertexShaders.at(i).vertexShader->Release();
+         m_VertexShaders.at(i).inputLayout->Release();
      }
 
-     for(int i = 0; i < m_pPixelShaders->size(); i++)
+     for(unsigned int i = 0; i < m_PixelShaders.size(); i++)
      {
-         m_pPixelShaders->at(i).pixelShader->Release();
+         m_PixelShaders.at(i).pixelShader->Release();
      }
 }
 
 void ShaderManager::SetVertexShader(unsigned int vertexShaderId)
 {
     VertexShaderObject vertexShader;
-    vertexShader = m_pVertexShaders->at(vertexShaderId);
+    vertexShader = m_VertexShaders.at(vertexShaderId);
 
     m_pImmediateContext->IASetInputLayout(vertexShader.inputLayout);
     m_pImmediateContext->VSSetShader(vertexShader.vertexShader, NULL,0);
@@ -59,16 +61,16 @@ void ShaderManager::SetVertexShader(unsigned int vertexShaderId)
 void ShaderManager::SetPixelShader(unsigned int pixelShaderId)
 {
     PixelShaderObject pixelShader;
-    pixelShader = m_pPixelShaders->at(pixelShaderId);
+    pixelShader = m_PixelShaders.at(pixelShaderId);
     m_pImmediateContext->PSSetShader(pixelShader.pixelShader, NULL, 0);
 }
 
-Task* ShaderManager::CreateVertexShaderTask(const char* pVertexPath)
+Task* ShaderManager::CreateVertexShaderTask()
 {
     Task* task = new Task;
     TaskData* data = new TaskData;
-    data->parameter1 = (void*)m_pVertexShaders;
-    data->parameter2 = (void*)pVertexPath;
+    data->parameter1 = nullptr;
+    data->parameter2 = nullptr;
     data->parameter3 = nullptr;
     data->parameter4 = nullptr;
     data->parameter5 = nullptr;
@@ -80,12 +82,12 @@ Task* ShaderManager::CreateVertexShaderTask(const char* pVertexPath)
     return task; 
 }
 
-Task* ShaderManager::CreatePixelShaderTask(const char* pPixelPath)
+Task* ShaderManager::CreatePixelShaderTask()
 {
     Task* task = new Task;
     TaskData* data = new TaskData;
-    data->parameter1 = (void*)m_pPixelShaders;
-    data->parameter2 = (void*)pPixelPath;
+    data->parameter1 = nullptr;
+    data->parameter2 = nullptr;
     data->parameter3 = nullptr;
     data->parameter4 = nullptr;
     data->parameter5 = nullptr;
@@ -111,9 +113,7 @@ void ShaderManager::StartCreatePixelShader(TaskData* pData, void* thisPointer)
 
 void ShaderManager::CreateVertexShader(TaskData* data)
 {
-    std::vector<VertexShaderObject>* pVertexShaders; 
-    pVertexShaders = static_cast<std::vector<VertexShaderObject>*>(data->parameter1);
-    const char* path = (char*)data->parameter2;
+    const char* path = m_pShadersPath; 
     const int length = 1024;
     size_t convertedChar;
     WCHAR wcharPath[length];
@@ -148,18 +148,15 @@ void ShaderManager::CreateVertexShader(TaskData* data)
 
     vertexShaderObj.id = 1; //for now hardcoded.
 
-    pVertexShaders->push_back(vertexShaderObj);
-    bool finish = true;
+    m_VertexShaders.push_back(vertexShaderObj);
 }
 
 void ShaderManager::CreatePixelShader(TaskData* data)
 {
-    std::vector<PixelShaderObject>* pPixelShaders;
-    pPixelShaders = static_cast<std::vector<PixelShaderObject>*>(data->parameter1);
+    const char* path = m_pShadersPath;
+    const int length = 1024;
     PixelShaderObject pixelShaderObj;
     HRESULT hr;
-    const char* path = (char*)data->parameter2;
-    const int length = 1024;
     size_t convertedChar;
     WCHAR wcharPath[length];
     mbstowcs_s(&convertedChar,wcharPath,path,length);
@@ -173,8 +170,7 @@ void ShaderManager::CreatePixelShader(TaskData* data)
     assert(!FAILED(hr));
     pPSBlob->Release();
     pixelShaderObj.id = 1; //HardCoded for now
-    pPixelShaders->push_back(pixelShaderObj);
-    bool finish = true;
+    m_PixelShaders.push_back(pixelShaderObj);
 }
 
 void ShaderManager::DoneCreatingVertexShader(void* thispointer, void* task)

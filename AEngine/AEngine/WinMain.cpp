@@ -8,6 +8,7 @@ DWORD WINAPI LogThreads(LPVOID lpParameter);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pSCmdLine,int iCmdShow)
 {
+    
     bool result;
     AEngine* pAEngine;
 

@@ -11,15 +11,9 @@ AEngine::AEngine()
     m_pTextureManager   = nullptr;
     m_pAnimationManager = nullptr;
     m_stopped = false;
-    m_windowWidth = 1600;
-    m_windowHeight = 900;
-}
-
-AEngine::AEngine(const AEngine& other)
-{
-    m_windowWidth = other.m_windowWidth;
-    m_windowHeight = other.m_windowHeight;
-    m_pTaskSystem = other.m_pTaskSystem;
+    m_windowWidth = 1280;
+    m_windowHeight = 720;
+    m_ImportingBitfield = 0;
 }
 
 AEngine::~AEngine()
@@ -27,24 +21,15 @@ AEngine::~AEngine()
     //Delete stuff later in shutdown function
 }
 
+//Initalize the Engine and create subsystems
 bool AEngine::Initialize()
 {
     InitializeWin();
-   
-    char currentDir[1024];
-    char modelsDir[1024];
-    char texturesDir[1024];
-    char ShaderDir[1024];
 
-    GetCurrentDirectoryA(1024, currentDir);
-    strcpy_s(modelsDir,currentDir);
-    strcat_s(modelsDir, "\\Content\\dude.dae");
-    strcpy_s(texturesDir,currentDir);
-    strcat_s(texturesDir,"\\Content");
-    strcpy_s(ShaderDir, currentDir);
-    strcat_s(ShaderDir, "\\Shaders\\StaticMesh.fx");
-
-    m_messageQueue = new RingBufferQueue<Message>(2048);
+    m_pMessageQueue = new MessageQueue(1024);
+    
+    m_pGameTimer = new HRTimer();
+    m_pStopWatch = new HRTimer();
 
     m_pTaskSystem = new TaskSystem();
     if(m_pTaskSystem == nullptr)     
@@ -57,18 +42,13 @@ bool AEngine::Initialize()
     m_pInputSystem = new InputSystem(appHandle);
     if(m_pInputSystem == nullptr)
         return false;
-
     m_pInputSystem->RegisterDevices(m_hwnd);
 
     m_pRenderSystem = new RenderSystem(this);
     if(m_pRenderSystem == nullptr)
         return false;
-
     m_pRenderSystem->Initialize(m_hwnd);
 
-    m_pGameTimer = new HRTimer();
-    
-    //Need to clean up this code.
     m_pCamera = new Camera();
     if(m_pCamera == nullptr)
         return false;
@@ -78,13 +58,15 @@ bool AEngine::Initialize()
     XMFLOAT3 camUpDir(0.0f, 1.0f, 0.0f); 
 
     m_pCamera->InitCamera(camPosition, camTarget, camUpDir);
-    m_pCamera->UpdateViewMatrix();
 
-    m_pGeometryManager = new GeometryManager(this);
+    char currentDir[1024];
+    GetCurrentDirectoryA(1024, currentDir);
+
+    m_pGeometryManager = new GeometryManager(this, currentDir);
     m_pGeometryManager->Initialize(m_pRenderSystem->m_pD3DDevice, m_pRenderSystem->m_pImmediateContext);
-    m_pTextureManager = new TextureManager(m_pRenderSystem->m_pD3DDevice,m_pRenderSystem->m_pImmediateContext, this);
-    m_pShaderManager = new ShaderManager(m_pRenderSystem->m_pD3DDevice, m_pRenderSystem->m_pImmediateContext, this);
-    m_pAnimationManager = new AnimationManager(this);
+    m_pTextureManager = new TextureManager(m_pRenderSystem->m_pD3DDevice,m_pRenderSystem->m_pImmediateContext, this, currentDir);
+    m_pShaderManager = new ShaderManager(m_pRenderSystem->m_pD3DDevice, m_pRenderSystem->m_pImmediateContext, this, currentDir);
+    m_pAnimationManager = new AnimationManager(this, currentDir);
     
     //testing code
     std::vector<unsigned int> TestGameObjects;
@@ -92,43 +74,38 @@ bool AEngine::Initialize()
     {
         TestGameObjects.push_back(i);
     }
+    //Registering game objects for testing.
+    m_pRenderSystem->RegisterGameObjects(TestGameObjects);
     m_pAnimationManager->RegisterGameObjects(TestGameObjects);
     m_CreatedTasks = m_pAnimationManager->CreateAnimationTasks(); 
-    m_pRenderSystem->RegisterGameObjects(TestGameObjects);
 
     //Start importing asset
-    m_pTaskSystem->EnqueueTask(m_pGeometryManager->ImportAssetTask(modelsDir));
-    m_pTaskSystem->EnqueueTask(m_pTextureManager->ImportTextures(texturesDir));
-    m_pTaskSystem->EnqueueTask(m_pShaderManager->CreateVertexShaderTask(ShaderDir));
-    m_pTaskSystem->EnqueueTask(m_pShaderManager->CreatePixelShaderTask(ShaderDir));
-    m_pTaskSystem->EnqueueTask(m_pAnimationManager->ImportTask(modelsDir));
+    m_pTaskSystem->EnqueueTask(m_pGeometryManager->ImportAssetTask());
+    m_pTaskSystem->EnqueueTask(m_pTextureManager->ImportTextures());
+    m_pTaskSystem->EnqueueTask(m_pShaderManager->CreateVertexShaderTask());
+    m_pTaskSystem->EnqueueTask(m_pShaderManager->CreatePixelShaderTask());
+    m_pTaskSystem->EnqueueTask(m_pAnimationManager->ImportTask());
 
-    MSG msg = {0};
-    m_ImportingBitfield = 0;
-    bool GeometryDone = false;
-    bool AnimationDone = false;
+   
 
-    //Polling importing state.
-    while(!(GeometryDone && AnimationDone))
-    {
-        GeometryDone = m_pGeometryManager->DoneImporting();
-        AnimationDone = m_pAnimationManager->ImportingDone;
-        if(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-        {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
-        }
-        ProcessMessageQueue();
-        Sleep(1);      
-    }
     return true;
 }
 
+//Shutdown and delete subsystems
 bool AEngine::Shutdown()
 {
+    m_stopped = true;
+
     if(m_pTaskSystem != nullptr)
+    {
         m_pTaskSystem->Shutdown();
+        delete m_pTaskSystem;
+    }
     m_pTaskSystem = nullptr;
+
+    if(m_pMessageQueue != nullptr)
+        delete m_pMessageQueue;
+    m_pMessageQueue = nullptr;
 
     if(m_pInputSystem != nullptr)
         delete m_pInputSystem;
@@ -142,9 +119,7 @@ bool AEngine::Shutdown()
     m_pGeometryManager = nullptr;
 
     if(m_pTextureManager != nullptr)
-    {
         delete m_pTextureManager;
-    }
     m_pTextureManager = nullptr;
 
     if(m_pShaderManager != nullptr)
@@ -152,31 +127,25 @@ bool AEngine::Shutdown()
     m_pShaderManager = nullptr;
 
     if(m_pRenderSystem != nullptr)
+    {
         m_pRenderSystem->Shutdown();
+        delete m_pRenderSystem;
+    }
     m_pRenderSystem = nullptr;
     
     m_stopped = true;
     return true;
 }
 
+//Submit message to message queue
 void AEngine::SubmitMessage(Message message)
 {
-    m_messageQueue->Enqueue(message);
+    m_pMessageQueue->Enqueue(message);
 }
 
-void AEngine::MoveCameraForward()
-{
-    m_pCamera->MoveCameraForward();
-}
-
-void AEngine::MoveCameraBackward()
-{
-    m_pCamera->MoveCameraBackward();
-}
-
+//Run the engine
 void AEngine::Run()
-{
-    m_pStopWatch = new HRTimer();
+{ 
     MSG msg = {0};  
     while(WM_QUIT != msg.message)
     {
@@ -198,17 +167,17 @@ void AEngine::Run()
     Shutdown();   
 }
 
-//Processing the MessageQueue
+//Process the MessageQueue
 void AEngine::ProcessMessageQueue()
 {
     Message currentMessage;
-    unsigned int numMessages = m_messageQueue->GetCount();
+    unsigned int numMessages = m_pMessageQueue->GetCount();
     float frameTime = 0.0f;
     float deltaTime = 0.0f;
-
+    
     for(unsigned int i = 0; i < numMessages; ++i)
     {
-        currentMessage = m_messageQueue->Dequeue();
+        currentMessage = m_pMessageQueue->Dequeue();
         switch(currentMessage.MessageType)
         {
             case ANIMATIONS_DONE:
@@ -218,13 +187,17 @@ void AEngine::ProcessMessageQueue()
                 frameTime *= 1000.0f;
                 SetWindowTitle(frameTime);
                 m_pRenderSystem->RenderScene(m_pGeometryManager,m_pTextureManager, m_pShaderManager, m_pCamera, m_pAnimationManager);
+                /*POINT point;               
+                ClientToScreen(m_hwnd,&point);
+                SetCursorPos(point.x, point.y);*/
                 break;
             }
 
             case RENDERING_DONE:
             {
                 deltaTime = (float)m_pGameTimer->GetDeltaTime();
-                m_pCamera->UpdateViewMatrix();
+                XMVECTOR userInput = m_pInputSystem->GetUserInput(deltaTime);
+                m_pCamera->UpdateViewMatrix(userInput);
                 m_pAnimationManager->UpdateAnimationTime(deltaTime);
                 SubmitTask(m_CreatedTasks);
                 m_pStopWatch->Start();
@@ -307,6 +280,7 @@ void AEngine::ProcessMessageQueue()
     }
 }
 
+//Set the window title
 void AEngine::SetWindowTitle(float animTime)
 {
     char titleStats[512]; 
@@ -314,18 +288,18 @@ void AEngine::SetWindowTitle(float animTime)
     SetWindowTextA(m_hwnd,titleStats);
 }
 
+//Submit Task to taskQueue
 void AEngine::SubmitTask(unsigned int createdTasks)
 {
-    m_openTasks = createdTasks;
-
     for(unsigned int i = 0; i < createdTasks; ++i)
     {
-        Task* newTask = &m_pAnimationManager->m_AnimationTask[i];
+        Task* newTask = &m_pAnimationManager->m_AnimationTask.at(i);
         m_pTaskSystem->EnqueueTask(newTask);
     }
     
 }
 
+//Innitialize the Window
 void AEngine::InitializeWin()
 {
     WNDCLASS wc;
@@ -365,11 +339,12 @@ void AEngine::InitializeWin()
 
     //Bring the window up on the screen and set it as main focus.
     ShowWindow(m_hwnd,SW_SHOW);
-    //ShowCursor(false);
+    ShowCursor(false);
     SetForegroundWindow(m_hwnd);
     SetFocus(m_hwnd);
 }
 
+//Windows message processing
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
     switch(msg)

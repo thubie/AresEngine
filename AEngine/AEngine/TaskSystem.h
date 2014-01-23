@@ -21,7 +21,9 @@ public:
     void PausedDistributing();
     void ResumeDistributing();
     void EnqueueTask(Task* task);
-    Task DequeueTask();
+
+    Task* DequeueTask();
+    
 
     inline bool QueueIsEmpty()
     {
@@ -42,8 +44,9 @@ private:
     WorkerThread* m_pWorkerThreads;
     unsigned int m_createdThreads;
     unsigned int m_ProcessorsCount;
-    //LinkListQueue<Task*>* m_pTaskQueue;
-    LinkListQueue<Task>* m_pTaskQueue;
+    LinkListQueue<Task*>* m_pTaskQueue;
+    //RingBufferQueue<Task>* m_pTaskQueue;
+    //LinkListQueue<Task>* m_pTaskQueue;
     HANDLE* m_pThreadHandles;
     bool m_Distributing;
 };

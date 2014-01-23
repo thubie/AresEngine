@@ -13,7 +13,8 @@ TaskSystem::~TaskSystem()
 
 void TaskSystem::Initialize(unsigned int MaxThreads)
 {
-    m_pTaskQueue = new LinkListQueue<Task>();
+    m_pTaskQueue = new LinkListQueue<Task*>();
+    //m_pTaskQueue = new RingBufferQueue<Task>(1024);
 
     SYSTEM_INFO sysInfo;
     GetSystemInfo(&sysInfo);
@@ -61,12 +62,12 @@ void TaskSystem::Shutdown()
     }
 }
 
-void TaskSystem::EnqueueTask(Task* task)
+void TaskSystem::EnqueueTask(Task* pTask)
 {
-    m_pTaskQueue->Enqueue(*task);
+    m_pTaskQueue->Enqueue(pTask);
 }
 
-Task TaskSystem::DequeueTask()
+Task* TaskSystem::DequeueTask()
 {
     return m_pTaskQueue->Dequeue();
 }

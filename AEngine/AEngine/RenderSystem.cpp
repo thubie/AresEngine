@@ -41,10 +41,10 @@ void RenderSystem::RegisterGameObjects(std::vector<unsigned int>& gameId)
     float x,y,z;
     XMMATRIX currentWorld;
     y = 0;
-    for(int i = 0; i < numObjectsZ; ++i)
+    for(unsigned int i = 0; i < numObjectsZ; ++i)
     {
         z = i * 75;
-        for(int j = 0; j < numObjectsX; ++j)
+        for(unsigned int j = 0; j < numObjectsX; ++j)
         {
             x = j * 75;
             currentWorld = XMMatrixTranslation(x, y, z);

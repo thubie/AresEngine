@@ -36,7 +36,6 @@ public:
     
 private:
     void DoImportAsset(TaskData* pData); //import asset task
-    void DoneImportingAsset(void* task); //Callback function when done importing
     static void ImportAssetTask(TaskData* pData, void* thisPointer);
     static void DoneImporting(void* thispointer, void* task);
     
@@ -52,10 +51,4 @@ private:
     ID3D11DeviceContext* m_pImmediateContext;
     ID3D11Device* m_pD3dDevice;
     GeometryManager* m_pGeoManager; 
-    unsigned int nextId;
-    std::vector<unsigned int>* openTasks;
-    
-
-public:
-    bool m_DoneImporting;
 };

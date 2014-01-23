@@ -1,14 +1,16 @@
 #include"TextureManager.h"
 
-TextureManager::TextureManager(ID3D11Device* pD3DDevice, ID3D11DeviceContext* pImmediateContext,AEngine* pEngine )
+TextureManager::TextureManager(ID3D11Device* pD3DDevice, ID3D11DeviceContext* pImmediateContext,AEngine* pEngine, const char* currentDir)
 {
     m_pD3DDevice = pD3DDevice;
     m_pD3DDevice->AddRef();
-
     m_pImmediateContext = pImmediateContext;
     m_pImmediateContext->AddRef();
-    m_pEngine = pEngine; 
-    m_pTextureCollection = new std::vector<TextureObject>;
+   
+    m_ContentPath = new char[1024];
+    strcpy_s(m_ContentPath, 1024, currentDir);
+    strcat_s(m_ContentPath, 1024, "\\Content");
+    m_pEngine = pEngine;
 }
 
 TextureManager::~TextureManager()
@@ -42,18 +44,18 @@ void TextureManager::DoneImporting(void* thispointer, void* task)
 
 void TextureManager::CleanUpResources()
 {
-    for(int i = 0; i < m_pTextureCollection->size(); ++i)
+    for(unsigned int i = 0; i < m_TextureCollection.size(); ++i)
     {
-        m_pTextureCollection->at(i).texture->Release();
+        m_TextureCollection.at(i).texture->Release();
     }
 }
 
-Task* TextureManager::ImportTextures(const char* texturesPath)
+Task* TextureManager::ImportTextures()
 {
     Task* task = new Task;
     TaskData* data = new TaskData;
-    data->parameter1 = (void*)m_pTextureCollection;
-    data->parameter2 = (void*)texturesPath;
+    data->parameter1 = nullptr;
+    data->parameter2 = nullptr;
     data->parameter3 = nullptr;
     data->parameter4 = nullptr;
     data->parameter5 = nullptr;
@@ -67,13 +69,12 @@ Task* TextureManager::ImportTextures(const char* texturesPath)
 
 void TextureManager::SetTexture(unsigned int ID)
 {
-    m_pImmediateContext->PSSetShaderResources(0,1,&m_pTextureCollection->at(ID).texture);
+    m_pImmediateContext->PSSetShaderResources(0,1,&m_TextureCollection.at(ID).texture);
 }
 
 void TextureManager::DoImportTask(TaskData* data)
 {
-    std::vector<TextureObject>* m_pTextures = static_cast<std::vector<TextureObject>*>(data->parameter1);
-    const char* texturePath = (const char*)data->parameter2;
+    const char* texturePath = this->m_ContentPath;
     
     HRESULT hr;
     TextureObject temp;
@@ -102,28 +103,28 @@ void TextureManager::DoImportTask(TaskData* data)
         CurrentTexturePath, NULL,NULL,&temp.texture,NULL);
     assert(!FAILED(hr));
     temp.id = 0;
-    m_pTextures->push_back(temp);
+    m_TextureCollection.push_back(temp);
 
     mbstowcs_s(&convertedChar,CurrentTexturePath,texture2,length);
     hr = D3DX11CreateShaderResourceViewFromFile(m_pD3DDevice,
         CurrentTexturePath, NULL,NULL,&temp.texture,NULL);
     assert(!FAILED(hr));
     temp.id = 1;
-    m_pTextures->push_back(temp);
+    m_TextureCollection.push_back(temp);
 
     mbstowcs_s(&convertedChar,CurrentTexturePath,texture3,length);
     hr = D3DX11CreateShaderResourceViewFromFile(m_pD3DDevice,
         CurrentTexturePath, NULL,NULL,&temp.texture,NULL);
     assert(!FAILED(hr));
     temp.id = 2;
-    m_pTextures->push_back(temp);
+    m_TextureCollection.push_back(temp);
 
     mbstowcs_s(&convertedChar,CurrentTexturePath,texture4,length);
     hr = D3DX11CreateShaderResourceViewFromFile(m_pD3DDevice,
        CurrentTexturePath, NULL,NULL,&temp.texture,NULL);
     assert(!FAILED(hr));
     temp.id = 3;
-    m_pTextures->push_back(temp);
+    m_TextureCollection.push_back(temp);
 }
 
 void TextureManager::DoneImportingTask(void* task)
@@ -131,7 +132,6 @@ void TextureManager::DoneImportingTask(void* task)
     Message message;
     message.MessageType =  IMPORT_TEXTURE_DONE;
     m_pEngine->SubmitMessage(message);
-    m_Finished = true;
     delete task;
 }
 

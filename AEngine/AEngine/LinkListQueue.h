@@ -1,6 +1,7 @@
 #pragma once
 #include"Lock.h"
 
+//Multiple consumer and producer linked list
 
 template<class Type>
 class LinkListQueue
@@ -70,6 +71,7 @@ public:
             return nullptr;
         }
         value  = pNext->m_value;
+        delete m_phead;
         m_phead = pNext;
         m_nodeCount--;
         m_pDequeueLock->LeaveLock(); //Release lock

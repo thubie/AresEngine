@@ -9,24 +9,31 @@ class Camera
   
 public:
     Camera();
-    Camera(const Camera& other);
     ~Camera();
 
-    void InitCamera(XMFLOAT3 camPos,XMFLOAT3 camDirection, XMFLOAT3 upDir);
-
-    XMMATRIX* GetProjectionMatrix();
-    XMMATRIX* GetViewMatrix();
-    void UpdateViewMatrix();
+    void InitCamera(XMFLOAT3& camPos, XMFLOAT3& camTarget, XMFLOAT3& upDir);
+    void UpdateViewMatrix(XMVECTOR moveAndDirection);
     void SetCameraPosition(XMFLOAT3* position);
     void SetCameraDirection(XMFLOAT3* direction);
-
-    void MoveCameraForward();
-    void MoveCameraBackward();
+    XMMATRIX* GetProjectionMatrix();
+    XMMATRIX* GetViewMatrix();
 
 private:
     XMMATRIX* m_pViewMatrix;
     XMMATRIX* m_pProjectionMatrix;
-    XMFLOAT3* m_pCamPosition;
-    XMFLOAT3* m_pCamDirection;
-    XMFLOAT3* m_pUpDirection;
+    XMVECTOR* m_pCamPosition;
+    XMVECTOR* m_pCamTarget;
+    XMVECTOR* m_pUpDirection;
+    
+    XMVECTOR* m_pDefaultForward;
+    XMVECTOR* m_pDefaultRight;
+    XMVECTOR* m_pCamForward;
+    XMVECTOR* m_pCamRight;
+
+    XMMATRIX* m_pCamRotationMatrix;
+
+    float m_MoveLeftRight;
+    float m_MoveBackForward;
+    float m_CamYaw;
+    float m_CamPitch;
 };

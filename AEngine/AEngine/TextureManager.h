@@ -14,11 +14,11 @@ class AEngine;
 class TextureManager
 {
 public:
-    TextureManager(ID3D11Device* pD3DDevice, ID3D11DeviceContext* pImmediateContext, AEngine* pEngine);
+    TextureManager(ID3D11Device* pD3DDevice, ID3D11DeviceContext* pImmediateContext, AEngine* pEngine, const char* currentDir);
     ~TextureManager();
 
     void SetTexture(unsigned int ID);
-    Task* ImportTextures(const char* contentPath);
+    Task* ImportTextures();
 
 private:
     void CleanUpResources();
@@ -29,11 +29,11 @@ private:
     static void DoneImporting(void* thispointer, void* task);
 
 private:
-    std::vector<TextureObject>* m_pTextureCollection;
+    std::vector<TextureObject> m_TextureCollection;
     ID3D11SamplerState* m_pSamplerAF;
     ID3D11Device* m_pD3DDevice;
     ID3D11DeviceContext* m_pImmediateContext;
     AEngine* m_pEngine;
-public:
-    bool m_Finished;
+    char* m_ContentPath;
+
 };

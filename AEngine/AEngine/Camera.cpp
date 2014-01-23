@@ -3,14 +3,14 @@
 Camera::Camera()
 {
     m_pCamPosition = nullptr;
-    m_pCamDirection = nullptr;
+    m_pCamTarget = nullptr;
     m_pUpDirection = nullptr;
     m_pProjectionMatrix = nullptr;
     m_pViewMatrix = nullptr;
-}
-
-Camera::Camera(const Camera& other)
-{
+    m_CamYaw = 0.0f;
+    m_CamPitch = 0.0f;
+    m_MoveLeftRight = 0.0f;
+    m_MoveBackForward = 0.0f;
 }
 
 Camera::~Camera()
@@ -28,56 +28,55 @@ Camera::~Camera()
         _aligned_free(m_pUpDirection);
     m_pUpDirection = nullptr;
 
-    if(m_pCamDirection != nullptr)
-        _aligned_free(m_pCamDirection);
-    m_pCamDirection = nullptr;
+    if(m_pCamTarget != nullptr)
+        _aligned_free(m_pCamTarget);
+    m_pCamTarget = nullptr;
 
     if(m_pCamPosition != nullptr)
         _aligned_free(m_pCamPosition);
     m_pCamPosition = nullptr;
+
+    if(m_pCamRotationMatrix != nullptr)
+        _aligned_free(m_pCamRotationMatrix);
+    m_pCamRotationMatrix = nullptr;
 }
 
-
-void Camera::InitCamera(XMFLOAT3 camPos,XMFLOAT3 camDirection, XMFLOAT3 upDir)
+void Camera::InitCamera(XMFLOAT3& camPos,XMFLOAT3& camTarget, XMFLOAT3& upDir)
 {
-    //Allign memory on 16byte boundaries.
-    m_pCamPosition = (XMFLOAT3*) _aligned_malloc(sizeof(XMFLOAT3),16);
-    *m_pCamPosition = camPos;
+    //_aligned_malloc alligns memory on x byte boundaries.
+    m_pCamRotationMatrix = (XMMATRIX*) _aligned_malloc(sizeof(XMMATRIX), 16);
+    m_pDefaultForward = (XMVECTOR*) _aligned_malloc(sizeof(XMVECTOR), 16);
+    m_pDefaultRight = (XMVECTOR*) _aligned_malloc(sizeof(XMVECTOR), 16);
+    m_pCamForward = (XMVECTOR*) _aligned_malloc(sizeof(XMVECTOR), 16);
+    m_pCamRight = (XMVECTOR*) _aligned_malloc(sizeof(XMVECTOR), 16);
 
-    m_pCamDirection = (XMFLOAT3*) _aligned_malloc(sizeof(XMFLOAT3),16);
-    *m_pCamDirection = camDirection;
+    *m_pDefaultForward = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+    *m_pDefaultRight = XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
 
-    m_pUpDirection = (XMFLOAT3*) _aligned_malloc(sizeof(XMFLOAT3),16);
-    *m_pUpDirection = upDir;
+    m_pCamPosition = (XMVECTOR*) _aligned_malloc(sizeof(XMVECTOR), 16);
+    m_pCamTarget= (XMVECTOR*) _aligned_malloc(sizeof(XMFLOAT3), 16);
+    m_pUpDirection = (XMVECTOR*) _aligned_malloc(sizeof(XMFLOAT3), 16);
 
-    m_pViewMatrix = (XMMATRIX*) _aligned_malloc(sizeof(XMMATRIX),16);
+    *m_pCamPosition = XMLoadFloat3(&camPos);
+    *m_pCamTarget = XMLoadFloat3(&camTarget);
+    *m_pUpDirection = XMLoadFloat3(&upDir);
 
-    m_pProjectionMatrix  = (XMMATRIX*) _aligned_malloc(sizeof(XMMATRIX),16);
+    m_pViewMatrix = (XMMATRIX*) _aligned_malloc(sizeof(XMMATRIX), 16);
+    m_pProjectionMatrix  = (XMMATRIX*) _aligned_malloc(sizeof(XMMATRIX), 16);
+
     *m_pProjectionMatrix = XMMatrixPerspectiveFovLH(XM_PIDIV2, 1600 / (float)900, 0.01f, 10000.0f );
 }
 
 //set the camera position
 void Camera::SetCameraPosition(XMFLOAT3* position)
 {
-    *m_pCamPosition = *position;
+    *m_pCamPosition = XMLoadFloat3(position);
 }
 
 //Set the camera direction
 void Camera::SetCameraDirection(XMFLOAT3* direction)
 {
-    *m_pCamDirection = *direction;
-}
-
-//test code for input
-void Camera::MoveCameraForward()
-{
-    m_pCamPosition->z += 1;
-}
-
-//test code for input
-void Camera::MoveCameraBackward()
-{
-    m_pCamPosition->z -= 1;
+    *m_pCamTarget = XMLoadFloat3(direction);
 }
 
 //return view matrix
@@ -93,11 +92,34 @@ XMMATRIX* Camera::GetProjectionMatrix()
 }
 
 //Update the ViewMatrix
-void Camera::UpdateViewMatrix()
+void Camera::UpdateViewMatrix(XMVECTOR moveAndDirection)
 {
-    XMVECTOR camPos = XMLoadFloat3(m_pCamPosition);
-    XMVECTOR camDir = XMLoadFloat3(m_pCamDirection);
-    XMVECTOR upDir  = XMLoadFloat3(m_pUpDirection);
-    XMMATRIX ViewTemp = XMMatrixLookAtLH(camPos, camDir, upDir);
-    *m_pViewMatrix = ViewTemp;
+    XMMATRIX RotateYTempMatrix;
+    XMVECTOR CamForward;
+    XMVECTOR CamRight;
+
+    m_MoveLeftRight += moveAndDirection.m128_f32[0];
+    m_MoveBackForward += moveAndDirection.m128_f32[1];
+    m_CamYaw += moveAndDirection.m128_f32[2];
+    m_CamPitch += moveAndDirection.m128_f32[3];
+
+    *m_pCamRotationMatrix = XMMatrixRotationRollPitchYaw(m_CamPitch, m_CamYaw, 0.0f);
+    *m_pCamTarget = XMVector3TransformCoord(*m_pDefaultForward, *m_pCamRotationMatrix);
+    *m_pCamTarget = XMVector3Normalize(*m_pCamTarget);
+
+	RotateYTempMatrix = XMMatrixRotationY(m_CamPitch);
+    
+    CamRight = XMVector3TransformCoord(*m_pDefaultRight, RotateYTempMatrix);
+    *m_pUpDirection = XMVector3TransformCoord(*m_pUpDirection, RotateYTempMatrix);
+    CamForward = XMVector3TransformCoord(*m_pDefaultForward, RotateYTempMatrix);
+
+    *m_pCamPosition += m_MoveLeftRight * CamRight;
+    *m_pCamPosition += m_MoveBackForward * CamForward;
+
+    m_MoveLeftRight = 0.0f;
+    m_MoveBackForward = 0.0f;
+
+    *m_pCamTarget = *m_pCamPosition + *m_pCamTarget;
+    
+    *m_pViewMatrix = XMMatrixLookAtLH(*m_pCamPosition, *m_pCamTarget, *m_pUpDirection);
 }

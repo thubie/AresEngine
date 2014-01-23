@@ -20,12 +20,11 @@ struct SkeletonCBufferData
 class AnimationManager
 {
 public:
-    AnimationManager(AEngine* pEngine);
+    AnimationManager(AEngine* pEngine, const char* currentDir);
     ~AnimationManager();
 
-    Task* ImportTask(const char* pFile);
+    Task* ImportTask();
     unsigned int CreateAnimationTasks(); //Returns the amount of animation task created   
-    void UpdateAnimationTest(float elapsedTime);
     void UpdateAnimationTime(float elapsedTime);
     void RegisterGameObjects(std::vector<unsigned int>& gameId);
     std::vector<SkeletonCBufferData>* GetFinalTransforms(); 
@@ -60,7 +59,8 @@ private:
     AEngine* m_pEngine;
     const aiScene* m_pScene;
     Assimp::Importer* m_pImporter;
-    
+    char* m_pAnimationPath;
+    LONG m_OpenAnimationTasks;
     unsigned int m_numBones;
     unsigned int animationIndex;
     float m_DeltaGameTime;
@@ -68,16 +68,11 @@ private:
     std::vector<unsigned int> m_GameObjectIds;    
     std::vector<float> m_TimeScalers;
     std::vector<float> m_AnimationTimes;
-    std::vector<aiNode> m_SkeletonBones;
-    
+    std::vector<aiNode> m_SkeletonBones;   
     std::vector<TaskData> m_AnimationTaskData;
     std::vector<aiMatrix4x4> m_OffsetMatricesAssimp;
-
     std::vector<SkeletonCBufferData> m_FinalTransforms;
-   
-public:
-    bool ImportingDone;
-    LONG m_OpenAnimationTasks;
-    bool m_updateAnimationDone;
+
+public:    
     std::vector<Task> m_AnimationTask;
 };

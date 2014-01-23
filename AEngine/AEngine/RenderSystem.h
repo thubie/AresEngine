@@ -48,7 +48,11 @@ private:
     ID3D11RasterizerState* m_wireframe;
     ID3D11RasterizerState* m_solid;
     AEngine* m_pEngine;
-
+    //TestCode
+    ID3D11Buffer*               m_pConstantBuffer;
+    ConstantBuffer*             m_pTestConstantBuffer;
+    ID3D11SamplerState*         m_pSamplerAF;   
+    XMMATRIX*                   m_WorldMatrix;
 public:   
     ID3D11Device* m_pD3DDevice;
     ID3D11DeviceContext* m_pImmediateContext;
@@ -58,9 +62,5 @@ public:
     ID3D11DepthStencilView* m_pDepthStencilView;
     std::vector<XMFLOAT4X4> m_TestWorldTransForms;
 
-    //TestCode
-    ID3D11Buffer*               m_pConstantBuffer;
-    ConstantBuffer*             m_pTestConstantBuffer;
-    ID3D11SamplerState*         m_pSamplerAF;   
-    XMMATRIX*                   m_WorldMatrix;
+    
 };

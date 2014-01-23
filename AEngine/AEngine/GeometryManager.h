@@ -14,13 +14,12 @@ class GeometryFactory;
 class GeometryManager
 {
 public:
-    GeometryManager(AEngine* pEngine);
+    GeometryManager(AEngine* pEngine, const char* currentDir);
     ~GeometryManager();
     void Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pImmediatieContext);
     void Shutdown();
     void SetSubmeshIndexed(unsigned int subMeshId, OUT unsigned int* indicesCount);
-    Task* ImportAssetTask(const char* pFile);
-    bool DoneImporting();
+    Task* ImportAssetTask();
     void SubmitMessage();
 
 private:
@@ -29,7 +28,7 @@ private:
     ID3D11DeviceContext* m_pImmediateContext;
     std::vector<GeometryObject> m_MeshCollection;
     AEngine* m_pEngine;
-
+    char* m_pContentPath;
 public:
     unsigned int m_Count;
         

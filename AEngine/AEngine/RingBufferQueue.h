@@ -60,6 +60,12 @@ public:
         return m_count;
     }
 
+    inline bool QueueIsEmpty()
+    {
+        bool empty = (m_count == 0);
+        return empty;
+    }
+
 private: 
     Type*               m_pRingBuffer;
     unsigned int        m_head;

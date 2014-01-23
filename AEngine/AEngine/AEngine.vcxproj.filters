@@ -35,9 +35,6 @@
     <ClCompile Include="RenderSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Model.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -65,7 +62,7 @@
     <ClCompile Include="AnimationManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GameObjectManager.cpp">
+    <ClCompile Include="MessageQueue.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -83,9 +80,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="RenderSystem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Camera.h">
@@ -139,10 +133,10 @@
     <ClInclude Include="AnimationManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GameObjectManager.h">
+    <ClInclude Include="Message.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Message.h">
+    <ClInclude Include="MessageQueue.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
