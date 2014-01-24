@@ -10,6 +10,7 @@ InputSystem::~InputSystem()
     m_pAEngine = nullptr;
 }
 
+//returns the user input.
 XMVECTOR InputSystem::GetUserInput(float deltaTime)
 {
     XMVECTOR userInput;
@@ -33,8 +34,17 @@ XMVECTOR InputSystem::GetUserInput(float deltaTime)
         userInput.m128_f32[0] += speed;  
     }
 
-    userInput.m128_f32[2] = m_CurrMouseInput.lLastX * 0.3f * deltaTime;
-    userInput.m128_f32[3] = m_CurrMouseInput.lLastY * 0.3f * deltaTime;
+    if(m_CurrMouseInput.lLastX > 1 || m_CurrMouseInput.lLastX < -1)
+    {
+        userInput.m128_f32[2] = m_CurrMouseInput.lLastX * 0.3f * deltaTime;
+    }
+    
+    if(m_CurrMouseInput.lLastY > 1 || m_CurrMouseInput.lLastY < -1)
+    {
+        userInput.m128_f32[3] = m_CurrMouseInput.lLastY * 0.3f * deltaTime;
+    }
+
+    
 
     return userInput;
 }
