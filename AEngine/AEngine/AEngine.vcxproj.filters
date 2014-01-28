@@ -139,6 +139,9 @@
     <ClInclude Include="MessageQueue.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SkeletonBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Test.fx">
@@ -147,5 +150,6 @@
     <None Include="StaticMesh.fx">
       <Filter>Header Files\Shaders</Filter>
     </None>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
 </Project>

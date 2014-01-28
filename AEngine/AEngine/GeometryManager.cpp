@@ -1,6 +1,6 @@
 #include"GeometryManager.h"
 
-GeometryManager::GeometryManager(AEngine* pEngine, const char* currentDir)
+GeometryManager::GeometryManager(RenderSystem* pRenderSystem, const char* currentDir)
 {
     m_pGeoFactory = nullptr;
     m_pDevice = nullptr;
@@ -8,7 +8,7 @@ GeometryManager::GeometryManager(AEngine* pEngine, const char* currentDir)
     m_pContentPath = new char[1024];
     strcpy_s(m_pContentPath, 1024, currentDir);
     strcat_s(m_pContentPath, 1024, "\\Content\\dude.dae");
-    m_pEngine = pEngine;
+    m_pRenderSystem = pRenderSystem;
 }
 
 GeometryManager::~GeometryManager()
@@ -29,16 +29,15 @@ void GeometryManager::Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pIm
         m_pGeoFactory->SetGraphicsDeviceAndContext(m_pDevice, m_pImmediateContext);   
 }
 
-
+//Submit message to RenderSystem 
 void GeometryManager::SubmitMessage()
 {
     Message doneImporting;
     doneImporting.MessageType = IMPORT_GEOMETRY_DONE;
-    m_pEngine->SubmitMessage(doneImporting);
-
+    m_pRenderSystem->SubmitMessage(doneImporting);
 }
 
-
+//Clean up resources.
 void GeometryManager::Shutdown()
 {
 
@@ -70,6 +69,7 @@ void GeometryManager::Shutdown()
 
 }
 
+//Set the subMesh for rendering
 void GeometryManager::SetSubmeshIndexed(unsigned int subMeshIndex, OUT unsigned int* indicesCount)
 {
     UINT stride = sizeof(PosNormalTexSkinned);
@@ -81,6 +81,7 @@ void GeometryManager::SetSubmeshIndexed(unsigned int subMeshIndex, OUT unsigned 
     *indicesCount = geometryObj.indicesCount;
 }
 
+//Get the importing task for processing. 
 Task* GeometryManager::ImportAssetTask()
 {
     return m_pGeoFactory->ImportAsset(m_pContentPath, m_MeshCollection, &m_Count);

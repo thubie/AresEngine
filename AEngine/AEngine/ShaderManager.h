@@ -9,14 +9,14 @@
 #include"Tasks.h"
 #include"VertexShaderObject.h"
 #include"PixelShaderObject.h"
-#include"AEngine.h"
+#include"RenderSystem.h"
 
-class AEngine;
+class RenderSystem;
 
 class ShaderManager
 {
 public:
-    ShaderManager(ID3D11Device* pD3DDevice,ID3D11DeviceContext* pImmediateContext, AEngine* p_Engine, const char* currentDir);
+    ShaderManager(ID3D11Device* pD3DDevice,ID3D11DeviceContext* pImmediateContext, RenderSystem* pRenderSystem, const char* currentDir);
     ~ShaderManager();
 
     void SetVertexShader(unsigned int vsId);
@@ -44,7 +44,7 @@ private:
     ID3D11InputLayout* m_pVertexLayout;
     std::vector<VertexShaderObject> m_VertexShaders;
     std::vector<PixelShaderObject> m_PixelShaders;
-    AEngine* m_pEngine;
+    RenderSystem* m_pRenderSystem;
     char* m_pShadersPath;
 
 //public:

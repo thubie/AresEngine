@@ -1,21 +1,14 @@
 #pragma once
 
 #include<vector>
-#include<queue>
 #include<assimp/Importer.hpp>
 #include<assimp/scene.h>
 #include<assimp/postprocess.h>
-#include<d3dx11.h>
-#include<xnamath.h>
 #include"Tasks.h"
 #include"AEngine.h"
+#include"SkeletonBuffer.h"
 
 class AEngine;
-
-struct SkeletonCBufferData
-{
-    XMFLOAT4X4 skeletonData[100];
-};
 
 class AnimationManager
 {

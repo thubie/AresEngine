@@ -6,15 +6,15 @@
 #include"GeometryObject.h"
 #include"GeometryFactory.h"
 #include"RingBufferQueue.h"
-#include"AEngine.h"
+#include"RenderSystem.h"
 
-class AEngine;
+class RenderSystem;
 class GeometryFactory;
 
 class GeometryManager
 {
 public:
-    GeometryManager(AEngine* pEngine, const char* currentDir);
+    GeometryManager(RenderSystem* pRenderSystem, const char* currentDir);
     ~GeometryManager();
     void Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pImmediatieContext);
     void Shutdown();
@@ -27,7 +27,7 @@ private:
     ID3D11Device* m_pDevice;
     ID3D11DeviceContext* m_pImmediateContext;
     std::vector<GeometryObject> m_MeshCollection;
-    AEngine* m_pEngine;
+    RenderSystem* m_pRenderSystem;
     char* m_pContentPath;
 public:
     unsigned int m_Count;

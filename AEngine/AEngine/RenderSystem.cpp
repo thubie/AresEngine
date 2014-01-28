@@ -55,11 +55,20 @@ void RenderSystem::RegisterGameObjects(std::vector<unsigned int>& gameId)
     }
 }
 
-void RenderSystem::Initialize(HWND handleWindow)
+void RenderSystem::Initialize(HWND handleWindow, const char* currentDir)
 {
     m_hWnd = handleWindow;
     InitDeviceAndSwapChain();
+    InitSubSystems(currentDir);
     InitResources();
+}
+
+void RenderSystem::InitSubSystems(const char* currentDir)
+{
+    m_pGeoManager = new GeometryManager(this, currentDir);
+    m_pGeoManager->Initialize(m_pD3DDevice, m_pImmediateContext);
+    m_pTextureManager = new TextureManager(m_pD3DDevice, m_pImmediateContext, this, currentDir);
+    m_pShaderManager = new ShaderManager(m_pD3DDevice, m_pImmediateContext, this, currentDir);
 }
 
 void RenderSystem::Shutdown()
@@ -251,15 +260,29 @@ void RenderSystem::InitResources()
     assert(!FAILED(hr));
 
     //Initialize the world matrix
-    m_WorldMatrix = (XMMATRIX*)_aligned_malloc(sizeof(XMMATRIX),16);
-    *m_WorldMatrix = XMMatrixIdentity();
+    //m_WorldMatrix = (XMMATRIX*)_aligned_malloc(sizeof(XMMATRIX),16);
+    //*m_WorldMatrix = XMMatrixIdentity();
     m_pTestConstantBuffer = (ConstantBuffer*) _aligned_malloc(sizeof(ConstantBuffer), 16);
     m_pImmediateContext->RSSetState(m_solid);
     
 }
 
+void RenderSystem::SubmitImportingTasks()
+{
+    m_pEngine->SubmitImportingTask(m_pGeoManager->ImportAssetTask());
+    m_pEngine->SubmitImportingTask(m_pTextureManager->ImportTextures());
+    m_pEngine->SubmitImportingTask(m_pShaderManager->CreatePixelShaderTask());
+    m_pEngine->SubmitImportingTask(m_pShaderManager->CreateVertexShaderTask());
+}
+
+//Submit messages to the engine
+void RenderSystem::SubmitMessage(Message msg)
+{
+    m_pEngine->SubmitMessage(msg);
+}
+
 //Renders the Scene
-void RenderSystem::RenderScene(GeometryManager* pGeoManager,TextureManager* pTextureManager, ShaderManager* pShaderManager, Camera* pCamera, AnimationManager* pAnimationManager)
+void RenderSystem::RenderScene(XMMATRIX* pView, XMMATRIX* pProjection, std::vector<SkeletonCBufferData>* finalTransforms)
 {
     //Clear the renderTarget
     float clearColor[4] = {0.0f,0.125f,0.3f, 1.0f}; 
@@ -270,12 +293,12 @@ void RenderSystem::RenderScene(GeometryManager* pGeoManager,TextureManager* pTex
     int count = m_TestWorldTransForms.size();
     unsigned int indicesCount = 0;
     XMMATRIX* finalTransformsCbuffer = m_pTestConstantBuffer->m_FinalTransform;
-    std::vector<SkeletonCBufferData>* pSkeletonBufferData = pAnimationManager->GetFinalTransforms();
+    std::vector<SkeletonCBufferData>* pSkeletonBufferData = finalTransforms;
     
-    m_pTestConstantBuffer->m_View = XMMatrixTranspose(*(pCamera->GetViewMatrix()));
-    m_pTestConstantBuffer->m_Projection = XMMatrixTranspose(*(pCamera->GetProjectionMatrix()));
-    pShaderManager->SetVertexShader(0);
-    pShaderManager->SetPixelShader(0);
+    m_pTestConstantBuffer->m_View = XMMatrixTranspose(*pView);
+    m_pTestConstantBuffer->m_Projection = XMMatrixTranspose(*pProjection);
+    m_pShaderManager->SetVertexShader(0); //hardcoded for the skinning shader
+    m_pShaderManager->SetPixelShader(0);
     m_pImmediateContext->VSSetConstantBuffers(0, 1, &m_pConstantBuffer);
     m_pImmediateContext->PSSetSamplers(0,1,&m_pSamplerAF);
 
@@ -289,15 +312,15 @@ void RenderSystem::RenderScene(GeometryManager* pGeoManager,TextureManager* pTex
         
         for(int i = 0; i < 4; ++i)
         {
-            pGeoManager->SetSubmeshIndexed(i, &indicesCount);
-            pTextureManager->SetTexture(i);           
+            m_pGeoManager->SetSubmeshIndexed(i, &indicesCount);
+            m_pTextureManager->SetTexture(i);           
             m_pImmediateContext->DrawIndexed(indicesCount, 0, 0);
         }
     }
     m_pSwapChain->Present(0,0);
     Message doneRendering;
     doneRendering.MessageType = RENDERING_DONE;
-    m_pEngine->SubmitMessage(doneRendering);
+    SubmitMessage(doneRendering);
 }
 
 

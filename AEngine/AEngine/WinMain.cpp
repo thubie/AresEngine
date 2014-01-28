@@ -1,10 +1,4 @@
 #include"AEngine.h"
-#include<stdio.h>
-#include<iostream>
-
-
-void MyCreateThreads(HANDLE* threadArray, DWORD* threadIdArray, unsigned short numProcs,FILE* file);
-DWORD WINAPI LogThreads(LPVOID lpParameter);
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pSCmdLine,int iCmdShow)
 {

@@ -1,25 +1,21 @@
 #pragma once
 
 #include<Windows.h>
+#include<assert.h>
 #include"TaskSystem.h"
 #include"Camera.h"
 #include"RenderSystem.h"
 #include"InputSystem.h"
 #include"HRTimer.h"
-#include"GeometryManager.h"
-#include"ShaderManager.h"
-#include"TextureManager.h"
 #include"AnimationManager.h"
-#include"RingBufferQueue.h"
+#include"SkeletonBuffer.h"
 #include"MessageQueue.h"
 #include"Message.h"
 
+class AnimationManager;
 class InputSystem;
 class RenderSystem;
-class GeometryManager;
-class TextureManager;
-class AnimationManager;
-class ShaderManager;
+
 
 class AEngine
 {
@@ -31,11 +27,12 @@ public:
     void Run();
     bool Shutdown();
     void SubmitMessage(Message);
+    void SubmitImportingTask(Task* importingTask);
 
 private:
     bool Draw();
     void InitializeWin();
-    void SubmitTask(unsigned int createdTasks);
+    void SubmitAnimationTasks(unsigned int createdTasks);    
     void ProcessMessageQueue();
     void SetWindowTitle(float time);
 
@@ -48,16 +45,11 @@ private:
     HRTimer* m_pGameTimer;
     HRTimer* m_pStopWatch;
     Camera* m_pCamera;
-    GeometryManager* m_pGeometryManager;
-    ShaderManager* m_pShaderManager;
-    TextureManager* m_pTextureManager;
     AnimationManager* m_pAnimationManager;
-
-    RingBufferQueue<Message>* m_messageQueue;
     MessageQueue* m_pMessageQueue;
     unsigned int m_ImportingBitfield;
     unsigned int m_CreatedTasks;
-    unsigned int m_windowWidth; //To do read window resolution from a config/ini file
+    unsigned int m_windowWidth;
     unsigned int m_windowHeight;
     bool m_stopped;
     

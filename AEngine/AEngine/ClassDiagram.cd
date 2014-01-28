@@ -1,0 +1,179 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="AEngine" Collapsed="true">
+    <Position X="6.25" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAAgoCAAAgMkAyAAgAAAAQKAAAAAAIAAAEAAABAhABY=</HashCode>
+      <FileName>AEngine.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="AnimationManager" Collapsed="true">
+    <Position X="11.75" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>EggIQAABBIgAADi0ASQAgNwECgIAAQgABAAAIJQAiAA=</HashCode>
+      <FileName>AnimationManager.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Camera" Collapsed="true">
+    <Position X="4.25" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAiAUIAgAAAAABAQEgAAAACACAIAggUAAAQAACgAgI=</HashCode>
+      <FileName>Camera.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GeometryManager" Collapsed="true">
+    <Position X="4" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAAgIAAQAAAEAAAYAAAAIgAIICAAAAAAQAEAA=</HashCode>
+      <FileName>GeometryManager.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="InputSystem" Collapsed="true">
+    <Position X="2.25" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQIMACEgQAIEAEAAQAAAAAAACAAAAAAAQAEIAAAAAAA=</HashCode>
+      <FileName>InputSystem.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MessageQueue" Collapsed="true">
+    <Position X="6.25" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AARAAEAAAAEAAAAAABEAAAQAEAAAFAAAAAAAAAQAAQA=</HashCode>
+      <FileName>MessageQueue.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Lock" Collapsed="true">
+    <Position X="8" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAQAAAAAAAAAAAAAAAQAAAAAAAAAAAAEAAEAAAAAEA=</HashCode>
+      <FileName>Lock.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GeometryFactory" Collapsed="true">
+    <Position X="4" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAQVAAAABAABQAAAABEAAEAAAgCAAUAAAAAEAA=</HashCode>
+      <FileName>GeometryFactory.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="HRTimer" Collapsed="true">
+    <Position X="0.5" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAACBAiAAAQAAAAAAAQAFAEAAAAAJICQAAABAAAA=</HashCode>
+      <FileName>HRTimer.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="RenderSystem" Collapsed="true">
+    <Position X="2.25" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>IAQAACg0BigCJQAGAQAAoQAEAAAACAgCAAACCRAgAAA=</HashCode>
+      <FileName>RenderSystem.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ShaderManager" Collapsed="true">
+    <Position X="2.25" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAEAYCEQAAECABQEAAAAEAAAAAAQkIACEAAAAQAAABg=</HashCode>
+      <FileName>ShaderManager.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TaskSystem" Collapsed="true">
+    <Position X="9.75" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAABAAAAAGQEQgAESAAAQAAAAAABAAAACAgQBAAAAE=</HashCode>
+      <FileName>TaskSystem.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="TextureManager" Collapsed="true">
+    <Position X="0.5" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgBAQAgQAAAAAAACBQAAAAAARCAAAJACAAAAAAAAAQA=</HashCode>
+      <FileName>TextureManager.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="WorkerThread" Collapsed="true">
+    <Position X="9.75" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AgAABAAAAAAAASAAAA0AAACAIAAAAAAAAAABAAAAAEA=</HashCode>
+      <FileName>WorkerThread.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LinkListQueue&lt;Type&gt;" Collapsed="true">
+    <Position X="9.75" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAVAAAAAgAAAAAAAAAAAAAgAQAAAFAAAAgAAIAAAAQA=</HashCode>
+      <FileName>LinkListQueue.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Struct Name="GeometryObject" Collapsed="true">
+    <Position X="4" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAQAAAAAAAAAAAAAAAAAAAAABAAAAAAAAEAAAAAAhA=</HashCode>
+      <FileName>GeometryObject.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="Message" Collapsed="true">
+    <Position X="6.25" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Message.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="TaskData" Collapsed="true">
+    <Position X="9.75" Y="6.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAADgAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Tasks.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="Task" Collapsed="true">
+    <Position X="9.75" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AABIAAAAAAAAAAAAAAAAIAAAAAAAAAgIAAAAAAAAAAA=</HashCode>
+      <FileName>Tasks.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="TextureObject" Collapsed="true">
+    <Position X="0.5" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAgA=</HashCode>
+      <FileName>TextureObject.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="PosNormalTexSkinned" Collapsed="true">
+    <Position X="4" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAAAAAAAAAAAAAAAAIAAAAAAQAAAAAAAAAAAAgE=</HashCode>
+      <FileName>VertexTypes.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="SkeletonCBufferData" Collapsed="true">
+    <Position X="11.75" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>SkeletonBuffer.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="PixelShaderObject" Collapsed="true">
+    <Position X="2.25" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAgA=</HashCode>
+      <FileName>PixelShaderObject.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Struct Name="VertexShaderObject" Collapsed="true">
+    <Position X="2.25" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAABAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAgA=</HashCode>
+      <FileName>VertexShaderObject.h</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Enum Name="MessageType" Collapsed="true">
+    <Position X="6.25" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAAAACABAAAQAAAABAAAAAAAAAAAAAACAIAAAAg=</HashCode>
+      <FileName>Message.h</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

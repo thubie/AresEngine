@@ -5,14 +5,15 @@
 #include<d3d11.h>
 #include<d3dx11.h>
 #include<d3dcompiler.h>
+#include"AEngine.h"
 #include"GeometryManager.h"
 #include"TextureManager.h"
 #include"ShaderManager.h"
-#include"AnimationManager.h"
+#include"Message.h"
+#include"SkeletonBuffer.h"
 
 class AEngine;
 class TextureManager;
-class AnimationManager;
 class GeometryManager;
 class ShaderManager;
 
@@ -30,13 +31,16 @@ public:
     RenderSystem(AEngine* pEngine);
     RenderSystem(const RenderSystem& other);
     ~RenderSystem();
-    void Initialize(HWND handleWindow);
+    void Initialize(HWND handleWindow, const char* currentDir);
     void Shutdown();
-    void RenderScene(GeometryManager* pGeoManager,TextureManager* pTextureManager, ShaderManager* pShaderManager, Camera* pCamera, AnimationManager* pAnimationManager);
+    void RenderScene(XMMATRIX* pView, XMMATRIX* pProjection, std::vector<SkeletonCBufferData>* finalTransforms);
     void RegisterGameObjects(std::vector<unsigned int>& gameId);
-   
+    void SubmitMessage(Message msg);
+    void SubmitImportingTasks();
+
 private:
     void InitDeviceAndSwapChain();
+    void InitSubSystems(const char* currentDir);
     void InitResources(); //TestCode
     HRESULT CompileShaderFromFile(WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel,ID3DBlob** ppBlobOut);
     void GenerateShaderAndLayout();
@@ -49,18 +53,19 @@ private:
     ID3D11RasterizerState* m_solid;
     AEngine* m_pEngine;
     //TestCode
-    ID3D11Buffer*               m_pConstantBuffer;
-    ConstantBuffer*             m_pTestConstantBuffer;
-    ID3D11SamplerState*         m_pSamplerAF;   
-    XMMATRIX*                   m_WorldMatrix;
-public:   
+    ID3D11Buffer* m_pConstantBuffer;
+    ConstantBuffer* m_pTestConstantBuffer;
+    ID3D11SamplerState* m_pSamplerAF;   
+
+    GeometryManager* m_pGeoManager;
+    TextureManager* m_pTextureManager;
+    ShaderManager* m_pShaderManager;
+
     ID3D11Device* m_pD3DDevice;
     ID3D11DeviceContext* m_pImmediateContext;
     IDXGISwapChain* m_pSwapChain;
     ID3D11RenderTargetView* m_pRenderTargetView;
     ID3D11Texture2D* m_pDepthStencil;
     ID3D11DepthStencilView* m_pDepthStencilView;
-    std::vector<XMFLOAT4X4> m_TestWorldTransForms;
-
-    
+    std::vector<XMFLOAT4X4> m_TestWorldTransForms;   
 };

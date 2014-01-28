@@ -1,6 +1,6 @@
 #include"TextureManager.h"
 
-TextureManager::TextureManager(ID3D11Device* pD3DDevice, ID3D11DeviceContext* pImmediateContext,AEngine* pEngine, const char* currentDir)
+TextureManager::TextureManager(ID3D11Device* pD3DDevice, ID3D11DeviceContext* pImmediateContext, RenderSystem* pRenderSystem, const char* currentDir)
 {
     m_pD3DDevice = pD3DDevice;
     m_pD3DDevice->AddRef();
@@ -10,7 +10,7 @@ TextureManager::TextureManager(ID3D11Device* pD3DDevice, ID3D11DeviceContext* pI
     m_ContentPath = new char[1024];
     strcpy_s(m_ContentPath, 1024, currentDir);
     strcat_s(m_ContentPath, 1024, "\\Content");
-    m_pEngine = pEngine;
+    m_pRenderSystem = pRenderSystem;
 }
 
 TextureManager::~TextureManager()
@@ -131,7 +131,7 @@ void TextureManager::DoneImportingTask(void* task)
 {
     Message message;
     message.MessageType =  IMPORT_TEXTURE_DONE;
-    m_pEngine->SubmitMessage(message);
+    m_pRenderSystem->SubmitMessage(message);
     delete task;
 }
 

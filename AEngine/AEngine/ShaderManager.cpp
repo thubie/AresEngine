@@ -1,21 +1,17 @@
 #include"ShaderManager.h"
 
-ShaderManager:: ShaderManager(ID3D11Device* pD3DDevice,ID3D11DeviceContext* pImmediateContext, AEngine* pEngine, const char* currentDir)
+ShaderManager:: ShaderManager(ID3D11Device* pD3DDevice,ID3D11DeviceContext* pImmediateContext, RenderSystem* pRenderSystem, const char* currentDir)
  {
-     m_pD3DDevice = pD3DDevice;
-     m_pD3DDevice->AddRef();
+    m_pD3DDevice = pD3DDevice;
+    m_pD3DDevice->AddRef();
 
-     m_pImmediateContext = pImmediateContext;
-     m_pImmediateContext->AddRef();
+    m_pImmediateContext = pImmediateContext;
+    m_pImmediateContext->AddRef();
 
-    ///* m_pVertexShaders = new std::vector<VertexShaderObject>;
-    // m_pPixelShaders = new std::vector<PixelShaderObject>;*/
-    // finishedVertexShader = false;
-    // finishedPixelShader = false;
     m_pShadersPath = new char[1024];
     strcpy_s(m_pShadersPath, 1024, currentDir);
     strcat_s(m_pShadersPath, 1024, "\\Shaders\\StaticMesh.fx");
-    m_pEngine = pEngine;
+    m_pRenderSystem = pRenderSystem;
  }
  
  ShaderManager::~ShaderManager()
@@ -178,7 +174,7 @@ void ShaderManager::DoneCreatingVertexShader(void* thispointer, void* task)
     ShaderManager* self = static_cast<ShaderManager*>(thispointer);
     Message doneImporting;
     doneImporting.MessageType = IMPORT_VERTEXSHADER_DONE;
-    self->m_pEngine->SubmitMessage(doneImporting);
+    self->m_pRenderSystem->SubmitMessage(doneImporting);
 }
 
 void ShaderManager::DoneCreatingPixelShader(void* thispointer, void* task)
@@ -186,7 +182,7 @@ void ShaderManager::DoneCreatingPixelShader(void* thispointer, void* task)
     ShaderManager* self = static_cast<ShaderManager*>(thispointer);
     Message doneImporting;
     doneImporting.MessageType = IMPORT_PIXELSHADER_DONE;
-    self->m_pEngine->SubmitMessage(doneImporting);
+    self->m_pRenderSystem->SubmitMessage(doneImporting);
 }
 
 void ShaderManager::CompileShaderFromFile(WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel,ID3DBlob** ppBlobOut)
