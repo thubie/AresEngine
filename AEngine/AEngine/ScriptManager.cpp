@@ -62,27 +62,27 @@ void ScriptManager::SetRuntimeSetting()
 
 void ScriptManager::Runscript()
 {
-    int iErr = 0;
+    /*int iErr = 0;
     char errorstring[1024];
     if(luaL_dofile(m_pLua, "RuntimeConfigs.lua"))
     {
         strcpy_s(errorstring, 1024, lua_tostring(m_pLua, -1));
         luaL_error(m_pLua, "Cannot run RuntimeConfigsfile. file: %s", lua_tostring(m_pLua, -1));
     }
-    int sizeStack = lua_gettop(m_pLua);
+    int sizeStack = lua_gettop(m_pLua);*/
 }
 
 //Register the Task system
 void ScriptManager::RegisterTaskSystem()
 {
-    int stacksize = 0;
-    stacksize = lua_gettop(m_pLua);
-    luaL_newmetatable(m_pLua, "TaskSystem"); //pushes an metatable on the stack 
-    lua_pushstring(m_pLua, "__index");
-    lua_pushvalue(m_pLua, -2);
-    lua_settable(m_pLua, -3);
-    luaL_openlib(m_pLua, 0, TaskSystem_methods, 0);
-    luaL_openlib(m_pLua, "TaskSystem", TaskSystem_funcs, 0);
+    //int stacksize = 0;
+    //stacksize = lua_gettop(m_pLua);
+    //luaL_newmetatable(m_pLua, "TaskSystem"); //pushes an metatable on the stack 
+    //lua_pushstring(m_pLua, "__index");
+    //lua_pushvalue(m_pLua, -2);
+    //lua_settable(m_pLua, -3);
+    //luaL_openlib(m_pLua, 0, TaskSystem_methods, 0);
+    //luaL_openlib(m_pLua, "TaskSystem", TaskSystem_funcs, 0);
 }
 
 

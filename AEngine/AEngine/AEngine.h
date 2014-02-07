@@ -19,8 +19,6 @@ class RenderSystem;
 class ScriptManager;
 class TaskSystem;
 
-extern AEngine* g_AppHandle;
-
 class AEngine
 {
 public:
