@@ -8,6 +8,7 @@
 #include"InputSystem.h"
 #include"HRTimer.h"
 #include"AnimationManager.h"
+#include"ScriptManager.h"
 #include"SkeletonBuffer.h"
 #include"MessageQueue.h"
 #include"Message.h"
@@ -15,7 +16,8 @@
 class AnimationManager;
 class InputSystem;
 class RenderSystem;
-
+class ScriptManager;
+class TaskSystem;
 
 class AEngine
 {
@@ -40,12 +42,13 @@ private:
     LPCWSTR m_appName;
     HINSTANCE m_hInstance;
     HWND m_hwnd;
-    TaskSystem* m_pTaskSystem;
+    
     RenderSystem* m_pRenderSystem;
     HRTimer* m_pGameTimer;
     HRTimer* m_pStopWatch;
     Camera* m_pCamera;
     AnimationManager* m_pAnimationManager;
+    ScriptManager* m_pScriptManager;
     MessageQueue* m_pMessageQueue;
     unsigned int m_ImportingBitfield;
     unsigned int m_CreatedTasks;
@@ -55,6 +58,7 @@ private:
     
 public:
     InputSystem* m_pInputSystem;
+    TaskSystem* m_pTaskSystem;
 };
 
 static LRESULT CALLBACK WndProc(HWND,UINT,WPARAM,LPARAM);

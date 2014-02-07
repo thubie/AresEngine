@@ -32,7 +32,7 @@ public:
         delete m_ptail;
     }
 
-    void emptyQueue()
+    void EmptyQueue()
     {
         Node<Type>* current = m_phead;
         Node<Type>* next;

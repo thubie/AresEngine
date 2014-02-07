@@ -68,8 +68,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(DXSDK_DIR)Include;C:\Program Files\Assimp\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(DXSDK_DIR)Lib\x86;C:\Program Files\Assimp\lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(DXSDK_DIR)Include;C:\Program Files\Assimp\include;C:\Program Files %28x86%29\Lua\5.1\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(DXSDK_DIR)Lib\x86;C:\Program Files\Assimp\lib\x86;C:\Program Files %28x86%29\Lua\5.1\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -78,8 +78,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\Program Files\Assimp\include;$(DXSDK_DIR)Include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Program Files\Assimp\lib\x86;D:\Projects\assimp--3.0.1270-full\assimp--3.0.1270-sdk\lib\assimp_release-dll_win32;$(DXSDK_DIR)Lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Program Files\Assimp\include;$(DXSDK_DIR)Include;C:\Program Files %28x86%29\Lua\5.1\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files\Assimp\lib\x86;D:\Projects\assimp--3.0.1270-full\assimp--3.0.1270-sdk\lib\assimp_release-dll_win32;$(DXSDK_DIR)Lib\x86;C:\Program Files %28x86%29\Lua\5.1\lib;$(LibraryPath)</LibraryPath>
     <ExecutablePath>$(DXSDK_DIR)Utilities\bin\x86;$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -106,7 +106,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;d3dx11d.lib;d3dx9d.lib;dxerr.lib;dxguid.lib;winmm.lib;comctl32.lib;assimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;d3dx11d.lib;d3dx9d.lib;dxerr.lib;dxguid.lib;winmm.lib;comctl32.lib;assimp.lib;lua51.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Bscmake>
@@ -148,7 +148,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;d3dx11.lib;d3dx9.lib;dxerr.lib;dxguid.lib;winmm.lib;comctl32.lib;assimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;d3dx11.lib;d3dx9.lib;dxerr.lib;dxguid.lib;winmm.lib;comctl32.lib;assimp.lib;lua5.1.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
@@ -184,6 +184,7 @@
     <ClCompile Include="HRTimer.cpp" />
     <ClCompile Include="MessageQueue.cpp" />
     <ClCompile Include="RenderSystem.cpp" />
+    <ClCompile Include="ScriptManager.cpp" />
     <ClCompile Include="ShaderManager.cpp" />
     <ClCompile Include="TaskSystem.cpp" />
     <ClCompile Include="Logger.cpp" />
@@ -199,6 +200,7 @@
     <ClInclude Include="GeometryObject.h" />
     <ClInclude Include="InputSystem.h" />
     <ClInclude Include="LinkListQueue.h" />
+    <ClInclude Include="lua_inc.h" />
     <ClInclude Include="Message.h" />
     <ClInclude Include="MessageQueue.h" />
     <ClInclude Include="PixelShaderObject.h" />
@@ -207,6 +209,7 @@
     <ClInclude Include="GeometryFactory.h" />
     <ClInclude Include="HRTimer.h" />
     <ClInclude Include="RenderSystem.h" />
+    <ClInclude Include="ScriptManager.h" />
     <ClInclude Include="ShaderManager.h" />
     <ClInclude Include="SkeletonBuffer.h" />
     <ClInclude Include="VertexShaderObject.h" />
@@ -220,6 +223,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
+    <None Include="Config.lua" />
+    <None Include="RuntimeConfigs.lua" />
     <None Include="Test.fx">
       <FileType>Document</FileType>
     </None>

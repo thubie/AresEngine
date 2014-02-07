@@ -15,6 +15,9 @@
     <Filter Include="Header Files\Shaders">
       <UniqueIdentifier>{02ea4a98-122c-4b93-8cfe-813d44c2943f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Scripts">
+      <UniqueIdentifier>{4e924a19-6b8c-4ea1-99c1-87f365acd197}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WinMain.cpp">
@@ -63,6 +66,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MessageQueue.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ScriptManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -142,6 +148,12 @@
     <ClInclude Include="SkeletonBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ScriptManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lua_inc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Test.fx">
@@ -151,5 +163,11 @@
       <Filter>Header Files\Shaders</Filter>
     </None>
     <None Include="ClassDiagram.cd" />
+    <None Include="Config.lua">
+      <Filter>Header Files\Scripts</Filter>
+    </None>
+    <None Include="RuntimeConfigs.lua">
+      <Filter>Header Files\Scripts</Filter>
+    </None>
   </ItemGroup>
 </Project>

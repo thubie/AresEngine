@@ -1,4 +1,5 @@
 #include"TaskSystem.h"
+#include"AEngine.h"
 
 TaskSystem::TaskSystem()
 {
@@ -14,7 +15,6 @@ TaskSystem::~TaskSystem()
 void TaskSystem::Initialize(unsigned int MaxThreads)
 {
     m_pTaskQueue = new LinkListQueue<Task*>();
-    //m_pTaskQueue = new RingBufferQueue<Task>(1024);
 
     SYSTEM_INFO sysInfo;
     GetSystemInfo(&sysInfo);
@@ -60,6 +60,18 @@ void TaskSystem::Shutdown()
     {
         m_pWorkerThreads[i].EndWorkerThread();
     }
+
+    if(m_pTaskQueue != nullptr)
+    {
+        m_pTaskQueue->EmptyQueue();
+        delete m_pTaskQueue;
+    }
+
+    if(m_pWorkerThreads != nullptr)
+        delete[] m_pWorkerThreads;
+
+    if(m_pThreadHandles != nullptr)
+        delete[] m_pThreadHandles;
 }
 
 void TaskSystem::EnqueueTask(Task* pTask)
@@ -71,3 +83,18 @@ Task* TaskSystem::DequeueTask()
 {
     return m_pTaskQueue->Dequeue();
 }
+
+int TaskSystem::SetNumWorkers(lua_State* pLua)
+{
+    int error = 0;
+    int numWorkers = 0;
+    error = lua_gettop(pLua);
+    numWorkers = luaL_checkint(pLua,1);
+    TaskSystem *ud = static_cast<TaskSystem*>(luaL_checkudata(pLua, LUA_GLOBALSINDEX, "TaskSystem"));  
+    return 0;
+}
+
+
+
+
+

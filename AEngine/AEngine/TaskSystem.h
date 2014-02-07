@@ -5,6 +5,7 @@
 #include"RingBufferQueue.h"
 #include"Lock.h"
 #include"Tasks.h"
+#include"lua_inc.h"
 
 
 class WorkerThread;
@@ -21,9 +22,8 @@ public:
     void PausedDistributing();
     void ResumeDistributing();
     void EnqueueTask(Task* task);
-
     Task* DequeueTask();
-    
+    static int SetNumWorkers(lua_State* pLua);
 
     inline bool QueueIsEmpty()
     {
@@ -45,8 +45,6 @@ private:
     unsigned int m_createdThreads;
     unsigned int m_ProcessorsCount;
     LinkListQueue<Task*>* m_pTaskQueue;
-    //RingBufferQueue<Task>* m_pTaskQueue;
-    //LinkListQueue<Task>* m_pTaskQueue;
     HANDLE* m_pThreadHandles;
     bool m_Distributing;
 };

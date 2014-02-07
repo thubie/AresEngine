@@ -3,10 +3,11 @@
 
 AEngine::AEngine()
 {
-    m_pTaskSystem       = nullptr;
-    m_pRenderSystem     = nullptr;
-    m_pCamera           = nullptr;
+    m_pTaskSystem = nullptr;
+    m_pRenderSystem = nullptr;
+    m_pCamera = nullptr;
     m_pAnimationManager = nullptr;
+    m_pScriptManager = nullptr;
     m_stopped = false;
     m_windowWidth = 1280;
     m_windowHeight = 720;
@@ -20,14 +21,17 @@ AEngine::~AEngine()
 
 //Initalize the Engine and create subsystems
 bool AEngine::Initialize()
-{
-    InitializeWin();
-
+{ 
+    unsigned int numThreads = 0;
     char currentDir[1024];
+
     GetCurrentDirectoryA(1024, currentDir);
 
-    m_pMessageQueue = new MessageQueue(1024);
+    m_pScriptManager = new ScriptManager(currentDir);
+    m_pScriptManager->GetConfigSetting(&m_windowWidth, &m_windowHeight, &numThreads);
+    InitializeWin();
     
+    m_pMessageQueue = new MessageQueue(1024);
     m_pGameTimer = new HRTimer();
     m_pStopWatch = new HRTimer();
 
@@ -35,10 +39,10 @@ bool AEngine::Initialize()
     if(m_pTaskSystem == nullptr)     
         return false;
 
-    int numMaxThreads = 8;
-    m_pTaskSystem->Initialize(numMaxThreads);
+    m_pTaskSystem->Initialize(numThreads);
     m_pTaskSystem->StartDistributing();
-    
+
+    m_pScriptManager->RegisterTaskSystem(m_pTaskSystem);
     m_pInputSystem = new InputSystem(appHandle);
     if(m_pInputSystem == nullptr)
         return false;
@@ -132,6 +136,7 @@ void AEngine::Run()
         {
             if (!m_stopped) 
             {
+                m_pScriptManager->SetRuntimeSetting(); //Need to change this to listen to new script message
                 ProcessMessageQueue();
                 Sleep(1);              
             }
@@ -310,8 +315,8 @@ void AEngine::InitializeWin()
     //register the window class
     RegisterClass(&wc);
 
-    posX = (GetSystemMetrics(SM_CXSCREEN) - m_windowWidth) / 2;
-    posY = (GetSystemMetrics(SM_CYSCREEN) - m_windowHeight) / 2;
+    posX = 0;//(GetSystemMetrics(SM_CXSCREEN) - m_windowWidth) / 2;
+    posY = 0;//(GetSystemMetrics(SM_CYSCREEN) - m_windowHeight) / 2;
 
     //Create the window with the screen setting and get the handle to it
     m_hwnd = CreateWindow(m_appName, TEXT("Ares Engine"), WS_OVERLAPPEDWINDOW, 
