@@ -12,10 +12,12 @@
 #include"Message.h"
 #include"SkeletonBuffer.h"
 
+
 class AEngine;
 class TextureManager;
 class GeometryManager;
 class ShaderManager;
+
 
 class RenderSystem
 {

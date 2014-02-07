@@ -1,8 +1,11 @@
 #include"ScriptManager.h"
 #include"AEngine.h"
 
-ScriptManager::ScriptManager(const char* currentDir)
+extern AEngine* appHandle;
+
+ScriptManager::ScriptManager(AEngine* pEngine, const char* currentDir)
 {
+    m_pEngine = pEngine;
     m_pLua = lua_open();
     luaL_openlibs(m_pLua);//open lua
     m_pConfigScript = new char[1024];
@@ -70,7 +73,7 @@ void ScriptManager::Runscript()
 }
 
 //Register the Task system
-void ScriptManager::RegisterTaskSystem(TaskSystem* pTaskSystem)
+void ScriptManager::RegisterTaskSystem()
 {
     int stacksize = 0;
     stacksize = lua_gettop(m_pLua);
@@ -82,39 +85,19 @@ void ScriptManager::RegisterTaskSystem(TaskSystem* pTaskSystem)
     luaL_openlib(m_pLua, "TaskSystem", TaskSystem_funcs, 0);
 }
 
-//Exposure to lua
-static int SetNumWorkers(lua_State* lua)
-{
-    int error = 0;
-    int numWorkers = 0;
-    TaskSystem* taskSystem = static_cast<TaskSystem*>(lua_touserdata(lua, -2));
-    error = lua_gettop(lua);
-    numWorkers = luaL_checkint(lua,1);
-    return 0;
-}
 
 static int GetTaskSystem(lua_State* lua)
 {
     //will push userdata on stack assume as first element if we manage the stack right.
     TaskSystem *ud = static_cast<TaskSystem*>(lua_newuserdata(lua, sizeof(TaskSystem*)));
-    (ud) = appHandle->m_pTaskSystem;
+    TaskSystem* testptr = appHandle->m_pTaskSystem;
+    (ud) = appHandle->GetTaskSystem();
     luaL_getmetatable(lua,"TaskSystem");
     lua_setmetatable(lua, -2);
     return 1;
 }
 
 
-static const luaL_reg TaskSystem_funcs[] =
-{
-    {"GetTaskSystem", GetTaskSystem},
-    {NULL, NULL}
-};
-
-static const luaL_reg TaskSystem_methods[] = 
-{
-    {"SetNUmWorkers", SetNumWorkers},
-    {NULL, NULL}
-};
 
 
 

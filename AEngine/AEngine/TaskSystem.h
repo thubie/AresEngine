@@ -49,3 +49,13 @@ private:
     bool m_Distributing;
 };
 
+//Exposure to lua
+static int SetNumWorkers(lua_State* lua)
+{
+    int error = 0;
+    int numWorkers = 0;
+    TaskSystem* taskSystem = static_cast<TaskSystem*>(lua_touserdata(lua, -2));
+    error = lua_gettop(lua);
+    numWorkers = luaL_checkint(lua,1);
+    return 0;
+}

@@ -1,2 +1,2 @@
-testTask = GetTaskSystem()
-TaskSystem.SetNumWorkers(6) 
+testTask = TaskSystem:GetTaskSystem()
+testTask:SetNumWorkers(6) 

@@ -19,6 +19,8 @@ class RenderSystem;
 class ScriptManager;
 class TaskSystem;
 
+extern AEngine* g_AppHandle;
+
 class AEngine
 {
 public:
@@ -30,7 +32,7 @@ public:
     bool Shutdown();
     void SubmitMessage(Message);
     void SubmitImportingTask(Task* importingTask);
-
+    TaskSystem* GetTaskSystem();
 private:
     bool Draw();
     void InitializeWin();
@@ -61,7 +63,9 @@ public:
     TaskSystem* m_pTaskSystem;
 };
 
+static AEngine* appHandle = nullptr;
+
 static LRESULT CALLBACK WndProc(HWND,UINT,WPARAM,LPARAM);
 
-static AEngine* appHandle = nullptr;
+
 

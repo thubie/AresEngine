@@ -30,6 +30,5 @@ private:
     RenderSystem* m_pRenderSystem;
     char* m_pContentPath;
 public:
-    unsigned int m_Count;
-        
+    unsigned int m_Count;      
 };

@@ -1,8 +1,9 @@
-
 #include"AEngine.h"
 
+extern AEngine* appHandle;
+
 AEngine::AEngine()
-{
+{  
     m_pTaskSystem = nullptr;
     m_pRenderSystem = nullptr;
     m_pCamera = nullptr;
@@ -24,10 +25,10 @@ bool AEngine::Initialize()
 { 
     unsigned int numThreads = 0;
     char currentDir[1024];
-
+    appHandle = this;
     GetCurrentDirectoryA(1024, currentDir);
 
-    m_pScriptManager = new ScriptManager(currentDir);
+    m_pScriptManager = new ScriptManager(this ,currentDir);
     m_pScriptManager->GetConfigSetting(&m_windowWidth, &m_windowHeight, &numThreads);
     InitializeWin();
     
@@ -42,7 +43,7 @@ bool AEngine::Initialize()
     m_pTaskSystem->Initialize(numThreads);
     m_pTaskSystem->StartDistributing();
 
-    m_pScriptManager->RegisterTaskSystem(m_pTaskSystem);
+    m_pScriptManager->RegisterTaskSystem();
     m_pInputSystem = new InputSystem(appHandle);
     if(m_pInputSystem == nullptr)
         return false;
@@ -78,8 +79,6 @@ bool AEngine::Initialize()
     //Start importing assets
     m_pRenderSystem->SubmitImportingTasks();
     m_pTaskSystem->EnqueueTask(m_pAnimationManager->ImportTask());
-
-   
 
     return true;
 }
@@ -282,6 +281,11 @@ void AEngine::SubmitAnimationTasks(unsigned int createdTasks)
         m_pTaskSystem->EnqueueTask(newTask);
     }
     
+}
+
+TaskSystem* AEngine::GetTaskSystem()
+{
+    return this->m_pTaskSystem;
 }
 
 //Innitialize the Window

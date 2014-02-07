@@ -8,6 +8,7 @@
 #include"AEngine.h"
 #include"SkeletonBuffer.h"
 
+extern AEngine*appHandle;
 class AEngine;
 
 class AnimationManager
