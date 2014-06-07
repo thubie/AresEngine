@@ -3,7 +3,7 @@
 #include"WorkerThread.h"
 #include"LinkListQueue.h"
 #include"RingBufferQueue.h"
-#include"Lock.h"
+//#include"Lock.h"
 #include"Tasks.h"
 #include"lua_inc.h"
 
