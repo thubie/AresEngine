@@ -1,4 +1,4 @@
 --Engine config settings
-resx = 1600
-resy  = 900
-numthread = 4
+resx = 1280
+resy  = 720
+numthread = 8

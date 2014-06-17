@@ -13,9 +13,15 @@ class WorkerThread;
 class TaskSystem
 {
 public:
-    TaskSystem();
-    ~TaskSystem();
-    
+    static TaskSystem& GetTaskSystem()
+    {
+        //The only instance
+        //Guaranteed to be lazy initialized
+        //Guaranteed that it will be destroyed correctly
+        static TaskSystem instance;
+        return instance;
+    }
+
     void Initialize(unsigned int MaxThreads);    
     void Shutdown();
     void StartDistributing();
@@ -29,16 +35,20 @@ public:
     {
         return m_pTaskQueue->QueueIsEmpty();
     }
-
     inline unsigned int GetTaskCount()
     {
         return m_pTaskQueue->GetCount();
     }
-
     inline bool DistributingTasks()
     {
         return m_Distributing;
     }
+
+private:
+    TaskSystem(){};
+    TaskSystem(TaskSystem const& copy); //Dont implement
+    TaskSystem& operator=(TaskSystem const& copy); //Dont Implment;
+    ~TaskSystem();
 
 private:
     WorkerThread* m_pWorkerThreads;

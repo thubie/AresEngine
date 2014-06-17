@@ -179,11 +179,13 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="GeometryFactory.cpp" />
     <ClCompile Include="GeometryManager.cpp" />
+    <ClCompile Include="InitializeState.cpp" />
     <ClCompile Include="InputSystem.cpp" />
     <ClCompile Include="Lock.cpp" />
     <ClCompile Include="HRTimer.cpp" />
     <ClCompile Include="MessageQueue.cpp" />
     <ClCompile Include="RenderSystem.cpp" />
+    <ClCompile Include="Runstate.cpp" />
     <ClCompile Include="ScriptManager.cpp" />
     <ClCompile Include="ShaderManager.cpp" />
     <ClCompile Include="TaskSystem.cpp" />
@@ -198,7 +200,9 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="GeometryManager.h" />
     <ClInclude Include="GeometryObject.h" />
+    <ClInclude Include="InitializeState.h" />
     <ClInclude Include="InputSystem.h" />
+    <ClInclude Include="IState.h" />
     <ClInclude Include="LinkListQueue.h" />
     <ClInclude Include="lua_inc.h" />
     <ClInclude Include="Message.h" />
@@ -209,6 +213,7 @@
     <ClInclude Include="GeometryFactory.h" />
     <ClInclude Include="HRTimer.h" />
     <ClInclude Include="RenderSystem.h" />
+    <ClInclude Include="Runstate.h" />
     <ClInclude Include="ScriptManager.h" />
     <ClInclude Include="ShaderManager.h" />
     <ClInclude Include="SkeletonBuffer.h" />

@@ -10,6 +10,9 @@
 #include"AnimationManager.h"
 #include"ScriptManager.h"
 #include"SkeletonBuffer.h"
+#include"IState.h"
+#include"InitializeState.h"
+#include"Runstate.h"
 #include"MessageQueue.h"
 #include"Message.h"
 
@@ -18,6 +21,8 @@ class InputSystem;
 class RenderSystem;
 class ScriptManager;
 class TaskSystem;
+class InitializeState;
+class Runstate;
 
 class AEngine
 {
@@ -27,6 +32,11 @@ public:
 
     bool Initialize();
     void Run();
+    void ChangeToRunstate();
+    void RenderWorld();
+    void AnimateWorld();
+
+
     bool Shutdown();
     void SubmitMessage(Message);
     void SubmitImportingTask(Task* importingTask);
@@ -50,12 +60,16 @@ private:
     AnimationManager* m_pAnimationManager;
     ScriptManager* m_pScriptManager;
     MessageQueue* m_pMessageQueue;
-    unsigned int m_ImportingBitfield;
+
+    //unsigned int m_ImportingBitfield;
     unsigned int m_CreatedTasks;
     unsigned int m_windowWidth;
     unsigned int m_windowHeight;
     bool m_stopped;
-    
+    InitializeState* m_InitializeState;
+    Runstate* m_Runstate;
+    IState* m_state;
+
 public:
     InputSystem* m_pInputSystem;
     TaskSystem* m_pTaskSystem;

@@ -1,19 +1,15 @@
 #include"TaskSystem.h"
 #include"AEngine.h"
 
-TaskSystem::TaskSystem()
-{
-    m_pTaskQueue        = nullptr;
-    m_pWorkerThreads    = nullptr;    
-    m_createdThreads    = 0;
-    m_Distributing      = false;
-}
-
 TaskSystem::~TaskSystem()
 {}
 
 void TaskSystem::Initialize(unsigned int MaxThreads)
 {
+    m_pTaskQueue        = nullptr;
+    m_pWorkerThreads    = nullptr;    
+    m_createdThreads    = 0;
+    m_Distributing      = false;
     m_pTaskQueue = new LinkListQueue<Task*>();
 
     SYSTEM_INFO sysInfo;

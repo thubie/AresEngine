@@ -71,6 +71,12 @@
     <ClCompile Include="ScriptManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="InitializeState.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Runstate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AEngine.h">
@@ -152,6 +158,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="lua_inc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IState.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="InitializeState.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Runstate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

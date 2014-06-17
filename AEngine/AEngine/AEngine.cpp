@@ -12,7 +12,6 @@ AEngine::AEngine()
     m_stopped = false;
     m_windowWidth = 1280;
     m_windowHeight = 720;
-    m_ImportingBitfield = 0;
 }
 
 AEngine::~AEngine()
@@ -36,7 +35,7 @@ bool AEngine::Initialize()
     m_pGameTimer = new HRTimer();
     m_pStopWatch = new HRTimer();
 
-    m_pTaskSystem = new TaskSystem();
+    m_pTaskSystem = &m_pTaskSystem->GetTaskSystem(); //new TaskSystem();
     if(m_pTaskSystem == nullptr)     
         return false;
 
@@ -76,6 +75,11 @@ bool AEngine::Initialize()
     m_pAnimationManager->RegisterGameObjects(TestGameObjects);
     m_CreatedTasks = m_pAnimationManager->CreateAnimationTasks(); 
 
+    this->m_InitializeState = new InitializeState(this);
+    this->m_Runstate = new Runstate(this);
+    
+    this->m_state = m_InitializeState; 
+
     //Start importing assets
     m_pRenderSystem->SubmitImportingTasks();
     m_pTaskSystem->EnqueueTask(m_pAnimationManager->ImportTask());
@@ -91,7 +95,7 @@ bool AEngine::Shutdown()
     if(m_pTaskSystem != nullptr)
     {
         m_pTaskSystem->Shutdown();
-        delete m_pTaskSystem;
+        //delete m_pTaskSystem;
     }
     m_pTaskSystem = nullptr;
 
@@ -145,117 +149,40 @@ void AEngine::Run()
     Shutdown();   
 }
 
+void AEngine::ChangeToRunstate()
+{
+    m_state = m_Runstate;
+    m_pGameTimer->Start();
+    m_pAnimationManager->UpdateAnimationTime(0.0f);
+    SubmitAnimationTasks(m_CreatedTasks);
+}
+
+void AEngine::RenderWorld()
+{
+    m_pStopWatch->Stop();
+    float frameTime = m_pStopWatch->GetElapsedAsSeconds();
+    frameTime *= 1000.0f;
+    SetWindowTitle(frameTime);
+    XMMATRIX* pView = m_pCamera->GetViewMatrix();
+    XMMATRIX* pProjection = m_pCamera->GetProjectionMatrix();
+    std::vector<SkeletonCBufferData>* pFinalTransforms = m_pAnimationManager->GetFinalTransforms();
+    m_pRenderSystem->RenderScene(pView, pProjection, pFinalTransforms);
+}
+
+void AEngine::AnimateWorld()
+{
+    float deltaTime = (float)m_pGameTimer->GetDeltaTime();
+    XMVECTOR userInput = m_pInputSystem->GetUserInput(deltaTime);
+    m_pCamera->UpdateViewMatrix(userInput);
+    m_pAnimationManager->UpdateAnimationTime(deltaTime);
+    SubmitAnimationTasks(m_CreatedTasks);
+    m_pStopWatch->Start();
+}
+
 //Process the MessageQueue
 void AEngine::ProcessMessageQueue()
-{
-    Message currentMessage;
-    unsigned int numMessages = m_pMessageQueue->GetCount();
-    float frameTime = 0.0f;
-    float deltaTime = 0.0f;
-    
-    for(unsigned int i = 0; i < numMessages; ++i)
-    {
-        currentMessage = m_pMessageQueue->Dequeue();
-        switch(currentMessage.MessageType)
-        {
-            case ANIMATIONS_DONE:
-            {   
-                m_pStopWatch->Stop();
-                frameTime = m_pStopWatch->GetElapsedAsSeconds();
-                frameTime *= 1000.0f;
-                SetWindowTitle(frameTime);
-                XMMATRIX* pView = m_pCamera->GetViewMatrix();
-                XMMATRIX* pProjection = m_pCamera->GetProjectionMatrix();
-                std::vector<SkeletonCBufferData>* pFinalTransforms = m_pAnimationManager->GetFinalTransforms();
-                m_pRenderSystem->RenderScene(pView, pProjection, pFinalTransforms);
-                break;
-            }
-
-            case RENDERING_DONE:
-            {
-                deltaTime = (float)m_pGameTimer->GetDeltaTime();
-                XMVECTOR userInput = m_pInputSystem->GetUserInput(deltaTime);
-                m_pCamera->UpdateViewMatrix(userInput);
-                m_pAnimationManager->UpdateAnimationTime(deltaTime);
-                SubmitAnimationTasks(m_CreatedTasks);
-                m_pStopWatch->Start();
-                break;
-            }
-
-            case  IMPORT_TEXTURE_DONE:
-            {
-                m_ImportingBitfield += IMPORT_TEXTURE_DONE;
-                if(m_ImportingBitfield == IMPORTING_DONE)
-                {
-                    Message doneImporting;
-                    doneImporting.MessageType = IMPORTING_DONE;
-                    SubmitMessage(doneImporting);
-                }
-                break;
-            }
-
-            case IMPORT_GEOMETRY_DONE:
-            {
-                m_ImportingBitfield += IMPORT_GEOMETRY_DONE;
-                if(m_ImportingBitfield == IMPORTING_DONE)
-                {
-                    Message doneImporting;
-                    doneImporting.MessageType = IMPORTING_DONE;
-                    SubmitMessage(doneImporting);
-                }
-                break;
-            }
-
-            case IMPORT_VERTEXSHADER_DONE:
-            {
-                m_ImportingBitfield += IMPORT_VERTEXSHADER_DONE;
-                if(m_ImportingBitfield == IMPORTING_DONE)
-                {
-                    Message doneImporting;
-                    doneImporting.MessageType = IMPORTING_DONE;
-                    SubmitMessage(doneImporting);
-                }
-                break;
-            }
-
-            case IMPORT_PIXELSHADER_DONE:
-            {
-                m_ImportingBitfield += IMPORT_PIXELSHADER_DONE;
-                if(m_ImportingBitfield == IMPORTING_DONE)
-                {
-                    Message doneImporting;
-                    doneImporting.MessageType = IMPORTING_DONE;
-                    SubmitMessage(doneImporting);
-                }
-                break;
-            }
-
-            case IMPORT_ANIMATION_DONE:
-            {
-                m_ImportingBitfield += IMPORT_ANIMATION_DONE;
-                if(m_ImportingBitfield == IMPORTING_DONE)
-                {
-                    Message doneImporting;
-                    doneImporting.MessageType = IMPORTING_DONE;
-                    SubmitMessage(doneImporting);
-                }
-                break;
-            }
-
-            case IMPORTING_DONE:
-            {
-                m_pGameTimer->Start();
-                m_pAnimationManager->UpdateAnimationTime(0.0f);
-                SubmitAnimationTasks(m_CreatedTasks);
-                break;
-            }
-
-            default:
-            {
-                break;
-            }
-        }
-    }
+{       
+    m_state->ProcessMessage(m_pMessageQueue);    
 }
 
 //Set the window title
