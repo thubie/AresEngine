@@ -13,23 +13,17 @@ class WorkerThread;
 class TaskSystem
 {
 public:
-    static TaskSystem& GetTaskSystem()
-    {
-        //The only instance
-        //Guaranteed to be lazy initialized
-        //Guaranteed that it will be destroyed correctly
-        static TaskSystem instance;
-        return instance;
-    }
-
-    void Initialize(unsigned int MaxThreads);    
+    static TaskSystem& GetTaskSystem();
+    void Initialize(unsigned int MaxThreads);
     void Shutdown();
+    void SetNumThreads(unsigned int numThreads); 
+    void ResetTaskQueue();
+    unsigned int GetNumThreads();
     void StartDistributing();
     void PausedDistributing();
     void ResumeDistributing();
     void EnqueueTask(Task* task);
     Task* DequeueTask();
-    static int SetNumWorkers(lua_State* pLua);
 
     inline bool QueueIsEmpty()
     {
@@ -43,12 +37,15 @@ public:
     {
         return m_Distributing;
     }
+    
+    //Exposed to lua
+    static int SetNumThreads(lua_State* luaVM);
 
 private:
     TaskSystem(){};
     TaskSystem(TaskSystem const& copy); //Dont implement
     TaskSystem& operator=(TaskSystem const& copy); //Dont Implment;
-    ~TaskSystem();
+    ~TaskSystem(){};
 
 private:
     WorkerThread* m_pWorkerThreads;
@@ -59,13 +56,3 @@ private:
     bool m_Distributing;
 };
 
-//Exposure to lua
-static int SetNumWorkers(lua_State* lua)
-{
-    int error = 0;
-    int numWorkers = 0;
-    TaskSystem* taskSystem = static_cast<TaskSystem*>(lua_touserdata(lua, -2));
-    error = lua_gettop(lua);
-    numWorkers = luaL_checkint(lua,1);
-    return 0;
-}

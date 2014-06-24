@@ -15,6 +15,7 @@ class InputSystem
         LEFT = 0x1e,        //A         Keyboard button
         RIGHT = 0x20,       //D         Keyboard button
         EXIT = 0x01,        //Escape    keyboard button
+        F5KEY = 63,       //F5        Keyboard button 
     };
 
 public:

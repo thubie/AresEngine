@@ -45,6 +45,19 @@ public:
         m_phead = nullptr;
     }
 
+    void ResetQueue()
+    {
+        Node<Type>* current = m_phead;
+        Node<Type>* next;
+        while(current != m_ptail)
+        {
+            next = current->m_pNext;
+            delete current;
+            current = next;
+        }
+        m_phead = m_ptail = new Node<Type>();
+    }
+
     //Enqueue a new node onto the queue 
     void Enqueue(Type object)
     {

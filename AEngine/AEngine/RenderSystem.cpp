@@ -34,8 +34,11 @@ RenderSystem::~RenderSystem()
 void RenderSystem::RegisterGameObjects(std::vector<unsigned int>& gameId)
 {
     unsigned int numGameObjects = gameId.size();
-    unsigned int numObjectsX = 20;
+    unsigned int numObjectsX = sqrtl(numGameObjects);
     unsigned int numObjectsZ = numGameObjects / numObjectsX;
+
+    //clear current gameobjects
+    m_TestWorldTransForms.clear();
 
     m_TestWorldTransForms.reserve(numGameObjects);
     float x,y,z;

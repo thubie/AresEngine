@@ -59,6 +59,14 @@ void AnimationManager::RegisterGameObjects(std::vector<unsigned int>& gameIds)
     unsigned int gameId = 0;
     TaskData taskData;
     Task task;
+    //Clear current registered game objects.
+    m_GameObjectIds.clear();
+    m_AnimationTimes.clear();
+    m_TimeScalers.clear();
+
+    m_FinalTransforms.clear();
+    m_AnimationTaskData.clear();
+    m_AnimationTask.clear();
 
     for(unsigned int i = 0; i < numGameObjects; ++i)
     {
@@ -72,6 +80,15 @@ void AnimationManager::RegisterGameObjects(std::vector<unsigned int>& gameIds)
 
         m_AnimationTaskData.push_back(taskData);
         m_AnimationTask.push_back(task);
+    }
+}
+
+//Change a game objects animation speed
+void AnimationManager::ChangeGameObjectAnimSpeed(unsigned int id, float animSpeed)
+{
+    unsigned int numGameObjects = m_GameObjectIds.size();
+    if(id < numGameObjects) {
+        m_TimeScalers.at(id) = animSpeed;
     }
 }
 
@@ -414,5 +431,24 @@ unsigned int AnimationManager::FindBoneIndex(const aiNode* node)
             return i;
         }
     }
+    return 0;
+}
+
+
+///////////////////////////////////////////////////
+//Lua AnimationSystem Exposed functions
+///////////////////////////////////////////////////
+int AnimationManager::ChangeGameObjectAnimSpeed(lua_State* luaVM)
+{
+    if(!lua_islightuserdata(luaVM, -2))
+    {
+        //check if stack element is userdata
+        //print error message to Visual studio debug output window.
+        bool test = true;
+    }
+    double animSpeed = lua_tonumber(luaVM,-1);
+    unsigned int objectId = lua_tointeger(luaVM,-2);
+    AnimationManager* system = (AnimationManager*)lua_touserdata(luaVM, -3);
+    system->ChangeGameObjectAnimSpeed(objectId, animSpeed);
     return 0;
 }

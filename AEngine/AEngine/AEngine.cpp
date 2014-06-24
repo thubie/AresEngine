@@ -3,7 +3,7 @@
 extern AEngine* appHandle;
 
 AEngine::AEngine()
-{  
+{
     m_pTaskSystem = nullptr;
     m_pRenderSystem = nullptr;
     m_pCamera = nullptr;
@@ -11,7 +11,7 @@ AEngine::AEngine()
     m_pScriptManager = nullptr;
     m_stopped = false;
     m_windowWidth = 1280;
-    m_windowHeight = 720;
+    m_windowHeight = 720;    
 }
 
 AEngine::~AEngine()
@@ -21,28 +21,29 @@ AEngine::~AEngine()
 
 //Initalize the Engine and create subsystems
 bool AEngine::Initialize()
-{ 
+{    
     unsigned int numThreads = 0;
     char currentDir[1024];
     appHandle = this;
     GetCurrentDirectoryA(1024, currentDir);
 
     m_pScriptManager = new ScriptManager(this ,currentDir);
+    ExposeSystems();
     m_pScriptManager->GetConfigSetting(&m_windowWidth, &m_windowHeight, &numThreads);
-    InitializeWin();
+    InitializeWin(m_windowWidth, m_windowHeight);
     
     m_pMessageQueue = new MessageQueue(1024);
     m_pGameTimer = new HRTimer();
     m_pStopWatch = new HRTimer();
 
     m_pTaskSystem = &m_pTaskSystem->GetTaskSystem(); //new TaskSystem();
+    
     if(m_pTaskSystem == nullptr)     
         return false;
 
     m_pTaskSystem->Initialize(numThreads);
     m_pTaskSystem->StartDistributing();
 
-    m_pScriptManager->RegisterTaskSystem();
     m_pInputSystem = new InputSystem(appHandle);
     if(m_pInputSystem == nullptr)
         return false;
@@ -56,34 +57,27 @@ bool AEngine::Initialize()
     m_pCamera = new Camera();
     if(m_pCamera == nullptr)
         return false;
+    
+    //XMFLOAT3 camPosition(30.0f, 200.0f, -200.0f); 
+    //XMFLOAT3 camTarget(450.0f, 30.0f, 450.0f); 
 
-    XMFLOAT3 camPosition(450.0f, 300.0f, 1000.0f); 
-    XMFLOAT3 camTarget(450.0f, 30.0f, 450.0f); 
+    XMFLOAT3 camPosition(-200.0f, 200.0f, -250.0f); 
+    XMFLOAT3 camTarget(600.0f, 30.0f, 450.0f); 
     XMFLOAT3 camUpDir(0.0f, 1.0f, 0.0f); 
 
     m_pCamera->InitCamera(camPosition, camTarget, camUpDir);
     m_pAnimationManager = new AnimationManager(this, currentDir);
     
-    //testing code
-    std::vector<unsigned int> TestGameObjects;
-    for(int i = 0; i < 400; ++i)
-    {
-        TestGameObjects.push_back(i);
-    }
-    //Registering game objects for testing.
-    m_pRenderSystem->RegisterGameObjects(TestGameObjects);
-    m_pAnimationManager->RegisterGameObjects(TestGameObjects);
-    m_CreatedTasks = m_pAnimationManager->CreateAnimationTasks(); 
+    RegisterGameObjects(this,500);
 
     this->m_InitializeState = new InitializeState(this);
     this->m_Runstate = new Runstate(this);
     
     this->m_state = m_InitializeState; 
-
     //Start importing assets
     m_pRenderSystem->SubmitImportingTasks();
     m_pTaskSystem->EnqueueTask(m_pAnimationManager->ImportTask());
-
+    TestSetNumThread = 5.0f;
     return true;
 }
 
@@ -118,6 +112,22 @@ bool AEngine::Shutdown()
     return true;
 }
 
+//Register game objects
+void AEngine::RegisterGameObjects(AEngine* engine,unsigned int numGameObjects)
+{
+    //testing code
+    std::vector<unsigned int> TestGameObjects;
+    for(int i = 0; i < numGameObjects; ++i)
+    {
+        TestGameObjects.push_back(i);
+    }
+    Sleep(200); //Need to find a way to wait for workerthreads to finish their current task and put in pause mode.
+    //Registering game objects.
+    engine->m_pRenderSystem->RegisterGameObjects(TestGameObjects);
+    engine->m_pAnimationManager->RegisterGameObjects(TestGameObjects);
+    engine->m_CreatedTasks = m_pAnimationManager->CreateAnimationTasks();
+}
+
 //Submit message to message queue
 void AEngine::SubmitMessage(Message message)
 {
@@ -139,7 +149,7 @@ void AEngine::Run()
         {
             if (!m_stopped) 
             {
-                m_pScriptManager->SetRuntimeSetting(); //Need to change this to listen to new script message
+                //m_pScriptManager->SetRuntimeSetting(); //Need to change this to listen to new script message
                 ProcessMessageQueue();
                 Sleep(1);              
             }
@@ -149,34 +159,44 @@ void AEngine::Run()
     Shutdown();   
 }
 
+//Change to the Runstate
 void AEngine::ChangeToRunstate()
-{
+{   
     m_state = m_Runstate;
-    m_pGameTimer->Start();
+    m_pStopWatch->Start();
     m_pAnimationManager->UpdateAnimationTime(0.0f);
     SubmitAnimationTasks(m_CreatedTasks);
 }
 
+//Render the world
 void AEngine::RenderWorld()
 {
     m_pStopWatch->Stop();
     float frameTime = m_pStopWatch->GetElapsedAsSeconds();
-    frameTime *= 1000.0f;
-    SetWindowTitle(frameTime);
+    frameTime *= 1000.0f; //change seconds to ms
+    unsigned int numThreads = m_pTaskSystem->GetNumThreads();
+    SetWindowTitle(frameTime, numThreads);
     XMMATRIX* pView = m_pCamera->GetViewMatrix();
     XMMATRIX* pProjection = m_pCamera->GetProjectionMatrix();
     std::vector<SkeletonCBufferData>* pFinalTransforms = m_pAnimationManager->GetFinalTransforms();
     m_pRenderSystem->RenderScene(pView, pProjection, pFinalTransforms);
 }
 
+//Update the animation state of the game objects.
 void AEngine::AnimateWorld()
 {
-    float deltaTime = (float)m_pGameTimer->GetDeltaTime();
+    volatile float deltaTime = m_pStopWatch->GetDeltaTime();
     XMVECTOR userInput = m_pInputSystem->GetUserInput(deltaTime);
     m_pCamera->UpdateViewMatrix(userInput);
     m_pAnimationManager->UpdateAnimationTime(deltaTime);
     SubmitAnimationTasks(m_CreatedTasks);
     m_pStopWatch->Start();
+}
+
+//Execute run time script.
+void AEngine::RuntimeScript()
+{
+    m_pScriptManager->SetRuntimeSetting();
 }
 
 //Process the MessageQueue
@@ -186,10 +206,10 @@ void AEngine::ProcessMessageQueue()
 }
 
 //Set the window title
-void AEngine::SetWindowTitle(float animTime)
+void AEngine::SetWindowTitle(float animTime, unsigned int numThreads)
 {
     char titleStats[512]; 
-    sprintf_s(titleStats,"AresEngine animTime: %f ms", animTime);
+    sprintf_s(titleStats,"AresEngine animTime: %f ms Number of threads active: %u", animTime, numThreads);
     SetWindowTextA(m_hwnd,titleStats);
 }
 
@@ -216,7 +236,7 @@ TaskSystem* AEngine::GetTaskSystem()
 }
 
 //Innitialize the Window
-void AEngine::InitializeWin()
+void AEngine::InitializeWin(int width, int heigh)
 {
     WNDCLASS wc;
     int posX,posY;
@@ -260,6 +280,33 @@ void AEngine::InitializeWin()
     SetFocus(m_hwnd);
 }
 
+//Expose the sub systems to lua
+void AEngine::ExposeSystems()
+{
+    luaL_Reg worldFunctions [] = {
+        {"RegisterGameObjects", RegisterGameObjects},
+        {"GetAnimationSystem", GetAnimationSystem},
+        {"GetTaskSystem", GetTaskSystem},
+        {NULL, NULL}
+    };
+
+    luaL_Reg TaskSystemFunctions [] = 
+    {
+        {"SetNumWorkerThreads", TaskSystem::SetNumThreads},
+        {NULL, NULL}
+    };
+
+    luaL_Reg AnimationSystemFunctions [] = 
+    {
+        {"ChangeGameObjectAnimSpeed", AnimationManager::ChangeGameObjectAnimSpeed},
+        {NULL, NULL}
+    };
+
+    m_pScriptManager->LuaOpenLibrary(worldFunctions, "WorldLib");
+    m_pScriptManager->LuaOpenLibrary(TaskSystemFunctions, "TaskSystemLib");
+    m_pScriptManager->LuaOpenLibrary(AnimationSystemFunctions, "AnimationSystemLib");
+}
+
 //Windows message processing
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
@@ -296,4 +343,40 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
             return DefWindowProc(hwnd, msg, wparam, lparam);
         }
     }
+}
+
+///////////////////////////////////////////////////
+//Lua AEgine exposed functions
+///////////////////////////////////////////////////
+
+//Function called from lua.
+int AEngine::RegisterGameObjects(lua_State* luaVM)
+{
+    //check if stack element is userdata
+    if(!lua_islightuserdata(luaVM, -2))
+    {
+        
+        //print error message to Visual studio debug output window.
+        bool test = true;
+    }
+    unsigned int numGameObjects = lua_tointeger(luaVM,-1);
+    AEngine* engine = (AEngine*)lua_touserdata(luaVM, -2);
+    engine->RegisterGameObjects(engine, numGameObjects);
+    return 0;
+}
+
+//Returns the m_pAnimationSystem as (void*)light user data to lua
+int AEngine::GetAnimationSystem(lua_State* luaVM)
+{
+    AEngine* engine = (AEngine*)lua_touserdata(luaVM, -1);
+    lua_pushlightuserdata(luaVM, (void*) engine->m_pAnimationManager);
+    return 1;
+}
+
+//Returns the m_pTaskSystem as (void*)light user data to lua
+int AEngine::GetTaskSystem(lua_State* luaVM)
+{
+    AEngine* engine = (AEngine*)lua_touserdata(luaVM, -1);
+    lua_pushlightuserdata(luaVM, (void*) engine->m_pTaskSystem);
+    return 1;
 }

@@ -15,27 +15,14 @@ class ScriptManager
 public:
     ScriptManager(AEngine* pEngine, const char* currentDir);
     ~ScriptManager();
+    int LuaOpenLibrary(const luaL_reg* libraryfunctions, const char* libraryName);
     void GetConfigSetting(unsigned int* widthWindow, unsigned int* heighWindow, unsigned int* numCores);
     void SetRuntimeSetting();
-    void RegisterTaskSystem();
 private:
     void Runscript();
-    static int GetTaskSystem(lua_State* lua);
 private:
-    lua_State* m_pLua;
+    lua_State* m_pLuaVM;
     AEngine* m_pEngine;
     char* m_pConfigScript;
     char* m_pRuntimeConfigScript;
-};
-
-static const luaL_reg TaskSystem_funcs[] =
-{
-    {"GetTaskSystem", GetTaskSystem},
-    {NULL, NULL}
-};
-
-static const luaL_reg TaskSystem_methods[] = 
-{
-    {"SetNUmWorkers", SetNumWorkers},
-    {NULL, NULL}
 };

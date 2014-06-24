@@ -95,7 +95,9 @@ void InputSystem::ProcessKeyboardInput(RAWINPUT* keyboardInput)
 {
     unsigned short makeCode = keyboardInput->data.keyboard.MakeCode;
     unsigned short flags = keyboardInput->data.keyboard.Flags;
-
+    wchar_t debugString[1024];
+    swprintf(debugString, 1024, L"MakeCode: %u \n", makeCode);
+    OutputDebugString(debugString);
     switch(makeCode)
     {
         case FORWARD:
@@ -141,6 +143,12 @@ void InputSystem::ProcessKeyboardInput(RAWINPUT* keyboardInput)
             break;
         }
             
+        case F5KEY:
+        {
+            this->m_pAEngine->RuntimeScript();
+            break;
+        }
+
         case EXIT:
         {
             PostQuitMessage(0);

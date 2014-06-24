@@ -1,2 +1,1 @@
-testTask = TaskSystem:GetTaskSystem()
-testTask:SetNumWorkers(6) 
+WorldLib.RegisterGameObjects(World, 40);

@@ -1,25 +1,24 @@
 #include"AEngine.h"
 
-
+class AEngine;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pSCmdLine,int iCmdShow)
 {
-    
     bool result;
-    AEngine* pAEngine;
-
+    
     //Create the app object
-    pAEngine = new AEngine();
+    AEngine* engine;
+    engine = new AEngine();
 
-    if(!pAEngine)
+    if(!engine)
         return 0;
 
     //Intialize and check it then run
-    result = pAEngine->Initialize();
+    result = engine->Initialize();
 
     if(result)
     {
-        pAEngine->Run();
+        engine->Run();
     }
 
     return 0;

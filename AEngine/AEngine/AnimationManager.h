@@ -18,10 +18,14 @@ public:
     ~AnimationManager();
 
     Task* ImportTask();
-    unsigned int CreateAnimationTasks(); //Returns the amount of animation task created   
+    unsigned int CreateAnimationTasks(); //Returns the amount of animation task created
+    void ChangeGameObjectAnimSpeed(unsigned int id, float animSpeed);
     void UpdateAnimationTime(float elapsedTime);
     void RegisterGameObjects(std::vector<unsigned int>& gameId);
     std::vector<SkeletonCBufferData>* GetFinalTransforms(); 
+
+    //Exposed to lua
+    static int ChangeGameObjectAnimSpeed(lua_State* luaVM);
 
 private:
     static void ImportAnimation(TaskData* pData, void* thisPointer);
